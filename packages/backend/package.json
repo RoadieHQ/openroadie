@@ -1,0 +1,47 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "main": "dist/index.cjs.js",
+  "types": "src/index.ts",
+  "license": "Apache-2.0",
+  "private": true,
+  "roadie": {
+    "role": "backend"
+  },
+  "engines": {
+    "node": "22 || 24"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "tsx watch src/index.ts",
+    "lint": "eslint src/",
+    "test": "vitest run --passWithNoTests",
+    "test:ci": "vitest run --passWithNoTests --coverage",
+    "clean": "node scripts/clean.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.696.0",
+    "@aws-sdk/lib-dynamodb": "^3.696.0",
+    "@roadiehq/ai-backend": "workspace:^",
+    "@roadiehq/backend-defaults": "workspace:^",
+    "@roadiehq/capabilities-backend": "workspace:^",
+    "@roadiehq/catalog-datastore-backend": "workspace:^",
+    "@roadiehq/catalog-workflow-backend": "workspace:^",
+    "@roadiehq/integrations-backend": "workspace:^",
+    "@roadiehq/mcp-actions-module": "workspace:^",
+    "@roadiehq/mcp-catalog-datastore-module": "workspace:^",
+    "@roadiehq/mcp-settings-backend": "workspace:^",
+    "@roadiehq/roadie-mcp-server": "workspace:^",
+    "@roadiehq/secrets-settings-backend": "workspace:^",
+    "@roadiehq/workspaces-backend": "workspace:^",
+    "express": "^4.17.1",
+    "knex": "^2.4.0",
+    "pg-format": "^1.0.4"
+  },
+  "devDependencies": {
+    "@roadiehq/backend-test-utils": "workspace:^",
+    "esbuild": "^0.28.1",
+    "tsx": "^4.19.0",
+    "vitest": "^4.1.11"
+  }
+}

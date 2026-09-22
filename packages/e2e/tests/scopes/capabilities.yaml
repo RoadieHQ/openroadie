@@ -1,0 +1,126 @@
+# Scope enforcement for the Capabilities REST API and MCP tools.
+
+api:
+  # --- capability:query (family list + search) ---
+  - method: get
+    url: /api/capabilities
+    scopes: ['capability:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/capabilities
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: get
+    url: /api/capabilities
+    scopes: ['capability:query:nonexistent']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/capabilities/search
+    scopes: ['capability:query']
+    expectations: { status: { operator: '!=', value: 403 } }
+
+  # --- capability:get ---
+  - method: get
+    url: /api/capabilities/00000000-0000-0000-0000-000000000000
+    scopes: ['capability:get']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: get
+    url: /api/capabilities/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- capability:create ---
+  - method: post
+    url: /api/capabilities
+    body: {}
+    scopes: ['capability:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/capabilities
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- capability:create (PUT replace / PATCH merge) ---
+  - method: put
+    url: /api/capabilities/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['capability:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: put
+    url: /api/capabilities/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: patch
+    url: /api/capabilities/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['capability:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: patch
+    url: /api/capabilities/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- capability:delete ---
+  - method: delete
+    url: /api/capabilities/00000000-0000-0000-0000-000000000000
+    scopes: ['capability:delete']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: delete
+    url: /api/capabilities/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- capability:create (version restore mutates the capability) ---
+  - method: post
+    url: /api/capabilities/00000000-0000-0000-0000-000000000000/versions/1/restore
+    scopes: ['capability:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/capabilities/00000000-0000-0000-0000-000000000000/versions/1/restore
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+mcp:
+  # --- capability:query (family) ---
+  - tool: list-capabilities
+    scopes: ['capability:query']
+    expectations: { listed: true, isError: false }
+  - tool: list-capabilities
+    scopes: []
+    expectations: { listed: false, isError: true }
+  - tool: search-capabilities
+    args: { query: 'x' }
+    scopes: ['capability:query']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+
+  # --- capability:get ---
+  - tool: get-capability
+    args: { identifier: 'missing' }
+    scopes: ['capability:get']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: get-capability
+    args: { identifier: 'missing' }
+    scopes: []
+    expectations: { listed: false, isError: true }
+  # Per-instance get (target-narrowed via scopeTarget): a grant narrowed to
+  # cap_1 may fetch cap_1 by slug...
+  - tool: get-capability
+    args: { id: '{{cap_1.slug}}' }
+    scopes: ['capability:get:{{cap_1.slug}}']
+    expectations: { contentExcludes: ['insufficient scope'] }
+  # ...but not cap_2 (admitted by family visibility, denied at call time).
+  - tool: get-capability
+    args: { id: '{{cap_2.slug}}' }
+    scopes: ['capability:get:{{cap_1.slug}}']
+    expectations: { isError: true, contentIncludes: ['insufficient scope'] }
+
+  # --- capability:create ---
+  - tool: create-capability
+    scopes: ['capability:create']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: create-capability
+    scopes: []
+    expectations: { listed: false, isError: true }

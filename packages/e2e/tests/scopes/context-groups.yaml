@@ -1,0 +1,161 @@
+# Scope enforcement for the context-groups REST API (under catalog-datastore)
+# and the get-context-bundle MCP tool.
+
+api:
+  # --- context-group:query (family) ---
+  - method: get
+    url: /api/catalog-datastore/context-groups/rules
+    scopes: ['context-group:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/catalog-datastore/context-groups/rules
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: get
+    url: /api/catalog-datastore/context-groups/rules
+    scopes: ['context-group:query:nonexistent']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/catalog-datastore/context-groups/groups
+    scopes: ['context-group:query']
+    expectations: { status: 200 }
+
+  # --- context-group:create ---
+  - method: post
+    url: /api/catalog-datastore/context-groups/rules
+    body: {}
+    scopes: ['context-group:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-datastore/context-groups/rules
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- context-group:create (PUT replace / PATCH merge) ---
+  - method: put
+    url: /api/catalog-datastore/context-groups/rules/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['context-group:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: put
+    url: /api/catalog-datastore/context-groups/rules/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: patch
+    url: /api/catalog-datastore/context-groups/rules/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['context-group:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: patch
+    url: /api/catalog-datastore/context-groups/rules/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- context-group:delete ---
+  - method: delete
+    url: /api/catalog-datastore/context-groups/rules/00000000-0000-0000-0000-000000000000
+    scopes: ['context-group:delete']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: delete
+    url: /api/catalog-datastore/context-groups/rules/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- context-group:dry-run (preview) ---
+  - method: post
+    url: /api/catalog-datastore/context-groups/preview
+    body: {}
+    scopes: ['context-group:dry-run']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-datastore/context-groups/preview
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- context-group:execute (materialize) ---
+  - method: post
+    url: /api/catalog-datastore/context-groups/rules/00000000-0000-0000-0000-000000000000/materialize
+    body: {}
+    scopes: ['context-group:execute']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-datastore/context-groups/rules/00000000-0000-0000-0000-000000000000/materialize
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  # Per-instance execute: a grant narrowed to cg_1 may materialize cg_1...
+  - method: post
+    url: /api/catalog-datastore/context-groups/rules/{{cg_1.id}}/materialize
+    body: {}
+    scopes: ['context-group:execute:{{cg_1.slug}}']
+    expectations: { status: { operator: '!=', value: 403 } }
+  # ...but not cg_2 (admitted by the family guard, denied by the handler).
+  - method: post
+    url: /api/catalog-datastore/context-groups/rules/{{cg_2.id}}/materialize
+    body: {}
+    scopes: ['context-group:execute:{{cg_1.slug}}']
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- context-group:query: rule → groups listing (slug or UUID) ---
+  # Family grant lists a rule's groups by UUID...
+  - method: get
+    url: /api/catalog-datastore/context-groups/rules/{{cg_1.id}}/groups
+    scopes: ['context-group:query']
+    expectations: { status: 200 }
+  # ...and by human-readable slug (the fix — parity with get-capability).
+  - method: get
+    url: /api/catalog-datastore/context-groups/rules/{{cg_1.slug}}/groups
+    scopes: ['context-group:query']
+    expectations: { status: 200 }
+  # No scope → family guard denies.
+  - method: get
+    url: /api/catalog-datastore/context-groups/rules/{{cg_1.id}}/groups
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  # A grant narrowed to cg_1 may list cg_1's groups...
+  - method: get
+    url: /api/catalog-datastore/context-groups/rules/{{cg_1.id}}/groups
+    scopes: ['context-group:query:{{cg_1.slug}}']
+    expectations: { status: 200 }
+  # ...but not cg_2's — 404 (existence not leaked): admitted by the family
+  # guard, denied by the handler's rule-slug check.
+  - method: get
+    url: /api/catalog-datastore/context-groups/rules/{{cg_2.id}}/groups
+    scopes: ['context-group:query:{{cg_1.slug}}']
+    expectations: { status: 404 }
+  # An unresolved slug 404s (fall-through guard) — never degrades to "list all".
+  - method: get
+    url: /api/catalog-datastore/context-groups/rules/definitely-not-a-rule/groups
+    scopes: ['context-group:query']
+    expectations: { status: 404 }
+
+mcp:
+  # --- context-group:query (family) ---
+  - tool: get-context-bundle
+    args: { groupId: 'missing' }
+    scopes: ['context-group:query']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: get-context-bundle
+    args: { groupId: 'missing' }
+    scopes: []
+    expectations: { listed: false, isError: true }
+  # A slug handed to get-context-bundle short-circuits with an actionable
+  # pointer to list-context-groups (not an opaque 400).
+  - tool: get-context-bundle
+    args: { groupId: 'some-context-group-slug' }
+    scopes: ['context-group:query']
+    expectations:
+      { listed: true, isError: true, contentIncludes: ['list-context-groups'] }
+  # --- list-context-groups (context-group:query family) ---
+  - tool: list-context-groups
+    args: { rule: '{{cg_1.slug}}' }
+    scopes: ['context-group:query']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: list-context-groups
+    args: { rule: '{{cg_1.slug}}' }
+    scopes: []
+    expectations: { listed: false, isError: true }

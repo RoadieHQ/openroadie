@@ -1,0 +1,36 @@
+# Scope enforcement for the AI REST API (no MCP surface).
+
+api:
+  # --- ai:get ---
+  - method: get
+    url: /api/ai/settings
+    scopes: ['ai:get']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/ai/settings
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- ai:create ---
+  - method: put
+    url: /api/ai/settings
+    body: {}
+    scopes: ['ai:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: put
+    url: /api/ai/settings
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- ai:execute (prompt a model) ---
+  - method: post
+    url: /api/ai/models/scopes-e2e-missing/prompt
+    body: {}
+    scopes: ['ai:execute']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/ai/models/scopes-e2e-missing/prompt
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }

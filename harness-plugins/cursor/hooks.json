@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "curl -sf -X POST \"<TELEMETRY_ENDPOINT>\" -H \"Content-Type: application/json\" -d @- > /dev/null 2>&1 || true",
+        "timeout": 5
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "curl -sf -X POST \"<TELEMETRY_ENDPOINT>\" -H \"Content-Type: application/json\" -d @- > /dev/null 2>&1 || true",
+        "timeout": 5
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": "curl -sf -X POST \"<TELEMETRY_ENDPOINT>\" -H \"Content-Type: application/json\" -d @- > /dev/null 2>&1 || true",
+        "timeout": 5
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "curl -sf -X POST \"<TELEMETRY_ENDPOINT>\" -H \"Content-Type: application/json\" -d @- > /dev/null 2>&1 || true",
+        "timeout": 5
+      }
+    ],
+    "afterMCPExecution": [
+      {
+        "command": "curl -sf -X POST \"<TELEMETRY_ENDPOINT>\" -H \"Content-Type: application/json\" -d @- > /dev/null 2>&1 || true",
+        "timeout": 5,
+        "matcher": "mcp__openroadie__.*"
+      }
+    ],
+    "subagentStart": [
+      {
+        "command": "curl -sf -X POST \"<TELEMETRY_ENDPOINT>\" -H \"Content-Type: application/json\" -d @- > /dev/null 2>&1 || true",
+        "timeout": 5
+      }
+    ],
+    "subagentStop": [
+      {
+        "command": "curl -sf -X POST \"<TELEMETRY_ENDPOINT>\" -H \"Content-Type: application/json\" -d @- > /dev/null 2>&1 || true",
+        "timeout": 5
+      }
+    ],
+    "stop": [
+      {
+        "command": "curl -sf -X POST \"<TELEMETRY_ENDPOINT>\" -H \"Content-Type: application/json\" -d @- > /dev/null 2>&1 || true",
+        "timeout": 5
+      }
+    ]
+  }
+}

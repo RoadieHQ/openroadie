@@ -1,0 +1,67 @@
+module.exports = [
+  {
+    name: 'Wiz project → enriched issues',
+    description:
+      'Links Wiz projects to enriched issue records that reference each project.',
+    sourceSeedName: 'Wiz projects',
+    targetSeedName: 'Wiz issues enriched',
+    strategy: 'field-matching',
+    matchStrategy: 'array_contains',
+    sourceFieldExpression: 'id',
+    targetFieldExpression: 'projects.id',
+    relationshipType: 'hasIssue',
+    reciprocalRelationshipType: 'issueOf',
+  },
+  {
+    name: 'Wiz enriched issue → threat detection details',
+    description:
+      'Links enriched Wiz issues to their threat-detection detail records.',
+    sourceSeedName: 'Wiz issues enriched',
+    targetSeedName: 'Wiz issue threat detection details',
+    strategy: 'field-matching',
+    matchStrategy: 'exact',
+    sourceFieldExpression: 'id',
+    targetFieldExpression: 'id',
+    relationshipType: 'hasThreatDetectionDetails',
+    reciprocalRelationshipType: 'detailsOfIssue',
+  },
+  {
+    name: 'Wiz project → cloud resources',
+    description:
+      'Links Wiz projects to cloud resources that list the project on their graph entity.',
+    sourceSeedName: 'Wiz projects',
+    targetSeedName: 'Wiz cloud resources',
+    strategy: 'field-matching',
+    matchStrategy: 'array_contains',
+    sourceFieldExpression: 'id',
+    targetFieldExpression: 'graphEntity.projects.id',
+    relationshipType: 'hasCloudResource',
+    reciprocalRelationshipType: 'cloudResourceOf',
+  },
+  {
+    name: 'Wiz cloud resource → vulnerability findings',
+    description:
+      'Links Wiz cloud resources to vulnerability findings for the same provider resource.',
+    sourceSeedName: 'Wiz cloud resources',
+    targetSeedName: 'Wiz vulnerability findings',
+    strategy: 'field-matching',
+    matchStrategy: 'exact',
+    sourceFieldExpression: 'graphEntity.providerUniqueId',
+    targetFieldExpression: 'vulnerableAsset.providerUniqueId',
+    relationshipType: 'hasVulnerabilityFinding',
+    reciprocalRelationshipType: 'findingAffectsCloudResource',
+  },
+  {
+    name: 'Wiz cloud resource → threat detection details',
+    description:
+      'Links Wiz cloud resources to threat-detection detail records that mention the resource.',
+    sourceSeedName: 'Wiz cloud resources',
+    targetSeedName: 'Wiz issue threat detection details',
+    strategy: 'field-matching',
+    matchStrategy: 'array_contains',
+    sourceFieldExpression: 'graphEntity.providerUniqueId',
+    targetFieldExpression: 'threatDetectionDetails.resources.providerUniqueId',
+    relationshipType: 'hasThreatDetectionDetails',
+    reciprocalRelationshipType: 'detailsMentionCloudResource',
+  },
+];

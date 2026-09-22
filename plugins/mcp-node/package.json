@@ -1,0 +1,36 @@
+{
+  "name": "@roadiehq/plugin-mcp-node",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "description": "Node.js library for the mcp plugin",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.cjs.js",
+    "types": "dist/index.d.ts"
+  },
+  "roadie": {
+    "role": "node-library"
+  },
+  "scripts": {
+    "build": "roadie-cli package build",
+    "lint": "roadie-cli package lint",
+    "test": "vitest run",
+    "test:ci": "vitest run --passWithNoTests --coverage",
+    "clean": "roadie-cli package clean",
+    "prepack": "roadie-cli package prepack",
+    "postpack": "roadie-cli package postpack"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@roadiehq/ai-node": "workspace:^",
+    "@roadiehq/errors": "workspace:^"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.11"
+  }
+}

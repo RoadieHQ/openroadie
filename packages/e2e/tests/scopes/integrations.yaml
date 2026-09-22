@@ -1,0 +1,154 @@
+# Scope enforcement for the Integrations REST API and MCP tools.
+
+api:
+  # --- integration:query (family list at GET /) ---
+  - method: get
+    url: /api/integrations
+    scopes: ['integration:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/integrations
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  # Narrowed family grant still admits the list (rows filtered downstream).
+  - method: get
+    url: /api/integrations
+    scopes: ['integration:query:nonexistent']
+    expectations: { status: 200 }
+  # A plain (non-family) query route requires the un-narrowed scope.
+  - method: get
+    url: /api/integrations/logos
+    scopes: ['integration:query']
+    expectations: { status: 200 }
+
+  # --- integration:get ---
+  - method: get
+    url: /api/integrations/00000000-0000-0000-0000-000000000000
+    scopes: ['integration:get']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: get
+    url: /api/integrations/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- integration:execute (proxy) ---
+  - method: get
+    url: /api/integrations/00000000-0000-0000-0000-000000000000/proxy
+    scopes: ['integration:execute']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: get
+    url: /api/integrations/00000000-0000-0000-0000-000000000000/proxy
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- integration:create ---
+  - method: post
+    url: /api/integrations
+    body: {}
+    scopes: ['integration:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/integrations
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- integration:create (PUT replace / PATCH merge) ---
+  - method: put
+    url: /api/integrations/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['integration:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: put
+    url: /api/integrations/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: patch
+    url: /api/integrations/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['integration:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: patch
+    url: /api/integrations/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- integration:delete ---
+  - method: delete
+    url: /api/integrations/00000000-0000-0000-0000-000000000000
+    scopes: ['integration:delete']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: delete
+    url: /api/integrations/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # The integration delete guard's cross-plugin probes. Guarded by
+  # `integration:delete` rather than each owning plugin's query scope, so a
+  # token narrowed to `integration:delete` can still complete a delete.
+  - method: get
+    url: /api/catalog-workflow/workflows/integration-usage/00000000-0000-0000-0000-000000000000
+    scopes: ['integration:delete']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/catalog-workflow/workflows/integration-usage/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: get
+    url: /api/actions/integration-usage/00000000-0000-0000-0000-000000000000
+    scopes: ['integration:delete']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/actions/integration-usage/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: get
+    url: /api/catalog-datastore/relationship-rules/integration-usage/00000000-0000-0000-0000-000000000000
+    scopes: ['integration:delete']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/catalog-datastore/relationship-rules/integration-usage/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+mcp:
+  # --- integration:query (family) ---
+  - tool: list-integrations
+    scopes: ['integration:query']
+    expectations: { listed: true, isError: false }
+  - tool: list-integrations
+    scopes: []
+    expectations: { listed: false, isError: true }
+  - tool: list-integrations
+    scopes: ['integration:query:nonexistent']
+    expectations: { listed: true, isError: false }
+
+  # --- integration:create ---
+  - tool: create-integration
+    scopes: ['integration:create']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: create-integration
+    scopes: []
+    expectations: { listed: false, isError: true }
+
+  # --- integration:execute ---
+  - tool: integration-request-http
+    args:
+      {
+        integrationId: '00000000-0000-0000-0000-000000000000',
+        method: 'GET',
+        path: '/',
+      }
+    scopes: ['integration:execute']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: integration-request-http
+    args:
+      {
+        integrationId: '00000000-0000-0000-0000-000000000000',
+        method: 'GET',
+        path: '/',
+      }
+    scopes: []
+    expectations: { listed: false, isError: true }

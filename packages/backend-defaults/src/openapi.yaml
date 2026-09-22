@@ -1,0 +1,5724 @@
+openapi: 3.1.0
+info:
+  title: Roadie Backend API
+  version: 1.0.0
+  description: >
+    Comprehensive API specification for the Roadie backend,
+    covering catalog workflows, executions, integrations, datastore,
+    secrets, feature flags, permissions, and AI.
+
+servers:
+  - url: /api
+    description: Backend API base path
+
+security:
+  - ServiceToken: []
+
+tags:
+  - name: catalog-workflow
+    description: Workflow management — CRUD, execution, dry-run, scheduling
+  - name: catalog-workflow-executions
+    description: Execution management — list, stream, cancel, retry, logs
+  - name: catalog-workflow-nodes
+    description: Node type registry
+  - name: catalog-workflow-graph-layouts
+    description: Persisted graph layout positions
+  - name: catalog-workflow-jsonata-assist
+    description: AI-assisted JSONata expression generation
+  - name: integrations
+    description: Integration management — CRUD, proxied requests, logos
+  - name: integration-schemas
+    description: Integration response-schema management
+  - name: catalog-datastore
+    description: Datastore object CRUD and querying
+  - name: catalog-datastore-schemas
+    description: Datastore schema versions and relationship suggestions
+  - name: catalog-datastore-indexes
+    description: Index configuration management
+  - name: catalog-datastore-relationships
+    description: Object relationship CRUD
+  - name: catalog-datastore-relationship-rules
+    description: Relationship rule management and lifecycle
+  - name: catalog-datastore-search
+    description: Full-text search across datastore objects
+  - name: secrets-settings
+    description: Secret key management and metadata
+  - name: permission
+    description: Role, policy, and user-role management
+  - name: ai
+    description: AI agent invocation and usage metering
+  - name: workspaces
+    description: Tenant workspaces — the boundary catalog data belongs to
+
+# ---------------------------------------------------------------------------
+# PATHS
+# ---------------------------------------------------------------------------
+paths:
+  # ==========================================================================
+  # CATALOG-WORKFLOW — Workflows
+  # ==========================================================================
+  /catalog-workflow/workflows:
+    get:
+      operationId: listWorkflows
+      tags: [catalog-workflow]
+      summary: List workflows
+      parameters:
+        - name: enabled
+          in: query
+          schema:
+            type: string
+            enum: ['true', 'false']
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: workflowType
+          in: query
+          schema:
+            $ref: '#/components/schemas/WorkflowType'
+      responses:
+        '200':
+          description: Paginated workflow list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, total, offset, limit]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkflowDefinition'
+                  total:
+                    type: integer
+                  offset:
+                    type: integer
+                  limit:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      operationId: createWorkflow
+      tags: [catalog-workflow]
+      summary: Create a workflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkflowInput'
+      responses:
+        '201':
+          description: Created workflow
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WorkflowDefinition'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-workflow/workflows/dry-run:
+    post:
+      operationId: dryRunWorkflow
+      tags: [catalog-workflow]
+      summary: Execute a workflow dry-run without persisting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nodes, edges]
+              properties:
+                name:
+                  type: string
+                workflowType:
+                  $ref: '#/components/schemas/WorkflowType'
+                nodes:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/WorkflowNode'
+                edges:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/WorkflowEdge'
+                inputs: {}
+                previewLimit:
+                  type: integer
+                  minimum: 1
+      responses:
+        '202':
+          description: Execution accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionAccepted'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-workflow/workflows/{id}:
+    parameters:
+      - $ref: '#/components/parameters/WorkflowId'
+    get:
+      operationId: getWorkflow
+      tags: [catalog-workflow]
+      summary: Get a workflow by ID
+      responses:
+        '200':
+          description: Workflow detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WorkflowDefinition'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateWorkflow
+      tags: [catalog-workflow]
+      summary: Update a workflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkflowInput'
+      responses:
+        '200':
+          description: Updated workflow
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WorkflowDefinition'
+    patch:
+      operationId: updateWorkflowPartial
+      tags: [catalog-workflow]
+      summary: Update some fields of a workflow
+      description: Writes only the keys the body carries. The merging verb.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateWorkflowInput' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { type: object }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteWorkflow
+      tags: [catalog-workflow]
+      summary: Delete a workflow
+      responses:
+        '200':
+          description: Deletion confirmation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /catalog-workflow/workflows/{id}/schedule:
+    parameters:
+      - $ref: '#/components/parameters/WorkflowId'
+    get:
+      operationId: getWorkflowSchedule
+      tags: [catalog-workflow]
+      summary: Get schedule info for a workflow
+      responses:
+        '200':
+          description: Schedule info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+
+  /catalog-workflow/workflows/{id}/duplicate:
+    parameters:
+      - $ref: '#/components/parameters/WorkflowId'
+    post:
+      operationId: duplicateWorkflow
+      tags: [catalog-workflow]
+      summary: Duplicate a workflow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Duplicated workflow
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WorkflowDefinition'
+
+  /catalog-workflow/workflows/{id}/execute:
+    parameters:
+      - $ref: '#/components/parameters/WorkflowId'
+    post:
+      operationId: executeWorkflow
+      tags: [catalog-workflow]
+      summary: Request an immediate run of a workflow
+      responses:
+        '200':
+          description: The started or already in-flight execution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionAccepted'
+        '503':
+          description: Run was requested but no dispatcher started it in time
+
+  /catalog-workflow/workflows/{id}/executions/latest:
+    parameters:
+      - $ref: '#/components/parameters/WorkflowId'
+    get:
+      operationId: getLatestWorkflowExecution
+      tags: [catalog-workflow]
+      summary: Get the latest execution for a workflow
+      responses:
+        '200':
+          description: Latest execution
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WorkflowExecution'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /catalog-workflow/workflows/{id}/executions:
+    parameters:
+      - $ref: '#/components/parameters/WorkflowId'
+    get:
+      operationId: listWorkflowExecutions
+      tags: [catalog-workflow]
+      summary: List executions for a specific workflow
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ExecutionStatus'
+        - name: triggerType
+          in: query
+          schema:
+            $ref: '#/components/schemas/TriggerType'
+        - name: createdAfter
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: createdBefore
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Paginated execution list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, total, offset, limit]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkflowExecution'
+                  total:
+                    type: integer
+                  offset:
+                    type: integer
+                  limit:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ==========================================================================
+  # CATALOG-WORKFLOW — Executions (top-level)
+  # ==========================================================================
+  /catalog-workflow/executions:
+    get:
+      operationId: listExecutions
+      tags: [catalog-workflow-executions]
+      summary: List all executions (cross-workflow)
+      parameters:
+        - name: workflowId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: triggerType
+          in: query
+          schema:
+            type: string
+        - name: createdAfter
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: createdBefore
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: Paginated execution list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, total, offset, limit]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkflowExecution'
+                  total:
+                    type: integer
+                  offset:
+                    type: integer
+                  limit:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-workflow/executions/latest-summaries:
+    post:
+      operationId: getLatestExecutionSummaries
+      tags: [catalog-workflow-executions]
+      summary: Get latest execution summaries for a batch of workflows
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [workflowIds]
+              properties:
+                workflowIds:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Summaries keyed by workflow ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LatestExecutionSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-workflow/executions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ExecutionId'
+    get:
+      operationId: getExecution
+      tags: [catalog-workflow-executions]
+      summary: Get an execution by ID
+      responses:
+        '200':
+          description: Execution detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WorkflowExecution'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /catalog-workflow/executions/{id}/stream:
+    parameters:
+      - $ref: '#/components/parameters/ExecutionId'
+    get:
+      operationId: streamExecution
+      tags: [catalog-workflow-executions]
+      summary: Stream execution events via SSE
+      responses:
+        '200':
+          description: SSE event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /catalog-workflow/executions/{id}/cancel:
+    parameters:
+      - $ref: '#/components/parameters/ExecutionId'
+    post:
+      operationId: cancelExecution
+      tags: [catalog-workflow-executions]
+      summary: Cancel a running execution
+      responses:
+        '200':
+          description: Cancellation confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-workflow/executions/{id}/retry:
+    parameters:
+      - $ref: '#/components/parameters/ExecutionId'
+    post:
+      operationId: retryExecution
+      tags: [catalog-workflow-executions]
+      summary: Retry a failed execution
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dryRun:
+                  type: boolean
+                inputs: {}
+      responses:
+        '202':
+          description: Retry accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionAccepted'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-workflow/executions/{id}/request-logs:
+    parameters:
+      - $ref: '#/components/parameters/ExecutionId'
+    get:
+      operationId: getExecutionRequestLogs
+      tags: [catalog-workflow-executions]
+      summary: Get HTTP request logs for an execution
+      responses:
+        '200':
+          description: Request logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkflowRequestLog'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-workflow/executions/{id}/logs:
+    parameters:
+      - $ref: '#/components/parameters/ExecutionId'
+    get:
+      operationId: getExecutionLogs
+      tags: [catalog-workflow-executions]
+      summary: Get execution logs
+      parameters:
+        - name: nodeId
+          in: query
+          schema:
+            type: string
+        - name: level
+          in: query
+          schema:
+            type: string
+            enum: [debug, info, warn, error]
+        - name: after
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: Paginated log list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, total, offset, limit]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExecutionLog'
+                  total:
+                    type: integer
+                  offset:
+                    type: integer
+                  limit:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-workflow/executions/{id}/node-executions:
+    parameters:
+      - $ref: '#/components/parameters/ExecutionId'
+    get:
+      operationId: getNodeExecutions
+      tags: [catalog-workflow-executions]
+      summary: Get per-node execution details
+      responses:
+        '200':
+          description: Node executions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NodeExecution'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ==========================================================================
+  # CATALOG-WORKFLOW — Nodes
+  # ==========================================================================
+  /catalog-workflow/nodes:
+    get:
+      operationId: listNodeTypes
+      tags: [catalog-workflow-nodes]
+      summary: List available node type definitions
+      parameters:
+        - name: workflowType
+          in: query
+          schema:
+            $ref: '#/components/schemas/WorkflowType'
+      responses:
+        '200':
+          description: Node definitions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nodes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NodeTypeDefinition'
+
+  /catalog-workflow/nodes/{type}:
+    parameters:
+      - name: type
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getNodeType
+      tags: [catalog-workflow-nodes]
+      summary: Get a single node type definition
+      responses:
+        '200':
+          description: Node definition
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/NodeTypeDefinition'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==========================================================================
+  # CATALOG-WORKFLOW — Graph Layouts
+  # ==========================================================================
+  /catalog-workflow/graph-layouts:
+    get:
+      operationId: listGraphLayouts
+      tags: [catalog-workflow-graph-layouts]
+      summary: List all saved graph layouts
+      responses:
+        '200':
+          description: Layout list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GraphLayout'
+
+  /catalog-workflow/graph-layouts/{name}:
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getGraphLayout
+      tags: [catalog-workflow-graph-layouts]
+      summary: Get a graph layout by name
+      responses:
+        '200':
+          description: Layout detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/GraphLayout'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: upsertGraphLayout
+      tags: [catalog-workflow-graph-layouts]
+      summary: Create or update a graph layout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nodes:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/GraphLayoutNode'
+                edges:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/GraphLayoutEdge'
+                viewport:
+                  $ref: '#/components/schemas/WorkflowViewport'
+      responses:
+        '200':
+          description: Upserted layout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/GraphLayout'
+    delete:
+      operationId: deleteGraphLayout
+      tags: [catalog-workflow-graph-layouts]
+      summary: Delete a graph layout
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==========================================================================
+  # CATALOG-WORKFLOW — JSONata Assist
+  # ==========================================================================
+  /catalog-workflow/jsonata-assist:
+    post:
+      operationId: generateJsonataExpression
+      tags: [catalog-workflow-jsonata-assist]
+      summary: Generate a JSONata expression via AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonataAssistRequest'
+      responses:
+        '200':
+          description: Generated expression
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expression:
+                    type: string
+                  explanation:
+                    type: string
+
+  /catalog-workflow/jsonata-assist/stream:
+    post:
+      operationId: streamJsonataExpression
+      tags: [catalog-workflow-jsonata-assist]
+      summary: Stream a JSONata expression generation via SSE
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonataAssistRequest'
+      responses:
+        '200':
+          description: SSE stream of generated expression
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /catalog-workflow/jsonata-assist/validate:
+    post:
+      operationId: validateJsonataExpression
+      tags: [catalog-workflow-jsonata-assist]
+      summary: Validate a JSONata expression
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expression]
+              properties:
+                expression:
+                  type: string
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  error:
+                    type: string
+
+  # ==========================================================================
+  # INTEGRATIONS
+  # ==========================================================================
+  /integrations/logos:
+    get:
+      operationId: listIntegrationLogos
+      tags: [integrations]
+      summary: List available integration logos
+      responses:
+        '200':
+          description: Logo list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slug:
+                          type: string
+                        name:
+                          type: string
+
+  /integrations/logos/{slug}:
+    parameters:
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getIntegrationLogo
+      tags: [integrations]
+      summary: Get a logo SVG by slug
+      responses:
+        '200':
+          description: SVG image
+          content:
+            image/svg+xml:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /integrations:
+    get:
+      operationId: listIntegrations
+      tags: [integrations]
+      summary: List integrations
+      parameters:
+        - name: enabled
+          in: query
+          schema:
+            type: string
+            enum: ['true', 'false']
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: Paginated integration list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, total, offset, limit]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Integration'
+                  total:
+                    type: integer
+                  offset:
+                    type: integer
+                  limit:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      operationId: createIntegration
+      tags: [integrations]
+      summary: Create an integration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIntegrationInput'
+      responses:
+        '201':
+          description: Created integration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Integration'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /integrations/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IntegrationId'
+    get:
+      operationId: getIntegration
+      tags: [integrations]
+      summary: Get an integration by ID or slug
+      responses:
+        '200':
+          description: Integration detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Integration'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateIntegration
+      tags: [integrations]
+      summary: Update an integration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateIntegrationInput'
+      responses:
+        '200':
+          description: Updated integration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Integration'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    patch:
+      operationId: updateIntegrationPartial
+      tags: [integrations]
+      summary: Update some fields of an integration
+      description: Writes only the keys the body carries. The merging verb.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateIntegrationInput' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { type: object }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteIntegration
+      tags: [integrations]
+      summary: Delete an integration
+      responses:
+        '200':
+          description: Deletion confirmation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /integrations/{id}/logo:
+    parameters:
+      - $ref: '#/components/parameters/IntegrationId'
+    get:
+      operationId: getIntegrationLogoById
+      tags: [integrations]
+      summary: Get the logo SVG for an integration
+      responses:
+        '200':
+          description: SVG image
+          content:
+            image/svg+xml:
+              schema:
+                type: string
+
+  /integrations/{id}/request:
+    parameters:
+      - $ref: '#/components/parameters/IntegrationId'
+    post:
+      operationId: proxyIntegrationRequest
+      tags: [integrations]
+      summary: Proxy a request through an integration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationRequest'
+      responses:
+        '200':
+          description: Proxied response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ==========================================================================
+  # INTEGRATION SCHEMAS
+  # ==========================================================================
+  /integrations/integration-schemas:
+    get:
+      operationId: listIntegrationSchemas
+      tags: [integration-schemas]
+      summary: List integration schemas (or get a single schema by integrationId + path)
+      parameters:
+        - name: integrationId
+          in: query
+          schema:
+            type: string
+        - name: path
+          in: query
+          schema:
+            type: string
+        - name: method
+          in: query
+          schema:
+            type: string
+        - name: sourceType
+          in: query
+          schema:
+            type: string
+            enum: [spec, inferred]
+        - name: pathSearch
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: Schema list or single schema
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: Paginated list
+                    required: [data, total, offset, limit]
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/IntegrationSchema'
+                      total:
+                        type: integer
+                      offset:
+                        type: integer
+                      limit:
+                        type: integer
+                  - type: object
+                    description: Single schema (when integrationId + path provided)
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/IntegrationSchema'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createIntegrationSchema
+      tags: [integration-schemas]
+      summary: Create an integration schema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIntegrationSchemaInput'
+      responses:
+        '201':
+          description: Created schema
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/IntegrationSchema'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /integrations/integration-schemas/paths:
+    get:
+      operationId: listIntegrationSchemaPaths
+      tags: [integration-schemas]
+      summary: List path suggestions for an integration
+      parameters:
+        - name: integrationId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: method
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Path suggestions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /integrations/integration-schemas/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getIntegrationSchema
+      tags: [integration-schemas]
+      summary: Get a schema by ID
+      responses:
+        '200':
+          description: Schema detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/IntegrationSchema'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateIntegrationSchema
+      tags: [integration-schemas]
+      summary: Update a schema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateIntegrationSchemaInput'
+      responses:
+        '200':
+          description: Updated schema
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/IntegrationSchema'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    delete:
+      operationId: deleteIntegrationSchema
+      tags: [integration-schemas]
+      summary: Delete a schema
+      responses:
+        '200':
+          description: Deletion confirmation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # ==========================================================================
+  # CATALOG-DATASTORE — Objects
+  # ==========================================================================
+  /catalog-datastore/objects:
+    get:
+      operationId: listAllDatastoreObjects
+      tags: [catalog-datastore]
+      summary: List all objects across all datasources
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: graph
+          in: query
+          description: When true, return lightweight graph data instead of full objects
+          schema:
+            type: string
+            enum: ['true', 'false']
+        - name: datasourceIds
+          in: query
+          description: Comma-separated datasource UUIDs used when graph=true
+          schema:
+            type: string
+        - name: unlimited
+          in: query
+          description: >
+            When true, bypass the default 5,000-row cap per collection in graph
+            mode. Use sparingly — large instances may return very large payloads.
+          schema:
+            type: string
+            enum: ['true', 'false']
+      responses:
+        '200':
+          description: Paginated object list or lightweight object graph
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/DatastoreQueryResult'
+                  - $ref: '#/components/schemas/ObjectGraphResult'
+
+  /catalog-datastore/objects/join:
+    post:
+      operationId: queryWithJoin
+      tags: [catalog-datastore]
+      summary: Query objects with a join across two datasources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                [
+                  leftDatasourceId,
+                  rightDatasourceId,
+                  leftIndexKey,
+                  rightIndexKey,
+                  rightAlias,
+                ]
+              properties:
+                leftDatasourceId:
+                  type: string
+                  format: uuid
+                rightDatasourceId:
+                  type: string
+                  format: uuid
+                leftIndexKey:
+                  type: string
+                rightIndexKey:
+                  type: string
+                rightAlias:
+                  type: string
+                limit:
+                  type: integer
+                offset:
+                  type: integer
+      responses:
+        '200':
+          description: Joined results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                  total:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-datastore/objects/graph/rooted:
+    get:
+      operationId: getRootedObjectGraph
+      tags: [catalog-datastore]
+      summary: Bounded neighborhood graph around one object
+      description: >
+        Walks the relationship graph outward from a root object to a depth,
+        under optional datasource/type/origin/direction filters, and returns
+        the reached nodes (with per-node depth and hidden-neighbor counts),
+        the induced edges among them, and a truncation flag.
+      parameters:
+        - name: rootDatasourceId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: rootObjectId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: depth
+          in: query
+          description: Hops from the root, 1-3 (default 2)
+          schema:
+            type: integer
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [out, in, both]
+        - name: datasourceIds
+          in: query
+          description: Comma-separated datasource UUIDs the walk may enter
+          schema:
+            type: string
+        - name: relationshipTypes
+          in: query
+          description: >
+            Comma-separated type names; an edge matches on its type or its
+            reciprocal type
+          schema:
+            type: string
+        - name: origin
+          in: query
+          description: rule = rule-materialized edges, direct = manually asserted
+          schema:
+            type: string
+            enum: [rule, direct]
+        - name: nodeLimit
+          in: query
+          description: Node cap, 1-500 (default 500)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The rooted subgraph
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RootedObjectGraphResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /catalog-datastore/objects/graph/paths:
+    get:
+      operationId: getObjectGraphPaths
+      tags: [catalog-datastore]
+      summary: All simple paths between two objects
+      description: >
+        Finds every simple path between two objects up to maxDepth hops,
+        shortest first and capped at pathLimit, and returns the merged
+        subgraph plus each path's node/edge sequence.
+      parameters:
+        - name: sourceDatasourceId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sourceObjectId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: targetDatasourceId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: targetObjectId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: maxDepth
+          in: query
+          description: Maximum hops, 1-6 (default 4)
+          schema:
+            type: integer
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [out, in, both]
+        - name: datasourceIds
+          in: query
+          description: Comma-separated datasource UUIDs the paths may enter
+          schema:
+            type: string
+        - name: relationshipTypes
+          in: query
+          description: >
+            Comma-separated type names; an edge matches on its type or its
+            reciprocal type
+          schema:
+            type: string
+        - name: origin
+          in: query
+          schema:
+            type: string
+            enum: [rule, direct]
+        - name: pathLimit
+          in: query
+          description: Path cap, 1-50 (default 50)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The merged path subgraph and per-path sequences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectGraphPathsResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /catalog-datastore/objects/{datasourceId}:
+    parameters:
+      - $ref: '#/components/parameters/DatasourceId'
+    get:
+      operationId: listObjectsByDatasource
+      tags: [catalog-datastore]
+      summary: List objects for a datasource
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: sortByIndex
+          in: query
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: filter
+          in: query
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+        - name: explain
+          in: query
+          schema:
+            type: string
+            enum: ['true', 'false']
+      responses:
+        '200':
+          description: Query result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatastoreQueryResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      operationId: addDatastoreObject
+      tags: [catalog-datastore]
+      summary: Add a single object to a datasource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, objectId, object]
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                objectId:
+                  type: string
+                object: {}
+                createdAt:
+                  type: string
+                  format: date-time
+                updatedAt:
+                  type: string
+                  format: date-time
+      responses:
+        '201':
+          description: Object added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    put:
+      operationId: replaceAllDatasourceObjects
+      tags: [catalog-datastore]
+      summary: Replace all objects in a datasource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        '200':
+          description: Replacement result
+          content:
+            application/json:
+              schema:
+                type: object
+    delete:
+      operationId: deleteAllDatasourceObjects
+      tags: [catalog-datastore]
+      summary: Delete all objects in a datasource
+      responses:
+        '204':
+          description: Deleted
+
+  /catalog-datastore/objects/{datasourceId}/{objectId}:
+    parameters:
+      - $ref: '#/components/parameters/DatasourceId'
+      - name: objectId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getDatastoreObject
+      tags: [catalog-datastore]
+      summary: Get a single object with its relationships
+      responses:
+        '200':
+          description: Object with relationships
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatastoreObjectWithRelationships'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteDatastoreObject
+      tags: [catalog-datastore]
+      summary: Delete a single object
+      responses:
+        '204':
+          description: Deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ==========================================================================
+  # CATALOG-DATASTORE — Schemas
+  # ==========================================================================
+  /catalog-datastore/schemas:
+    get:
+      operationId: listDatasourceSchemas
+      tags: [catalog-datastore-schemas]
+      summary: List all datasource schemas
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Schema list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DatastoreSchema'
+                  total:
+                    type: integer
+
+  /catalog-datastore/schemas/suggest-relationships:
+    post:
+      operationId: suggestRelationshipsBatch
+      tags: [catalog-datastore-schemas]
+      summary: Suggest relationships for a batch of datasources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [datasourceIds]
+              properties:
+                datasourceIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '200':
+          description: Suggestions and created rules
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                  createdRules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RelationshipRule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-datastore/schemas/{datasourceId}:
+    parameters:
+      - $ref: '#/components/parameters/DatasourceId'
+    get:
+      operationId: listSchemaVersions
+      tags: [catalog-datastore-schemas]
+      summary: List schema versions for a datasource
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Schema versions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DatastoreSchema'
+                  total:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-datastore/schemas/{datasourceId}/latest:
+    parameters:
+      - $ref: '#/components/parameters/DatasourceId'
+    get:
+      operationId: getLatestSchema
+      tags: [catalog-datastore-schemas]
+      summary: Get the latest schema version for a datasource
+      responses:
+        '200':
+          description: Latest schema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatastoreSchema'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /catalog-datastore/schemas/{datasourceId}/suggest-relationships:
+    parameters:
+      - $ref: '#/components/parameters/DatasourceId'
+    post:
+      operationId: suggestRelationshipsForDatasource
+      tags: [catalog-datastore-schemas]
+      summary: Suggest relationships for a single datasource
+      responses:
+        '200':
+          description: Suggestions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  suggestions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FieldMatchSuggestion'
+                  createdRules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RelationshipRule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ==========================================================================
+  # CATALOG-DATASTORE — Indexes
+  # ==========================================================================
+  /catalog-datastore/indexes/{datasourceId}:
+    parameters:
+      - $ref: '#/components/parameters/DatasourceId'
+    get:
+      operationId: listIndexConfigurations
+      tags: [catalog-datastore-indexes]
+      summary: List index configurations for a datasource
+      responses:
+        '200':
+          description: Index list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/IndexConfiguration'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      operationId: createIndexConfiguration
+      tags: [catalog-datastore-indexes]
+      summary: Create an index configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [key, valueExpression]
+              properties:
+                key:
+                  type: string
+                valueExpression:
+                  type: string
+      responses:
+        '201':
+          description: Index created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Index already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: deleteAllIndexConfigurations
+      tags: [catalog-datastore-indexes]
+      summary: Delete all index configurations for a datasource
+      responses:
+        '204':
+          description: Deleted
+
+  /catalog-datastore/indexes/{datasourceId}/{key}:
+    parameters:
+      - $ref: '#/components/parameters/DatasourceId'
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getIndexConfiguration
+      tags: [catalog-datastore-indexes]
+      summary: Get an index configuration by key
+      responses:
+        '200':
+          description: Index configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndexConfiguration'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteIndexConfiguration
+      tags: [catalog-datastore-indexes]
+      summary: Delete an index configuration
+      responses:
+        '204':
+          description: Deleted
+
+  /catalog-datastore/indexes/{datasourceId}/{key}/rebuild:
+    parameters:
+      - $ref: '#/components/parameters/DatasourceId'
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: rebuildIndexes
+      tags: [catalog-datastore-indexes]
+      summary: Rebuild indexes for a datasource key
+      responses:
+        '200':
+          description: Rebuild complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # ==========================================================================
+  # CATALOG-DATASTORE — Relationships
+  # ==========================================================================
+  /catalog-datastore/relationships:
+    get:
+      operationId: queryAllRelationships
+      tags: [catalog-datastore-relationships]
+      summary: Query all relationships
+      parameters:
+        - name: relationshipType
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: origin
+          in: query
+          schema:
+            type: string
+        - name: ruleId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated relationship list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipQueryResult'
+    put:
+      operationId: upsertRelationship
+      tags: [catalog-datastore-relationships]
+      summary: Upsert a single relationship
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RelationshipInput'
+      responses:
+        '200':
+          description: Upserted relationship
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-datastore/relationships/bulk:
+    put:
+      operationId: upsertRelationshipsBulk
+      tags: [catalog-datastore-relationships]
+      summary: Upsert relationships in bulk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [relationships]
+              properties:
+                relationships:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/RelationshipInput'
+      responses:
+        '200':
+          description: Bulk upsert result
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-datastore/relationships/summary:
+    get:
+      operationId: getRelationshipSummary
+      tags: [catalog-datastore-relationships]
+      summary: Relationship counts grouped by datasource pair and type
+      parameters:
+        - name: datasourceIds
+          in: query
+          description: Comma-separated datasource UUIDs; both endpoints must be in scope
+          schema:
+            type: string
+        - name: relationshipTypes
+          in: query
+          description: >
+            Comma-separated type names; an edge matches on its type or its
+            reciprocal type
+          schema:
+            type: string
+        - name: origin
+          in: query
+          description: rule = rule-materialized edges, direct = manually asserted
+          schema:
+            type: string
+            enum: [rule, direct]
+      responses:
+        '200':
+          description: Grouped relationship counts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipSummaryResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-datastore/relationships/types:
+    get:
+      operationId: listAllRelationshipTypes
+      tags: [catalog-datastore-relationships]
+      summary: List distinct relationship types across a datasource scope
+      description: >
+        Includes reciprocal type names, and matches datasources on either
+        endpoint. Omit datasourceIds for all types in the store.
+      parameters:
+        - name: datasourceIds
+          in: query
+          description: Comma-separated datasource UUIDs
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Relationship types
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-datastore/relationships/types/{datasourceId}:
+    parameters:
+      - $ref: '#/components/parameters/DatasourceId'
+    get:
+      operationId: listRelationshipTypes
+      tags: [catalog-datastore-relationships]
+      summary: List distinct relationship types for a datasource
+      responses:
+        '200':
+          description: Relationship types
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-datastore/relationships/source/{datasourceId}/{objectId}:
+    parameters:
+      - $ref: '#/components/parameters/DatasourceId'
+      - name: objectId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: queryRelationshipsBySource
+      tags: [catalog-datastore-relationships]
+      summary: Query outgoing relationships from a source object
+      parameters:
+        - name: relationshipType
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: origin
+          in: query
+          schema:
+            type: string
+        - name: ruleId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Relationship list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipQueryResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    delete:
+      operationId: deleteRelationshipsBySource
+      tags: [catalog-datastore-relationships]
+      summary: Delete all relationships from a source object
+      responses:
+        '204':
+          description: Deleted
+
+  /catalog-datastore/relationships/destination/{datasourceId}/{objectId}:
+    parameters:
+      - $ref: '#/components/parameters/DatasourceId'
+      - name: objectId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: queryRelationshipsByDestination
+      tags: [catalog-datastore-relationships]
+      summary: Query incoming relationships to a destination object
+      parameters:
+        - name: relationshipType
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: origin
+          in: query
+          schema:
+            type: string
+        - name: ruleId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Relationship list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipQueryResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    delete:
+      operationId: deleteRelationshipsByDestination
+      tags: [catalog-datastore-relationships]
+      summary: Delete all relationships to a destination object
+      responses:
+        '204':
+          description: Deleted
+
+  /catalog-datastore/relationships/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      operationId: getRelationship
+      tags: [catalog-datastore-relationships]
+      summary: Get a relationship by ID
+      responses:
+        '200':
+          description: Relationship detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteRelationship
+      tags: [catalog-datastore-relationships]
+      summary: Delete a relationship by ID
+      responses:
+        '204':
+          description: Deleted
+
+  # ==========================================================================
+  # CATALOG-DATASTORE — Relationship Rules
+  # ==========================================================================
+  /catalog-datastore/relationship-rules:
+    get:
+      operationId: listRelationshipRules
+      tags: [catalog-datastore-relationship-rules]
+      summary: List relationship rules
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: origin
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            $ref: '#/components/schemas/RelationshipRuleState'
+      responses:
+        '200':
+          description: Rule list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RelationshipRule'
+                  total:
+                    type: integer
+    post:
+      operationId: createRelationshipRule
+      tags: [catalog-datastore-relationship-rules]
+      summary: Create a relationship rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RelationshipRuleInput'
+      responses:
+        '201':
+          description: Created rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipRule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-datastore/relationship-rules/preview:
+    post:
+      operationId: previewRelationshipRule
+      tags: [catalog-datastore-relationship-rules]
+      summary: Preview matches for a relationship rule without persisting
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: sampleLimit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+        - name: sourceObjectId
+          in: query
+          description: Preview one exact source object for an integration-backed rule
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 1024
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                [
+                  sourceDatasourceId,
+                  targetDatasourceId,
+                  sourceFieldExpression,
+                  relationshipType,
+                ]
+              properties:
+                sourceDatasourceId:
+                  type: string
+                  format: uuid
+                targetDatasourceId:
+                  type: string
+                  format: uuid
+                sourceFieldExpression:
+                  type: string
+                targetFieldExpression:
+                  type: string
+                relationshipType:
+                  type: string
+                matchStrategy:
+                  $ref: '#/components/schemas/RelationshipRuleMatchStrategy'
+      responses:
+        '200':
+          description: Preview result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipRulePreviewResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-datastore/relationship-rules/approve:
+    post:
+      operationId: approveRelationshipRules
+      tags: [catalog-datastore-relationship-rules]
+      summary: Approve suggested rules in bulk, dismissing their mirrors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '200':
+          description: >-
+            Per-rule outcome. A rule that could not be approved is reported in
+            `failed` rather than failing the request. Every requested id appears
+            in exactly one of `approved`, `dismissedAsInverse` and `failed`.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [approved, dismissedAsInverse, failed]
+                properties:
+                  approved:
+                    type: array
+                    items:
+                      type: string
+                      format: uuid
+                  dismissedAsInverse:
+                    description: >-
+                      Mirrored suggestions dismissed because their opposite
+                      direction was approved. May include ids that were not
+                      requested.
+                    type: array
+                    items:
+                      type: string
+                      format: uuid
+                  failed:
+                    description: >-
+                      Requested ids only, so a caller can count failures against
+                      its own request.
+                    type: array
+                    items:
+                      type: object
+                      required: [id, reason]
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        reason:
+                          type: string
+                  inverseDismissFailed:
+                    description: >-
+                      Mirrors that were not requested and could not be
+                      suppressed. They stay suggested and need a manual dismiss,
+                      but they are not failures of the caller's request.
+                    type: array
+                    items:
+                      type: object
+                      required: [id, reason]
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        reason:
+                          type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /catalog-datastore/relationship-rules/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      operationId: getRelationshipRule
+      tags: [catalog-datastore-relationship-rules]
+      summary: Get a relationship rule by ID
+      responses:
+        '200':
+          description: Rule detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipRule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateRelationshipRule
+      tags: [catalog-datastore-relationship-rules]
+      summary: Update a relationship rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RelationshipRuleInput'
+      responses:
+        '200':
+          description: Updated rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipRule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      operationId: updateRelationshipRulePartial
+      tags: [catalog-datastore-relationship-rules]
+      summary: Update some fields of a relationship rule
+      description: Writes only the keys the body carries. The merging verb.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RelationshipRuleInput' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { type: object }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteRelationshipRule
+      tags: [catalog-datastore-relationship-rules]
+      summary: Delete a relationship rule and its relationships
+      responses:
+        '204':
+          description: Deleted
+
+  /catalog-datastore/relationship-rules/{id}/approve:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: approveRelationshipRule
+      tags: [catalog-datastore-relationship-rules]
+      summary: Approve a suggested rule (suggested -> active)
+      responses:
+        '200':
+          description: Approved rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipRule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Rule not in expected state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /catalog-datastore/relationship-rules/{id}/dismiss:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: dismissRelationshipRule
+      tags: [catalog-datastore-relationship-rules]
+      summary: Dismiss a suggested rule (suggested -> inactive)
+      responses:
+        '200':
+          description: Dismissed rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipRule'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Rule not in expected state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /catalog-datastore/relationship-rules/{id}/disable:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: disableRelationshipRule
+      tags: [catalog-datastore-relationship-rules]
+      summary: Disable an active rule (active -> inactive)
+      responses:
+        '200':
+          description: Disabled rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipRule'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Rule not in expected state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /catalog-datastore/relationship-rules/{id}/reset:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: resetRelationshipRule
+      tags: [catalog-datastore-relationship-rules]
+      summary: Reset an inactive rule (inactive -> suggested)
+      responses:
+        '200':
+          description: Reset rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipRule'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Rule not in expected state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /catalog-datastore/relationship-rules/{id}/state:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      operationId: setRelationshipRuleState
+      tags: [catalog-datastore-relationship-rules]
+      summary: Set a rule's state, walking whatever transitions it needs
+      description: >
+        Declarative alternative to the approve/dismiss/disable/reset verbs, which
+        are one-way and 409 from the wrong state. Idempotent: sending the state
+        the rule is already in is a no-op 200. Moves with no direct edge
+        (active -> suggested, inactive -> active) are walked as two transitions;
+        if the second fails, the 409 body carries the state actually reached.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [state]
+              properties:
+                state:
+                  type: string
+                  enum: [suggested, active, inactive]
+      responses:
+        '200':
+          description: The rule in its target state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipRule'
+        '400':
+          description: Invalid rule id or unknown state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: >
+            An equivalent active rule already exists, or a concurrent transition
+            moved the rule mid-walk. `state` carries the state actually reached.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+                  - type: object
+                    properties:
+                      state:
+                        type: string
+                        enum: [suggested, active, inactive]
+
+  /catalog-datastore/relationship-rules/{id}/apply:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: applyRelationshipRule
+      tags: [catalog-datastore-relationship-rules]
+      summary: Apply a rule, materializing its relationships
+      responses:
+        '200':
+          description: Apply result
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /catalog-datastore/relationship-rules/{id}/relationships:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      operationId: listRelationshipsByRule
+      tags: [catalog-datastore-relationship-rules]
+      summary: List relationships produced by a rule
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Relationships
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipQueryResult'
+
+  # ==========================================================================
+  # CATALOG-DATASTORE — Search
+  # ==========================================================================
+  /catalog-datastore/search:
+    get:
+      operationId: searchDatastoreObjects
+      tags: [catalog-datastore-search]
+      summary: Full-text search across datastore objects
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: datasourceIds
+          in: query
+          description: Comma-separated list of datasource UUIDs
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            maximum: 200
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: explain
+          in: query
+          schema:
+            type: string
+            enum: ['true', 'false']
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ==========================================================================
+  # SECRETS SETTINGS
+  # ==========================================================================
+  /secrets-settings/keys:
+    get:
+      operationId: listSecretKeys
+      tags: [secrets-settings]
+      summary: List all configured secret keys with their status
+      responses:
+        '200':
+          description: Secret key list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Secret'
+    post:
+      operationId: saveSecret
+      tags: [secrets-settings]
+      summary: Set or update a secret value
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, value]
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
+      responses:
+        '201':
+          description: Secret saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  newVersion:
+                    type: integer
+        '400':
+          description: Invalid secret or secret not found in configuration
+
+  /secrets-settings/secret-metadata:
+    get:
+      operationId: listSecretMetadata
+      tags: [secrets-settings]
+      summary: List builtin secret metadata (without internal key names)
+      responses:
+        '200':
+          description: Secret metadata list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SecretMetadata'
+    post:
+      operationId: createSecretMetadata
+      tags: [secrets-settings]
+      summary: Create custom secret metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecretMetadata'
+      responses:
+        '201':
+          description: Metadata created
+        '400':
+          description: Invalid metadata or duplicate name
+
+  /secrets-settings/secret-metadata/{name}:
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      operationId: editSecretMetadata
+      tags: [secrets-settings]
+      summary: Edit secret metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                helpUrl:
+                  type: string
+                internalKeyName:
+                  type: string
+      responses:
+        '200':
+          description: Updated
+        '400':
+          description: Not supported in dotenv mode
+    delete:
+      operationId: deleteSecretMetadata
+      tags: [secrets-settings]
+      summary: Delete secret metadata
+      responses:
+        '200':
+          description: Deleted
+        '400':
+          description: Not supported in dotenv mode
+
+  /secrets-settings/secret-value/{secret}:
+    parameters:
+      - name: secret
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getSecretValue
+      tags: [secrets-settings]
+      summary: Get the value of a secret
+      responses:
+        '200':
+          description: Secret value
+          content:
+            application/json:
+              schema:
+                type: object
+    delete:
+      operationId: deleteSecretValue
+      tags: [secrets-settings]
+      summary: Delete a secret value
+      responses:
+        '200':
+          description: Deleted
+
+  /secrets-settings/storage-mode:
+    get:
+      operationId: getStorageMode
+      tags: [secrets-settings]
+      summary: Get the storage mode of the registered secret store
+      responses:
+        '200':
+          description: Storage mode descriptor
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [mode, readOnly]
+                properties:
+                  mode:
+                    type: string
+                    enum: [env, dotenv, scoped]
+                  readOnly:
+                    type: boolean
+                  dotenvPath:
+                    type: string
+
+  /secrets-settings/secret-status/{ref}:
+    get:
+      operationId: getSecretStatus
+      tags: [secrets-settings]
+      summary: Report whether a secret reference has a value in the store
+      parameters:
+        - name: ref
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Secret presence descriptor
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ref, exists]
+                properties:
+                  ref:
+                    type: string
+                  exists:
+                    type: boolean
+
+  # ==========================================================================
+  # AI
+  # ==========================================================================
+  /ai/status:
+    get:
+      operationId: getAiStatus
+      tags: [ai]
+      summary: Get AI service status
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  started:
+                    type: boolean
+                  reason:
+                    type: string
+
+  /ai/agents/{agentId}/call:
+    parameters:
+      - name: agentId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: callAiAgent
+      tags: [ai]
+      summary: Call an AI agent (streaming response)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query:
+                  type: string
+                context:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: Streaming AI response
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '400':
+          description: Query is required
+        '404':
+          description: Agent not found
+
+  # ==========================================================================
+  # CAPABILITIES
+  # ==========================================================================
+  /capabilities:
+    get:
+      operationId: listCapabilities
+      tags: [capabilities]
+      summary: List capabilities
+      parameters:
+        - { name: limit, in: query, schema: { type: integer } }
+        - { name: offset, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Capability page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Capability' }
+                  total: { type: integer }
+    post:
+      operationId: createCapability
+      tags: [capabilities]
+      summary: Create a capability
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CapabilityInput' }
+      responses:
+        '201':
+          description: Created capability
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Capability' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409':
+          description: Slug already in use
+
+  /capabilities/search:
+    get:
+      operationId: searchCapabilities
+      tags: [capabilities]
+      summary: Search capabilities
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer } }
+        - { name: offset, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Matching capabilities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Capability' }
+                  total: { type: integer }
+
+  /capabilities/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: >
+          Capability id. GET also accepts the slug, so an `@capability:<slug>`
+          reference resolves without a lookup; the write verbs are id-only.
+        schema: { type: string }
+    get:
+      operationId: getCapability
+      tags: [capabilities]
+      summary: Get a capability by id or slug
+      responses:
+        '200':
+          description: Capability
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Capability' }
+        '403':
+          description: Scope does not cover this capability
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      operationId: replaceCapability
+      tags: [capabilities]
+      summary: Write a capability
+      description: >
+        Writes only the keys the body carries. PUT becomes a full replacement
+        once no caller sends a partial body (SC-34599) — see
+        docs/put-patch-contract-migration.md.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CapabilityInput' }
+      responses:
+        '200':
+          description: Updated capability
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Capability' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateCapability
+      tags: [capabilities]
+      summary: Update some fields of a capability
+      description: Writes only the keys the body carries. The merging verb.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CapabilityInput' }
+      responses:
+        '200':
+          description: Updated capability
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Capability' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteCapability
+      tags: [capabilities]
+      summary: Delete a capability
+      responses:
+        '204': { description: Deleted }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /capabilities/{id}/versions:
+    parameters:
+      - {
+          name: id,
+          in: path,
+          required: true,
+          schema: { type: string, format: uuid },
+        }
+    get:
+      operationId: listCapabilityVersions
+      tags: [capabilities]
+      summary: List a capability's versions
+      responses:
+        '200':
+          description: Version page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { type: object } }
+                  total: { type: integer }
+
+  /capabilities/{id}/versions/{version}:
+    parameters:
+      - {
+          name: id,
+          in: path,
+          required: true,
+          schema: { type: string, format: uuid },
+        }
+      - { name: version, in: path, required: true, schema: { type: integer } }
+    get:
+      operationId: getCapabilityVersion
+      tags: [capabilities]
+      summary: Get one version of a capability
+      responses:
+        '200':
+          description: Version
+          content:
+            application/json:
+              schema: { type: object }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /capabilities/{id}/versions/{version}/restore:
+    parameters:
+      - {
+          name: id,
+          in: path,
+          required: true,
+          schema: { type: string, format: uuid },
+        }
+      - { name: version, in: path, required: true, schema: { type: integer } }
+    post:
+      operationId: restoreCapabilityVersion
+      tags: [capabilities]
+      summary: Restore a capability to an earlier version
+      responses:
+        '200':
+          description: Restored capability
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Capability' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ==========================================================================
+  # ACTIONS
+  # ==========================================================================
+  /actions:
+    get:
+      operationId: listActions
+      tags: [actions]
+      summary: List actions
+      parameters:
+        - { name: search, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer } }
+        - { name: offset, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Action page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Action' }
+                  total: { type: integer }
+    post:
+      operationId: createAction
+      tags: [actions]
+      summary: Create an action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActionInput' }
+      responses:
+        '201':
+          description: Created action
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Action' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409':
+          description: Slug already in use
+
+  /actions/execute:
+    post:
+      operationId: executeActionDraft
+      tags: [actions]
+      summary: Execute an unsaved action draft
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [steps]
+              properties:
+                parameters: { type: array, items: { type: object } }
+                steps: { type: array, items: { type: object } }
+                inputs: { type: object }
+      responses:
+        '200':
+          description: Execution result
+          content:
+            application/json:
+              schema: { type: object }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /actions/{id}:
+    parameters:
+      - {
+          name: id,
+          in: path,
+          required: true,
+          schema: { type: string, format: uuid },
+        }
+    get:
+      operationId: getAction
+      tags: [actions]
+      summary: Get an action
+      responses:
+        '200':
+          description: Action
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Action' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      operationId: replaceAction
+      tags: [actions]
+      summary: Write an action
+      description: >
+        Writes only the keys the body carries. PUT becomes a full replacement
+        once no caller sends a partial body (SC-34599).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActionInput' }
+      responses:
+        '200':
+          description: Updated action
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Action' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateAction
+      tags: [actions]
+      summary: Update some fields of an action
+      description: Writes only the keys the body carries. The merging verb.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActionInput' }
+      responses:
+        '200':
+          description: Updated action
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Action' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteAction
+      tags: [actions]
+      summary: Delete an action
+      responses:
+        '204': { description: Deleted }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /actions/{id}/execute:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Action id or slug — both resolve here.
+        schema: { type: string }
+    post:
+      operationId: executeAction
+      tags: [actions]
+      summary: Execute a saved action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                inputs: { type: object }
+      responses:
+        '200':
+          description: Execution result
+          content:
+            application/json:
+              schema: { type: object }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /actions/{id}/versions:
+    parameters:
+      - {
+          name: id,
+          in: path,
+          required: true,
+          schema: { type: string, format: uuid },
+        }
+    get:
+      operationId: listActionVersions
+      tags: [actions]
+      summary: List an action's versions
+      responses:
+        '200':
+          description: Version page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { type: object } }
+                  total: { type: integer }
+
+  /actions/{id}/versions/{version}:
+    parameters:
+      - {
+          name: id,
+          in: path,
+          required: true,
+          schema: { type: string, format: uuid },
+        }
+      - { name: version, in: path, required: true, schema: { type: integer } }
+    get:
+      operationId: getActionVersion
+      tags: [actions]
+      summary: Get one version of an action
+      responses:
+        '200':
+          description: Version
+          content:
+            application/json:
+              schema: { type: object }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /actions/{id}/versions/{version}/restore:
+    parameters:
+      - {
+          name: id,
+          in: path,
+          required: true,
+          schema: { type: string, format: uuid },
+        }
+      - { name: version, in: path, required: true, schema: { type: integer } }
+    post:
+      operationId: restoreActionVersion
+      tags: [actions]
+      summary: Restore an action to an earlier version
+      responses:
+        '200':
+          description: Restored action
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Action' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ==========================================================================
+  # CATALOG DATASTORE - Context groups
+  # ==========================================================================
+  /catalog-datastore/context-groups/rules:
+    get:
+      operationId: listContextGroupRules
+      tags: [catalog-datastore-context-groups]
+      summary: List context group rules
+      parameters:
+        - { name: limit, in: query, schema: { type: integer } }
+        - { name: offset, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Rule page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ContextGroupRule' }
+                  total: { type: integer }
+    post:
+      operationId: createContextGroupRule
+      tags: [catalog-datastore-context-groups]
+      summary: Create a context group rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContextGroupRuleInput' }
+      responses:
+        '201':
+          description: Created rule
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContextGroupRule' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409':
+          description: Name or slug already in use
+
+  /catalog-datastore/context-groups/rules/{id}:
+    parameters:
+      - {
+          name: id,
+          in: path,
+          required: true,
+          schema: { type: string, format: uuid },
+        }
+    get:
+      operationId: getContextGroupRule
+      tags: [catalog-datastore-context-groups]
+      summary: Get a context group rule
+      responses:
+        '200':
+          description: Rule
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContextGroupRule' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      operationId: replaceContextGroupRule
+      tags: [catalog-datastore-context-groups]
+      summary: Replace a context group rule
+      description: Full replacement. Omitted optional fields are cleared to defaults.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContextGroupRuleInput' }
+      responses:
+        '200':
+          description: Replaced rule
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContextGroupRule' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateContextGroupRule
+      tags: [catalog-datastore-context-groups]
+      summary: Update some fields of a context group rule
+      description: Writes only the keys the body carries. The merging verb.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContextGroupRuleInput' }
+      responses:
+        '200':
+          description: Updated rule
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContextGroupRule' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteContextGroupRule
+      tags: [catalog-datastore-context-groups]
+      summary: Delete a context group rule
+      responses:
+        '204': { description: Deleted }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /catalog-datastore/context-groups/rules/{id}/materialize:
+    parameters:
+      - {
+          name: id,
+          in: path,
+          required: true,
+          schema: { type: string, format: uuid },
+        }
+    post:
+      operationId: materializeContextGroupRule
+      tags: [catalog-datastore-context-groups]
+      summary: Re-materialize the groups a rule produces
+      responses:
+        '200': { description: Materialized }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /catalog-datastore/context-groups/rules/{id}/groups:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Rule id or slug.
+        schema: { type: string }
+    get:
+      operationId: listGroupsForContextGroupRule
+      tags: [catalog-datastore-context-groups]
+      summary: List the groups one rule produced
+      responses:
+        '200':
+          description: Groups
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groups: { type: array, items: { type: object } }
+                  totalGroups: { type: integer }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /catalog-datastore/context-groups/groups:
+    get:
+      operationId: listContextGroups
+      tags: [catalog-datastore-context-groups]
+      summary: List materialized context groups
+      parameters:
+        - { name: limit, in: query, schema: { type: integer } }
+        - { name: offset, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Group page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { type: object } }
+                  total: { type: integer }
+
+  /catalog-datastore/context-groups/preview:
+    post:
+      operationId: previewContextGroupRule
+      tags: [catalog-datastore-context-groups]
+      summary: Preview the groups a rule definition would produce
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContextGroupRuleInput' }
+      responses:
+        '200':
+          description: Preview result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groups: { type: array, items: { type: object } }
+                  totalGroups: { type: integer }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  # ==========================================================================
+  # WORKSPACES
+  # ==========================================================================
+  /workspaces:
+    get:
+      operationId: listWorkspaces
+      tags: [workspaces]
+      summary: List the workspaces the caller may see
+      description: >
+        Organization workspaces, plus the caller's own personal ones. Another
+        user's personal workspace is never returned.
+      responses:
+        '200':
+          description: Visible workspaces
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workspaces:
+                    type: array
+                    items: { $ref: '#/components/schemas/Workspace' }
+    post:
+      operationId: createWorkspace
+      tags: [workspaces]
+      summary: Create a workspace
+      description: >
+        Requires `workspace:create:personal` for a personal workspace and the
+        un-narrowed `workspace:create` for an organization one. The owner of a
+        personal workspace is the caller; it is never read from the body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WorkspaceInput' }
+      responses:
+        '201':
+          description: Created workspace
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Workspace' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403':
+          description: Scope does not cover creating this type of workspace
+        '409':
+          description: Slug already in use
+
+  /workspaces/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getWorkspace
+      tags: [workspaces]
+      summary: Get a workspace
+      responses:
+        '200':
+          description: Workspace
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Workspace' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateWorkspace
+      tags: [workspaces]
+      summary: Update a workspace's name or mark
+      description: >
+        Slug and type are fixed at creation — a body carrying either is
+        rejected. A slug is an address, and changing a type would orphan or
+        capture ownership.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WorkspaceUpdate' }
+      responses:
+        '200':
+          description: Updated workspace
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Workspace' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteWorkspace
+      tags: [workspaces]
+      summary: Delete a workspace
+      description: >
+        Removes the workspace row only — nothing cascades. Data that belonged
+        to it stops being reachable rather than being destroyed.
+      responses:
+        '204': { description: Deleted }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: The default workspace cannot be deleted
+
+  /workspaces/teams:
+    get:
+      operationId: listTeams
+      tags: [workspaces]
+      summary: List team workspaces
+      responses:
+        '200':
+          description: Teams
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teams:
+                    type: array
+                    items: { $ref: '#/components/schemas/Team' }
+    post:
+      operationId: createTeam
+      tags: [workspaces]
+      summary: Create a team workspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TeamInput' }
+      responses:
+        '201':
+          description: Created team
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Team' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { description: Team creation is unavailable }
+        '409': { description: Slug already in use }
+
+  /workspaces/teams/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateTeam
+      tags: [workspaces]
+      summary: Rename a team workspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TeamUpdate' }
+      responses:
+        '200':
+          description: Updated team
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Team' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteTeam
+      tags: [workspaces]
+      summary: Delete a team workspace
+      responses:
+        '204': { description: Deleted }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /workspaces/teams/{id}/members:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: listTeamMembers
+      tags: [workspaces]
+      summary: List team members
+      responses:
+        '200':
+          description: Team members
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  members:
+                    type: array
+                    items: { $ref: '#/components/schemas/TeamMember' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: addTeamMember
+      tags: [workspaces]
+      summary: Add a team member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '201':
+          description: Added member
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeamMember' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { description: User is already a member }
+
+  /workspaces/teams/{id}/members/{userId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+      - name: userId
+        in: path
+        required: true
+        schema: { type: string }
+    delete:
+      operationId: removeTeamMember
+      tags: [workspaces]
+      summary: Remove a team member
+      responses:
+        '204': { description: Removed }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+# ---------------------------------------------------------------------------
+# COMPONENTS
+# ---------------------------------------------------------------------------
+components:
+  securitySchemes:
+    ServiceToken:
+      type: http
+      scheme: bearer
+      description: >
+        A Roadie service token (`rst_…`) or a user JWT. Both are exchanged by the
+        same middleware, so the wire contract is identical.
+
+
+        Per-route scope requirements are deliberately not duplicated here. They
+        live in `packages/e2e/tests/scopes/*.yaml`, which the scope-enforcement
+        suite asserts covers every entry in `SCOPES` — that set is the
+        machine-readable source, and a copy in this document would drift from it.
+
+
+        One trap worth stating: a token carrying **no** `scopes` claim is granted
+        every scope. A present array — including an empty one — restricts to
+        exactly those. Scope a machine token explicitly, or it is a root
+        credential.
+  parameters:
+    WorkflowId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    ExecutionId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    IntegrationId:
+      name: id
+      in: path
+      required: true
+      description: Integration ID or slug
+      schema:
+        type: string
+    DatasourceId:
+      name: datasourceId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # --- Common ---
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          const: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: object
+              properties:
+                message:
+                  type: string
+                name:
+                  type: string
+            - type: string
+
+    # --- Workflow Types ---
+    WorkflowType:
+      type: string
+      enum: [data-ingestion]
+
+    ExecutionStatus:
+      type: string
+      enum: [pending, running, completed, failed, cancelled]
+
+    TriggerType:
+      type: string
+      enum: [scheduled, manual, webhook, event]
+
+    NodeExecutionStatus:
+      type: string
+      enum: [pending, running, completed, failed, skipped]
+
+    WorkflowViewport:
+      type: object
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+        zoom:
+          type: number
+
+    WorkflowNodeData:
+      type: object
+      required: [label, config]
+      properties:
+        label:
+          type: string
+        config:
+          type: object
+          additionalProperties: true
+        description:
+          type: string
+
+    WorkflowNode:
+      type: object
+      required: [id, type, position, data]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        position:
+          type: object
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+        data:
+          $ref: '#/components/schemas/WorkflowNodeData'
+        width:
+          type: number
+        height:
+          type: number
+        selected:
+          type: boolean
+        dragging:
+          type: boolean
+
+    EdgeTransform:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [jsonata]
+        expression:
+          type: string
+
+    WorkflowEdge:
+      type: object
+      required: [id, source, target]
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+        target:
+          type: string
+        sourceHandle:
+          type: string
+        targetHandle:
+          type: string
+        transform:
+          $ref: '#/components/schemas/EdgeTransform'
+        animated:
+          type: boolean
+        style:
+          type: object
+          additionalProperties: true
+
+    WorkflowDefinition:
+      type: object
+      required:
+        [
+          id,
+          name,
+          slug,
+          version,
+          workflowType,
+          nodes,
+          edges,
+          enabled,
+          createdBy,
+          createdAt,
+          updatedAt,
+        ]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        version:
+          type: integer
+        workflowType:
+          $ref: '#/components/schemas/WorkflowType'
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowEdge'
+        viewport:
+          $ref: '#/components/schemas/WorkflowViewport'
+        enabled:
+          type: boolean
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateWorkflowInput:
+      type: object
+      required: [workflowType]
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+          description: Derived from the name when omitted.
+        description:
+          type: string
+        workflowType:
+          $ref: '#/components/schemas/WorkflowType'
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowEdge'
+        viewport:
+          $ref: '#/components/schemas/WorkflowViewport'
+        enabled:
+          type: boolean
+
+    UpdateWorkflowInput:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        workflowType:
+          $ref: '#/components/schemas/WorkflowType'
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowEdge'
+        viewport:
+          $ref: '#/components/schemas/WorkflowViewport'
+        enabled:
+          type: boolean
+
+    # --- Execution Types ---
+    WorkflowOutput:
+      type: object
+      properties:
+        entities:
+          type: array
+          items: {}
+        stats:
+          $ref: '#/components/schemas/WorkflowStats'
+
+    WorkflowStats:
+      type: object
+      properties:
+        nodesExecuted:
+          type: integer
+        nodesFailed:
+          type: integer
+        nodesSkipped:
+          type: integer
+        durationMs:
+          type: integer
+
+    WorkflowExecution:
+      type: object
+      required:
+        [
+          id,
+          workflowId,
+          workflowVersion,
+          status,
+          triggerType,
+          nodeExecutions,
+          workflowSnapshot,
+          createdAt,
+        ]
+      properties:
+        id:
+          type: string
+        workflowId:
+          type: string
+        workflowVersion:
+          type: integer
+        status:
+          $ref: '#/components/schemas/ExecutionStatus'
+        triggerType:
+          $ref: '#/components/schemas/TriggerType'
+        triggeredBy:
+          type: string
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        output:
+          $ref: '#/components/schemas/WorkflowOutput'
+        error:
+          type: string
+        nodeExecutions:
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeExecution'
+        workflowSnapshot:
+          $ref: '#/components/schemas/WorkflowDefinition'
+        createdAt:
+          type: string
+          format: date-time
+
+    NodeExecution:
+      type: object
+      required: [nodeId, status, executionOrder]
+      properties:
+        nodeId:
+          type: string
+        status:
+          $ref: '#/components/schemas/NodeExecutionStatus'
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        input: {}
+        output: {}
+        error:
+          type: string
+        executionOrder:
+          type: integer
+
+    ExecutionLog:
+      type: object
+      required: [id, executionId, level, message, createdAt]
+      properties:
+        id:
+          type: integer
+        executionId:
+          type: string
+        nodeId:
+          type: string
+        level:
+          type: string
+          enum: [debug, info, warn, error]
+        message:
+          type: string
+        metadata: {}
+        createdAt:
+          type: string
+          format: date-time
+
+    WorkflowRequestLog:
+      type: object
+      properties:
+        id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        source:
+          type: string
+        target:
+          type: string
+        operation:
+          type: string
+        duration:
+          type: number
+        requestBody: {}
+        responseBody: {}
+        error:
+          type: string
+        executionId:
+          type: string
+        nodeId:
+          type: string
+        status:
+          type: string
+
+    ExecutionAccepted:
+      type: object
+      description: Response when an execution is accepted (202)
+      properties:
+        id:
+          type: string
+        executionId:
+          type: string
+        status:
+          type: string
+
+    LatestExecutionSummary:
+      type: object
+      properties:
+        workflowId:
+          type: string
+        executionId:
+          type: string
+        status:
+          $ref: '#/components/schemas/ExecutionStatus'
+        error:
+          type: string
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        objectCount:
+          type: integer
+
+    # --- Node Types ---
+    NodeCategory:
+      type: string
+      enum: [trigger, source, transform, catalog, sink, control]
+
+    HandleDefinition:
+      type: object
+      required: [id, label, type]
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        type:
+          type: string
+          enum: [default, array, entity, location, any]
+        required:
+          type: boolean
+
+    NodeTypeDefinition:
+      type: object
+      required: [type, category, label, description, icon, configSchema]
+      properties:
+        type:
+          type: string
+        category:
+          $ref: '#/components/schemas/NodeCategory'
+        label:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        color:
+          type: string
+        configSchema: {}
+        inputSchema: {}
+        outputSchema: {}
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/HandleDefinition'
+        outputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/HandleDefinition'
+        supportsDryRun:
+          type: boolean
+        tags:
+          type: array
+          items:
+            type: string
+        workflowTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowType'
+
+    # --- Graph Layout ---
+    GraphLayoutNode:
+      type: object
+      properties:
+        id:
+          type: string
+        datasourceId:
+          type: string
+        position:
+          type: object
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+
+    GraphLayoutEdge:
+      type: object
+      properties:
+        id:
+          type: string
+        ruleId:
+          type: string
+        source:
+          type: string
+        target:
+          type: string
+        sourceHandle:
+          type: string
+        targetHandle:
+          type: string
+
+    GraphLayout:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphLayoutNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphLayoutEdge'
+        viewport:
+          $ref: '#/components/schemas/WorkflowViewport'
+        updatedBy:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # --- JSONata Assist ---
+    JsonataAssistRequest:
+      type: object
+      required: [description]
+      properties:
+        description:
+          type: string
+        inputSample: {}
+        transformType:
+          type: string
+          enum: [filter, map]
+
+    # --- Integration Types ---
+    IntegrationType:
+      type: string
+      enum:
+        [
+          scm,
+          ci-cd,
+          monitoring,
+          incident-management,
+          infrastructure,
+          security,
+          communication,
+          project-management,
+          analytics,
+          other,
+        ]
+
+    IntegrationBackendType:
+      type: string
+      enum: [http, aws]
+
+    IntegrationAuthType:
+      type: string
+      enum: [header, basic, bearer-token, oauth2-client-credentials, none]
+
+    Integration:
+      type: object
+      required:
+        [
+          id,
+          name,
+          slug,
+          type,
+          host,
+          authType,
+          backendType,
+          enabled,
+          createdAt,
+          updatedAt,
+        ]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        type:
+          $ref: '#/components/schemas/IntegrationType'
+        host:
+          type: string
+        authType:
+          $ref: '#/components/schemas/IntegrationAuthType'
+        backendType:
+          $ref: '#/components/schemas/IntegrationBackendType'
+        enabled:
+          type: boolean
+        requestsPerHour:
+          type: number
+        requestsPerSecond:
+          type: number
+        burstCapacity:
+          type: number
+        config:
+          type: object
+          additionalProperties: true
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateIntegrationInput:
+      type: object
+      required: [name, slug]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        slug:
+          type: string
+          minLength: 1
+        host:
+          type: string
+        type:
+          $ref: '#/components/schemas/IntegrationType'
+        authType:
+          $ref: '#/components/schemas/IntegrationAuthType'
+        authConfig:
+          oneOf:
+            - type: object
+              description: Header auth
+              properties:
+                headers:
+                  type: object
+                  additionalProperties:
+                    type: string
+            - type: object
+              description: Basic auth
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+            - type: object
+              description: Bearer token
+              properties:
+                token:
+                  type: string
+            - type: object
+              description: OAuth2 client credentials
+              properties:
+                clientId:
+                  type: string
+                clientSecret:
+                  type: string
+                tokenUrl:
+                  type: string
+                scope:
+                  type: string
+            - type: 'null'
+        backendType:
+          $ref: '#/components/schemas/IntegrationBackendType'
+        requestsPerHour:
+          type: number
+        requestsPerSecond:
+          type: number
+        burstCapacity:
+          type: number
+        config:
+          type: object
+          additionalProperties: true
+        logoSlug:
+          type: string
+
+    UpdateIntegrationInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        slug:
+          type: string
+          minLength: 1
+        type:
+          $ref: '#/components/schemas/IntegrationType'
+        host:
+          type: string
+        authType:
+          $ref: '#/components/schemas/IntegrationAuthType'
+        authConfig:
+          oneOf:
+            - type: object
+              additionalProperties: true
+            - type: 'null'
+        backendType:
+          $ref: '#/components/schemas/IntegrationBackendType'
+        requestsPerHour:
+          type: number
+        requestsPerSecond:
+          type: number
+        burstCapacity:
+          type: number
+        config:
+          type: object
+          additionalProperties: true
+        logoSlug:
+          type: string
+          nullable: true
+
+    IntegrationRequest:
+      oneOf:
+        - type: object
+          description: HTTP request
+          required: [backendType, path]
+          properties:
+            backendType:
+              type: string
+              const: http
+            path:
+              type: string
+              minLength: 1
+            method:
+              type: string
+              enum: [GET, POST, PUT, PATCH, DELETE]
+              default: GET
+            headers:
+              type: object
+              additionalProperties:
+                type: string
+            body: {}
+        - type: object
+          description: AWS CloudControl resource request
+          required: [backendType, mode, resourceType, accountId, region]
+          properties:
+            backendType:
+              type: string
+              const: aws
+            mode:
+              type: string
+              const: cloud-control
+            resourceType:
+              type: string
+              minLength: 1
+            accountId:
+              type: string
+              minLength: 1
+            region:
+              type: string
+              minLength: 1
+            operation:
+              type: string
+              enum: [get, delete, update, create]
+            identifier:
+              type: string
+            desiredState:
+              type: string
+            patchDocument:
+              type: string
+        - type: object
+          description: AWS signed API request
+          required: [backendType, mode, service, profile, region, path]
+          properties:
+            backendType:
+              type: string
+              const: aws
+            mode:
+              type: string
+              const: service-api
+            service:
+              type: string
+              minLength: 1
+            profile:
+              type: string
+              minLength: 1
+            operation:
+              type: string
+            region:
+              type: string
+              minLength: 1
+            method:
+              type: string
+              enum: [GET, POST, PUT, PATCH, DELETE]
+              default: POST
+            path:
+              type: string
+              minLength: 1
+            headers:
+              type: object
+              additionalProperties:
+                type: string
+            body:
+              type: string
+
+    # --- Integration Schema Types ---
+    IntegrationSchema:
+      type: object
+      properties:
+        id:
+          type: string
+        integrationId:
+          type: string
+        pathPattern:
+          type: string
+        method:
+          type: string
+        jsonSchema:
+          type: object
+          additionalProperties: true
+        sourceType:
+          type: string
+          enum: [spec, inferred]
+        isOverride:
+          type: boolean
+        specUrl:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateIntegrationSchemaInput:
+      type: object
+      required: [integrationId, pathPattern, jsonSchema]
+      properties:
+        integrationId:
+          type: string
+          minLength: 1
+        pathPattern:
+          type: string
+          minLength: 1
+        method:
+          type: string
+          default: GET
+        jsonSchema:
+          type: object
+          additionalProperties: true
+        sourceType:
+          type: string
+          enum: [spec, inferred]
+          default: spec
+        isOverride:
+          type: boolean
+          default: false
+        specUrl:
+          type: string
+        description:
+          type: string
+
+    UpdateIntegrationSchemaInput:
+      type: object
+      properties:
+        pathPattern:
+          type: string
+          minLength: 1
+        method:
+          type: string
+        jsonSchema:
+          type: object
+          additionalProperties: true
+        sourceType:
+          type: string
+          enum: [spec, inferred]
+        isOverride:
+          type: boolean
+        description:
+          type: string
+
+    # --- Datastore Types ---
+    DatastoreObject:
+      type: object
+      required: [id, datasourceId, objectId, object, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+        datasourceId:
+          type: string
+        objectId:
+          type: string
+        object: {}
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    DatastoreObjectWithRelationships:
+      allOf:
+        - $ref: '#/components/schemas/DatastoreObject'
+        - type: object
+          properties:
+            relationships:
+              type: array
+              items:
+                $ref: '#/components/schemas/ObjectRelationship'
+
+    ObjectRelationship:
+      allOf:
+        - $ref: '#/components/schemas/Relationship'
+        - type: object
+          properties:
+            direction:
+              type: string
+              enum: [outgoing, incoming]
+
+    DatastoreQueryResult:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatastoreObject'
+        total:
+          type: integer
+        explain:
+          type: object
+
+    ObjectGraphNodeSummary:
+      type: object
+      required: [id, datasourceId, objectId, label, displayName]
+      properties:
+        id:
+          type: string
+        datasourceId:
+          type: string
+        objectId:
+          type: string
+        label:
+          type: string
+        displayName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ObjectGraphRelationshipSummary:
+      type: object
+      required:
+        [
+          id,
+          sourceDatasourceId,
+          sourceObjectId,
+          destinationDatasourceId,
+          destinationObjectId,
+          relationshipType,
+          origin,
+        ]
+      properties:
+        id:
+          type: string
+        sourceDatasourceId:
+          type: string
+        sourceObjectId:
+          type: string
+        destinationDatasourceId:
+          type: string
+        destinationObjectId:
+          type: string
+        relationshipType:
+          type: string
+        ruleId:
+          type: string
+          nullable: true
+        origin:
+          type: string
+        confidence:
+          type: number
+          nullable: true
+
+    ObjectGraphResult:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectGraphNodeSummary'
+        relationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectGraphRelationshipSummary'
+        totals:
+          type: object
+          properties:
+            objects:
+              type: integer
+            relationships:
+              type: integer
+        truncated:
+          type: boolean
+
+    RootedObjectGraphNodeSummary:
+      allOf:
+        - $ref: '#/components/schemas/ObjectGraphNodeSummary'
+        - type: object
+          required: [depth, hiddenNeighborCount]
+          properties:
+            depth:
+              type: integer
+              description: Minimum hops from the root
+            hiddenNeighborCount:
+              type: integer
+              description: Distinct filtered neighbors not in the returned graph
+
+    RootedObjectGraphResult:
+      allOf:
+        - $ref: '#/components/schemas/ObjectGraphResult'
+        - type: object
+          required: [rootNodeId]
+          properties:
+            nodes:
+              type: array
+              items:
+                $ref: '#/components/schemas/RootedObjectGraphNodeSummary'
+            rootNodeId:
+              type: string
+              description: '`<datasourceId>:<objectId>` of the root'
+
+    ObjectGraphPath:
+      type: object
+      required: [nodes, relationshipIds, hops]
+      properties:
+        nodes:
+          type: array
+          description: Ordered source..target
+          items:
+            type: object
+            required: [datasourceId, objectId]
+            properties:
+              datasourceId:
+                type: string
+              objectId:
+                type: string
+        relationshipIds:
+          type: array
+          items:
+            type: string
+        hops:
+          type: integer
+
+    ObjectGraphPathsResult:
+      allOf:
+        - $ref: '#/components/schemas/ObjectGraphResult'
+        - type: object
+          required: [paths]
+          properties:
+            paths:
+              type: array
+              description: Shortest first
+              items:
+                $ref: '#/components/schemas/ObjectGraphPath'
+
+    RelationshipSummaryItem:
+      type: object
+      required:
+        [sourceDatasourceId, destinationDatasourceId, relationshipType, count]
+      properties:
+        sourceDatasourceId:
+          type: string
+        destinationDatasourceId:
+          type: string
+        relationshipType:
+          type: string
+        count:
+          type: integer
+
+    RelationshipSummaryResult:
+      type: object
+      required: [items, totalRelationships]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationshipSummaryItem'
+        totalRelationships:
+          type: integer
+
+    DatastoreSchema:
+      type: object
+      properties:
+        id:
+          type: string
+        datasourceId:
+          type: string
+        version:
+          type: integer
+        description:
+          type: string
+        schema: {}
+        contentHash:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    IndexConfiguration:
+      type: object
+      required: [id, datasourceId, key, valueExpression]
+      properties:
+        id:
+          type: string
+        datasourceId:
+          type: string
+        key:
+          type: string
+        valueExpression:
+          type: string
+
+    Relationship:
+      type: object
+      required:
+        [
+          id,
+          sourceDatasourceId,
+          sourceObjectId,
+          destinationDatasourceId,
+          destinationObjectId,
+          relationshipType,
+          origin,
+          createdAt,
+          updatedAt,
+        ]
+      properties:
+        id:
+          type: string
+        sourceDatasourceId:
+          type: string
+        sourceObjectId:
+          type: string
+        destinationDatasourceId:
+          type: string
+        destinationObjectId:
+          type: string
+        relationshipType:
+          type: string
+        reciprocalRelationshipType:
+          type: string
+          nullable: true
+        updatedBy:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        ruleId:
+          type: string
+          nullable: true
+        sourceDatastoreId:
+          type: string
+          nullable: true
+        targetDatastoreId:
+          type: string
+          nullable: true
+        origin:
+          type: string
+        confidence:
+          type: number
+          nullable: true
+
+    RelationshipInput:
+      type: object
+      required:
+        [
+          sourceDatasourceId,
+          sourceObjectId,
+          destinationDatasourceId,
+          destinationObjectId,
+          relationshipType,
+        ]
+      properties:
+        sourceDatasourceId:
+          type: string
+          format: uuid
+        sourceObjectId:
+          type: string
+        destinationDatasourceId:
+          type: string
+          format: uuid
+        destinationObjectId:
+          type: string
+        relationshipType:
+          type: string
+
+    RelationshipQueryResult:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relationship'
+        total:
+          type: integer
+
+    RelationshipRuleMatchStrategy:
+      type: string
+      enum: [exact, contains, array_contains, regex, person_name_alias]
+
+    RelationshipRuleState:
+      type: string
+      enum: [suggested, active, inactive]
+
+    RelationshipRuleStrategy:
+      type: string
+      enum: [field-matching, integration-backed]
+
+    RelationshipSuggestionKind:
+      type: string
+      enum: [identity, relationship]
+
+    RelationshipConfidenceBand:
+      type: string
+      enum: [high, medium, low]
+
+    IntegrationBackedSourceContext:
+      type: object
+      properties:
+        maxDepth: { type: integer }
+        relationshipTypes:
+          type: array
+          items: { type: string }
+        datasourceIds:
+          type: array
+          items: { type: string }
+
+    IntegrationBackedConfig:
+      type: object
+      required: [integrationId, path, responseMatchExpression]
+      properties:
+        integrationId: { type: string }
+        method: { type: string }
+        path: { type: string }
+        pathExpression: { type: string }
+        sourceContext:
+          $ref: '#/components/schemas/IntegrationBackedSourceContext'
+        responseMatchExpression: { type: string }
+        metadataExpression: { type: string }
+
+    RelationshipRule:
+      type: object
+      required:
+        [
+          id,
+          name,
+          sourceDatasourceId,
+          targetDatasourceId,
+          sourceFieldExpression,
+          targetFieldExpression,
+          relationshipType,
+          strategy,
+          matchStrategy,
+          origin,
+          state,
+          createdAt,
+          updatedAt,
+        ]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        sourceDatasourceId:
+          type: string
+        targetDatasourceId:
+          type: string
+        sourceFieldExpression:
+          type: string
+        targetFieldExpression:
+          type: string
+        sourceFilterExpression:
+          type: string
+          nullable: true
+        targetFilterExpression:
+          type: string
+          nullable: true
+        relationshipType:
+          type: string
+        reciprocalRelationshipType:
+          type: string
+          nullable: true
+        strategy:
+          $ref: '#/components/schemas/RelationshipRuleStrategy'
+        matchStrategy:
+          $ref: '#/components/schemas/RelationshipRuleMatchStrategy'
+        integrationConfig:
+          $ref: '#/components/schemas/IntegrationBackedConfig'
+          nullable: true
+        origin:
+          type: string
+        state:
+          $ref: '#/components/schemas/RelationshipRuleState'
+        suggestionKind:
+          $ref: '#/components/schemas/RelationshipSuggestionKind'
+          nullable: true
+        score:
+          type: number
+          nullable: true
+        confidenceBand:
+          $ref: '#/components/schemas/RelationshipConfidenceBand'
+          nullable: true
+        evidenceSummary:
+          type: object
+          nullable: true
+          readOnly: true
+          additionalProperties: true
+          description: Suggestion scoring evidence; complex read-only structure.
+        reviewReason:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    RelationshipRuleInput:
+      type: object
+      required:
+        [
+          name,
+          sourceDatasourceId,
+          targetDatasourceId,
+          sourceFieldExpression,
+          targetFieldExpression,
+          relationshipType,
+        ]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        sourceDatasourceId:
+          type: string
+          format: uuid
+        targetDatasourceId:
+          type: string
+          format: uuid
+        sourceFieldExpression:
+          type: string
+        targetFieldExpression:
+          type: string
+        sourceFilterExpression:
+          type: string
+        targetFilterExpression:
+          type: string
+        relationshipType:
+          type: string
+        reciprocalRelationshipType:
+          type: string
+        strategy:
+          $ref: '#/components/schemas/RelationshipRuleStrategy'
+        matchStrategy:
+          $ref: '#/components/schemas/RelationshipRuleMatchStrategy'
+        integrationConfig:
+          $ref: '#/components/schemas/IntegrationBackedConfig'
+          nullable: true
+        origin:
+          type: string
+        state:
+          $ref: '#/components/schemas/RelationshipRuleState'
+        suggestionKind:
+          $ref: '#/components/schemas/RelationshipSuggestionKind'
+        score:
+          type: number
+        confidenceBand:
+          $ref: '#/components/schemas/RelationshipConfidenceBand'
+        evidenceSummary:
+          type: object
+          additionalProperties: true
+        reviewReason:
+          type: string
+
+    RelationshipRulePreviewResult:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              sourceObjectId:
+                type: string
+              relationshipType:
+                type: string
+              targetObjectIds:
+                type: array
+                items:
+                  type: string
+              sourceValue:
+                type: string
+              targetValue:
+                type: string
+              sourceLabel:
+                type: string
+              targetLabels:
+                type: array
+                items:
+                  type: string
+        total:
+          type: integer
+        truncated:
+          type: boolean
+        callLimitReached:
+          type: boolean
+        skippedSources:
+          type: array
+          items:
+            type: string
+        responseSample:
+          type: object
+          required: [sourceObjectId, sourceValue, path, data]
+          properties:
+            sourceObjectId:
+              type: string
+            sourceValue:
+              type: string
+            path:
+              type: string
+            data: {}
+
+    FieldMatchSuggestion:
+      type: object
+      properties:
+        sourceDatasourceId:
+          type: string
+        sourceField:
+          type: string
+        targetDatasourceId:
+          type: string
+        targetField:
+          type: string
+        matchCount:
+          type: integer
+        sampleValues:
+          type: array
+          items:
+            type: string
+        matchStrategy:
+          $ref: '#/components/schemas/RelationshipRuleMatchStrategy'
+
+    SearchResult:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              datasourceId:
+                type: string
+              objectId:
+                type: string
+              object: {}
+        total:
+          type: integer
+        explain:
+          type: object
+
+    # --- Secrets Types ---
+    Secret:
+      type: object
+      properties:
+        name:
+          type: string
+        internalKeyName:
+          type: string
+        description:
+          type: string
+        value:
+          type: string
+        status:
+          type: string
+        helpUrl:
+          type: string
+
+    SecretMetadata:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        internalKeyName:
+          type: string
+        description:
+          type: string
+        helpUrl:
+          type: string
+
+    # --- Capability Types ---
+
+    Workspace:
+      type: object
+      required: [id, name, slug, type, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug:
+          type: string
+          description: Lowercase alphanumerics joined by single hyphens. Immutable.
+        type: { type: string, enum: [organization, team, personal] }
+        svg:
+          type: string
+          nullable: true
+          description: >
+            Square mark as SVG markup, rendered through a data: URL in an
+            `<img>`. Null falls back to the product mark.
+        ownerUserId:
+          type: string
+          nullable: true
+          description: >
+            User id of the owner. Set for personal workspaces only; opaque and
+            provider-shaped, so display it rather than parsing it.
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    WorkspaceInput:
+      type: object
+      required: [name, slug, type]
+      properties:
+        name: { type: string, maxLength: 200 }
+        slug: { type: string }
+        type: { type: string, enum: [organization, personal] }
+        svg: { type: string, nullable: true }
+
+    WorkspaceUpdate:
+      type: object
+      properties:
+        name: { type: string, maxLength: 200 }
+        svg: { type: string, nullable: true }
+
+    Team:
+      type: object
+      required: [id, name, slug, memberCount, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        memberCount: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    TeamInput:
+      type: object
+      required: [name, slug]
+      properties:
+        name: { type: string, maxLength: 200 }
+        slug: { type: string }
+
+    TeamUpdate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, maxLength: 200 }
+
+    TeamMember:
+      type: object
+      required: [userId, email, createdAt]
+      properties:
+        userId: { type: string }
+        email: { type: string, format: email, nullable: true }
+        createdAt: { type: string, format: date-time }
+
+    Capability:
+      type: object
+      required: [id, name, slug, description, instructions]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        description: { type: string }
+        instructions: { type: string }
+        currentVersion: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    CapabilityInput:
+      type: object
+      required: [name, description, instructions]
+      properties:
+        name: { type: string }
+        slug:
+          type: string
+          description: Derived from the name when omitted; kept as-is on update.
+        description: { type: string }
+        instructions: { type: string }
+
+    # --- Action Types ---
+
+    ActionParamType:
+      type: string
+      enum: [string, number, integer, boolean, 'array<string>']
+
+    ActionHeader:
+      type: object
+      required: [key, value]
+      properties:
+        key: { type: string }
+        value: { type: string }
+
+    HttpActionRequest:
+      type: object
+      required: [method, path, headers, body]
+      properties:
+        backendType:
+          type: string
+          enum: [http]
+        method:
+          type: string
+          enum: [GET, POST, PUT, PATCH, DELETE]
+        path: { type: string }
+        headers:
+          type: array
+          items: { $ref: '#/components/schemas/ActionHeader' }
+        body: { type: string }
+
+    AwsServiceActionRequest:
+      type: object
+      required:
+        [
+          backendType,
+          mode,
+          service,
+          profile,
+          region,
+          method,
+          path,
+          headers,
+          body,
+        ]
+      properties:
+        backendType:
+          type: string
+          enum: [aws]
+        mode:
+          type: string
+          enum: [service-api]
+        service: { type: string, minLength: 1 }
+        operation: { type: string }
+        profile: { type: string, minLength: 1 }
+        region: { type: string, minLength: 1 }
+        method:
+          type: string
+          enum: [GET, POST, PUT, PATCH, DELETE]
+        path: { type: string }
+        headers:
+          type: array
+          items: { $ref: '#/components/schemas/ActionHeader' }
+        body: { type: string }
+
+    ActionRequest:
+      oneOf:
+        - $ref: '#/components/schemas/AwsServiceActionRequest'
+        - $ref: '#/components/schemas/HttpActionRequest'
+
+    ActionParam:
+      type: object
+      required: [name, type]
+      properties:
+        name: { type: string, minLength: 1 }
+        type: { $ref: '#/components/schemas/ActionParamType' }
+        description: { type: string }
+        required: { type: boolean }
+        default: {}
+
+    ActionStep:
+      type: object
+      required: [id, integrationId, request]
+      properties:
+        id:
+          type: string
+          pattern: '^[A-Za-z_][A-Za-z0-9_]*$'
+        integrationId: { type: string, minLength: 1 }
+        request: { $ref: '#/components/schemas/ActionRequest' }
+
+    Action:
+      type: object
+      required: [id, name, slug, steps, enabled]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        description: { type: string }
+        parameters:
+          type: array
+          items: { $ref: '#/components/schemas/ActionParam' }
+        steps:
+          type: array
+          items: { $ref: '#/components/schemas/ActionStep' }
+        enabled: { type: boolean }
+        mode:
+          type: string
+          readOnly: true
+          description: >
+            Derived server-side from the steps (read iff every step is a GET).
+        inputSchema:
+          type: object
+          readOnly: true
+          description: Compiled JSON Schema for the action's parameters.
+        currentVersion: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    ActionInput:
+      type: object
+      required: [name, steps]
+      properties:
+        name: { type: string }
+        slug:
+          type: string
+          description: Derived from the name when omitted; kept as-is on update.
+        description: { type: string }
+        parameters:
+          type: array
+          items: { $ref: '#/components/schemas/ActionParam' }
+        steps:
+          type: array
+          items: { $ref: '#/components/schemas/ActionStep' }
+        enabled: { type: boolean }
+
+    # --- Context Group Types ---
+
+    Annotation:
+      type: object
+      required: [title, text]
+      properties:
+        title: { type: string }
+        text: { type: string }
+
+    FieldMapping:
+      type: object
+      required: [source, label]
+      properties:
+        source:
+          type: string
+          description: Dot-notation path into the object JSON.
+        label:
+          type: string
+          description: Key emitted in the projected bundle output.
+
+    IncludeProjection:
+      type: object
+      required: [mode, fields]
+      properties:
+        mode:
+          type: string
+          enum: [include]
+        fields:
+          type: array
+          items: { $ref: '#/components/schemas/FieldMapping' }
+
+    ExcludeProjection:
+      type: object
+      required: [mode, paths]
+      properties:
+        mode:
+          type: string
+          enum: [exclude]
+        paths:
+          type: array
+          items: { type: string }
+          description: Dot-notation paths to remove from the object.
+
+    ContextGroupDatasourceStatus:
+      type: object
+      readOnly: true
+      required: [live]
+      properties:
+        live: { type: boolean }
+        datasourceId: { type: string }
+        seedName: { type: string }
+        displayName: { type: string }
+        inactiveReason: { type: string }
+
+    DatasourceFilter:
+      type: object
+      properties:
+        datasourceId: { type: string }
+        seedName: { type: string }
+        filter:
+          type: string
+          description: Serialized FilterCondition[]; objects must match every condition.
+        status:
+          $ref: '#/components/schemas/ContextGroupDatasourceStatus'
+        projection:
+          oneOf:
+            - $ref: '#/components/schemas/IncludeProjection'
+            - $ref: '#/components/schemas/ExcludeProjection'
+            - type: array
+              items: { $ref: '#/components/schemas/FieldMapping' }
+              description: Legacy include-only form (bare array of mappings).
+        annotation: { $ref: '#/components/schemas/Annotation' }
+
+    ContextGroupRule:
+      type: object
+      required: [id, name, slug, datasources]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        description: { type: string, nullable: true }
+        datasources:
+          type: array
+          items: { $ref: '#/components/schemas/DatasourceFilter' }
+        mergeRelationshipTypes: { type: array, items: { type: string } }
+        annotations:
+          type: array
+          items: { $ref: '#/components/schemas/Annotation' }
+        includeExternalRelations: { type: boolean }
+        seedVersion: { type: integer, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    ContextGroupRuleInput:
+      type: object
+      required: [name, datasources]
+      properties:
+        name: { type: string }
+        slug:
+          type: string
+          description: Derived from the name when omitted; kept as-is on update.
+        description: { type: string, nullable: true }
+        datasources:
+          type: array
+          items: { $ref: '#/components/schemas/DatasourceFilter' }
+        mergeRelationshipTypes: { type: array, items: { type: string } }
+        annotations:
+          type: array
+          items: { $ref: '#/components/schemas/Annotation' }
+        includeExternalRelations: { type: boolean }
+        seedVersion: { type: integer, nullable: true }

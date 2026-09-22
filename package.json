@@ -1,0 +1,93 @@
+{
+  "name": "openroadie",
+  "private": true,
+  "engines": {
+    "node": "^22.22.0 || >=24"
+  },
+  "scripts": {
+    "build": "yarn workspace @roadiehq/cli build && yarn workspace @roadiehq/cli exec roadie-cli repo build",
+    "clean": "yarn workspace @roadiehq/cli build && yarn workspace @roadiehq/cli exec roadie-cli repo clean",
+    "dev": "concurrently -n backend,app -c blue,green \"yarn start-backend\" \"yarn start-app\"",
+    "start-backend": "yarn workspace backend start",
+    "start-app": "yarn workspace app start",
+    "build-app": "yarn workspace app build",
+    "lint": "yarn lint:all && eslint eslint.config.mjs 'packages/app/src/**/*.{ts,tsx,js,jsx,mjs,cjs}' 'packages/app/*.{ts,tsx,js,jsx,mjs,cjs}' 'packages/e2e/**/*.{ts,tsx,js,jsx,mjs,cjs}' --no-error-on-unmatched-pattern",
+    "lint:all": "yarn workspace @roadiehq/cli build && yarn workspace @roadiehq/cli exec roadie-cli repo lint",
+    "test": "yarn workspace @roadiehq/cli build && yarn workspace @roadiehq/cli exec roadie-cli repo test",
+    "tsc": "tsc",
+    "tsc:full": "yarn workspace @roadiehq/cli build && yarn workspace @roadiehq/cli exec roadie-cli package clean && tsc --incremental false",
+    "typecheck": "tsc --noEmit -p tsconfig.check.json && tsc --noEmit -p packages/app/tsconfig.check.json && tsc --noEmit -p packages/e2e/tsconfig.json",
+    "test:ci": "vitest run --coverage",
+    "test:storybook": "yarn workspace app vitest run --project=storybook",
+    "test:e2e": "yarn workspace e2e test",
+    "test:e2e:ui": "yarn workspace e2e test:ui",
+    "test:e2e:headed": "yarn workspace e2e test:headed",
+    "ui:smoke": "yarn build-app && yarn workspace app build-storybook --quiet",
+    "verify": "yarn prettier:check && yarn lint && yarn typecheck",
+    "prettier:check": "prettier --check . --ignore-path .prettierignore",
+    "prettier:write": "prettier --write . --ignore-path .prettierignore",
+    "storybook:smoke": "yarn workspace app build-storybook --quiet",
+    "storybook": "yarn workspace app storybook",
+    "build-storybook": "yarn workspace app build-storybook",
+    "prepare": "husky"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "plugins/*"
+    ]
+  },
+  "resolutions": {
+    "@roadiehq/core-plugin-api": "workspace:^",
+    "@opentelemetry/core": "^2.8.0",
+    "dockerode/uuid": "^11.1.1",
+    "git-url-parse": ">=16.1.0",
+    "js-cookie": "^3.0.7",
+    "knex": "^2.4.0",
+    "luxon": "3.5.0",
+    "prom-client": "^14.0.1",
+    "zod-to-json-schema": "^3.25.1",
+    "@types/luxon": "3.4.2",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "axios": "^1.7.4",
+    "graphql": "^15.5.0",
+    "semver": "^7.6.3",
+    "@types/express": "^4.17.6",
+    "@smithy/types": "2.12.0",
+    "@smithy/middleware-endpoint": "3.2.5",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "isolated-vm": "^6.0.2"
+  },
+  "version": "1.0.0",
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@storybook/react-vite": "^10.5.0",
+    "@vitest/coverage-v8": "4.1.11",
+    "concurrently": "^7.0.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-security": "^4.0.1",
+    "globals": "^17.7.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.62.1",
+    "vitest": "^4.1.11",
+    "zod": "^4.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yaml,yml}": "prettier --write"
+  },
+  "packageManager": "yarn@4.12.0"
+}

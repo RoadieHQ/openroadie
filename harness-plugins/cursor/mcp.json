@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "openroadie": {
+      "url": "<OPENROADIE_URL>/api/mcp/v1/"
+    }
+  }
+}

@@ -1,0 +1,1 @@
+export { SchemaController } from './SchemaController';

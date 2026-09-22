@@ -1,0 +1,1 @@
+export { RelationshipRulesController } from './RelationshipRulesController';
