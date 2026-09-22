@@ -1,0 +1,22 @@
+# Docker/compose runtime overlay.
+#
+# Layered ON TOP of app-config.yaml when the server runs inside the published
+# container image (see Dockerfile CMD). It only overrides what must differ
+# between a laptop `yarn dev` and a containerised deployment:
+#
+#   * the Postgres connection, which points at the compose `postgres` service
+#     via env vars instead of the literal `localhost` baked into app-config.yaml
+# The readiness endpoint `/readiness` (served at root by
+# `@roadiehq/healthcheck-backend`) needs no config here; the CLI `openroadie up`
+# and the compose healthcheck poll `http://localhost:7008/readiness`.
+#
+# `yarn dev` never loads this file, so app-config.yaml keeps its literal
+# `localhost` DB host and dev is unaffected.
+backend:
+  database:
+    connection:
+      host: ${POSTGRES_HOST}
+      port: ${POSTGRES_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+      database: ${POSTGRES_DB}

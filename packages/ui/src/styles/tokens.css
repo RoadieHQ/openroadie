@@ -1,0 +1,796 @@
+/*
+ * @roadiehq/ui Design Tokens
+ *
+ * These CSS variables define the visual language for all @roadiehq/ui components.
+ * Import this file in your app's Tailwind CSS entry point.
+ *
+ * The naming follows shadcn/ui conventions so components work out of the box.
+ * Structure: static tokens (typography, sizing) in @theme inline with literal values;
+ *            color tokens in @theme inline referencing :root/.dark raw variables.
+ *
+ * Spacing conventions (not enforced by tokens — use standard Tailwind classes):
+ *
+ *   Tight inline (icon + label)     → gap-1.5
+ *   Standard inline (row items)     → gap-2
+ *   Section spacing (card grids)    → gap-4
+ *   Page section spacing            → gap-6
+ *   Container internal (compact)    → p-4
+ *   Container internal (standard)   → p-6
+ *   List row internal               → p-3, gap-4
+ */
+
+@theme inline {
+  /* Typography scale — matches old app's 10/11/12/14/16/18/20px scale */
+  --text-2xs: 0.625rem; /* 10px */
+  --text-2xs--line-height: 0.875rem;
+  --text-xs: 0.6875rem; /* 11px */
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.75rem; /* 12px */
+  --text-sm--line-height: 1.125rem;
+  --text-base: 0.875rem; /* 14px */
+  --text-base--line-height: 1.3125rem;
+  --text-lg: 1rem; /* 16px */
+  --text-lg--line-height: 1.5rem;
+  --text-xl: 1.125rem; /* 18px */
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.25rem; /* 20px */
+  --text-2xl--line-height: 1.75rem;
+
+  /* Heading tracking */
+  --tracking-heading: -0.015em;
+
+  /* Icon sizes */
+  --size-icon-sm: 1rem;
+  --size-icon: 1.125rem;
+  --size-icon-lg: 1.375rem;
+
+  /* Input field spacing */
+  --spacing-input-x: 14px;
+  --spacing-input-y: 8.5px;
+
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Z-index scale */
+  --z-index-base: 0;
+  --z-index-raised: 1;
+  --z-index-float: 10;
+  --z-index-dropdown: 50;
+  --z-index-overlay: 50;
+  --z-index-tooltip: 50;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+  /* Motion */
+  --motion-duration-instant: 0ms;
+  --motion-duration-micro: 100ms;
+  --motion-duration-fast: 150ms;
+  --motion-duration-standard: 200ms;
+  --motion-duration-panel: 300ms;
+  --motion-duration-focus: 450ms;
+  --motion-duration-emphasis: 800ms;
+  --motion-ease-linear: linear;
+  --motion-ease-out: ease-out;
+  --motion-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Animations for Radix components */
+  --animate-accordion-down: accordion-down var(--motion-duration-standard)
+    var(--motion-ease-out);
+  --animate-accordion-up: accordion-up var(--motion-duration-standard)
+    var(--motion-ease-out);
+  --animate-collapsible-down: collapsible-down var(--motion-duration-standard)
+    var(--motion-ease-out);
+  --animate-collapsible-up: collapsible-up var(--motion-duration-standard)
+    var(--motion-ease-out);
+  --animate-skeleton:
+    fade-in var(--motion-duration-fast) var(--motion-ease-out)
+      var(--motion-duration-standard) forwards,
+    pulse 2s cubic-bezier(0.4, 0, 0.6, 1) 0.35s infinite;
+
+  /* Font families */
+  --font-sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-heading: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
+    monospace;
+
+  /* Semantic colors — bridged from :root / .dark raw variables */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-input-border: var(--input-border);
+  --color-input-border-hover: var(--input-border-hover);
+  --color-input-border-focus: var(--input-border-focus);
+  --color-overlay: var(--overlay);
+  --color-divider: var(--divider);
+  --color-disabled: var(--disabled);
+  --color-disabled-foreground: var(--disabled-foreground);
+  --color-brand: var(--brand);
+  --color-nav-text: var(--nav-text);
+  --color-nav-hover: var(--nav-hover);
+  --color-nav-active: var(--nav-active);
+  /* Sidebar shell (shadcn-style dashboard layout) */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-tooltip: var(--tooltip);
+  --color-tooltip-foreground: var(--tooltip-foreground);
+  --color-integration-icon-well: var(--integration-icon-well);
+}
+
+/* ── Raw color values ── */
+
+:root {
+  --background: #f8f8f8;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #1f5493;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #171717;
+  --muted: #f4f4f5;
+  --muted-foreground: #6e6e6e;
+  --accent: #f4f4f5;
+  --accent-foreground: #171717;
+  /* These hues are tuned for text, not fills — `text-destructive` alone has
+     ~138 uses vs ~48 fills. That is why `--destructive` is darker here than in
+     the dark themes: don't unify them, it drops `text-destructive` on a dark
+     ground to 3.7:1. The `-foreground` tokens are painted only on the matching
+     solid fill, so each is whatever passes 4.5:1 against it. */
+  --destructive: #d9262a;
+  --destructive-foreground: #ffffff;
+  --success: #16a34a;
+  --success-foreground: #171717;
+  --warning: #eab308;
+  --warning-foreground: #171717;
+  --info: #3b82f6;
+  --border: #e6e6e6;
+  --input: #e6e6e6;
+  --ring: #1f5493;
+  --surface: #ffffff;
+  --surface-foreground: #171717;
+  --input-border: #c4c4c4;
+  --input-border-hover: #171717;
+  --input-border-focus: var(--primary);
+  --overlay: rgba(0, 0, 0, 0.5);
+  --divider: rgba(0, 0, 0, 0.12);
+  --disabled: rgba(0, 0, 0, 0.12);
+  --disabled-foreground: rgba(0, 0, 0, 0.26);
+  --brand: #f97316;
+  --nav-text: #6e6e6e;
+  --nav-hover: rgba(0, 0, 0, 0.06);
+  --nav-active: rgba(0, 0, 0, 0.1);
+  --sidebar: #f3f3f4;
+  --sidebar-foreground: #171717;
+  --sidebar-primary: #1f5493;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8e8ea;
+  --sidebar-accent-foreground: #171717;
+  --sidebar-border: #e6e6e6;
+  --sidebar-ring: #1f5493;
+  --tooltip: #ffffff;
+  --tooltip-foreground: #262626;
+  --integration-icon-well: #ffffff;
+
+  /* Side sheet / detail-drawer widths. Fluid (clamp) so the panel scales with
+     the viewport but never dominates: min keeps it usable on small laptops, the
+     vw term tracks larger screens, the max caps it on ultrawide. `md` is the
+     detail-drawer default. */
+  --sheet-width-sm: clamp(22rem, 26vw, 30rem);
+  --sheet-width-md: clamp(28rem, 34vw, 40rem);
+  --sheet-width-lg: clamp(34rem, 44vw, 52rem);
+  --sheet-width-xl: clamp(44rem, 58vw, 68rem);
+
+  /* Floating-label field notch: defaults to the page surface; card-like
+     surface primitives (Card, Dialog, Popover, StepNode) override this to
+     their own background so nested fields inherit the correct mask color. */
+  --field-bg: var(--color-background);
+
+  /* CodeMirror syntax tokens (consumed from JS by @roadiehq/ui/editor).
+     CodeMirror's own basicSetup highlight style is tuned for light
+     backgrounds only, so we drive token colors from these vars instead and
+     flip them per theme. Values are AA-contrast against the editor surface
+     (page background) in their respective theme. Light palette here; the
+     .dark / prefers-color-scheme block overrides with the dark palette. */
+  --cm-keyword: #cf222e;
+  --cm-string: #0a3069;
+  --cm-number: #0550ae;
+  --cm-bool: #0550ae;
+  --cm-comment: #57606a;
+  --cm-property: #0550ae;
+  --cm-variable: #953800;
+  --cm-function: #8250df;
+  --cm-type: #116329;
+  --cm-operator: #016690;
+  --cm-link: #0a3069;
+  --cm-heading: #0550ae;
+  --cm-meta: #57606a;
+  --cm-invalid: #cf222e;
+}
+
+/* ── Keyframes ── */
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@keyframes collapsible-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
+}
+
+@keyframes collapsible-up {
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes motion-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes motion-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(
+        var(--motion-enter-x, 0),
+        var(--motion-enter-y, 0),
+        0
+      )
+      scale(var(--motion-enter-scale, 1));
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes motion-exit {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(var(--motion-exit-x, 0), var(--motion-exit-y, 0), 0)
+      scale(var(--motion-exit-scale, 1));
+  }
+}
+
+/*
+ * Centering is handled by the `translate-x/y-[-50%]` utilities on the dialog,
+ * which in Tailwind v4 emit the standalone `translate:` property. These
+ * keyframes must therefore animate only the entrance delta (scale + a subtle
+ * 2% slide) via `transform`. Re-encoding the -50%,-50% centering here would
+ * double-apply it during the animation and snap the dialog to center on
+ * completion.
+ */
+@keyframes motion-dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(2%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes motion-dialog-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(2%) scale(0.95);
+  }
+}
+
+/*
+ * Side-sheet slide. The sheet is anchored to a viewport edge, so it animates a
+ * full-width translate (0 ↔ ±100%) rather than the subtle delta the centered
+ * dialog uses. Side is selected via the `data-side` attribute set on the sheet
+ * content, mirroring the popover/tooltip convention.
+ */
+@keyframes motion-sheet-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes motion-sheet-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes motion-sheet-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes motion-sheet-out-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@layer utilities {
+  .motion-colors {
+    @apply transition-colors;
+  }
+
+  .motion-opacity {
+    @apply transition-opacity;
+  }
+
+  .motion-opacity-micro {
+    @apply transition-opacity duration-100;
+  }
+
+  .motion-opacity-fast {
+    @apply transition-opacity duration-150;
+  }
+
+  .motion-transform {
+    @apply transition-transform;
+  }
+
+  .motion-transform-fast {
+    @apply transition-transform duration-150;
+  }
+
+  .motion-transform-standard {
+    @apply transition-transform duration-200;
+  }
+
+  .motion-transform-standard-reduced {
+    @apply transition-transform duration-200 ease-out motion-reduce:transition-none;
+  }
+
+  .motion-transform-interactive {
+    @apply transition-transform active:scale-[0.96];
+  }
+
+  .motion-all {
+    @apply transition-all;
+  }
+
+  .motion-all-fast {
+    @apply transition-all duration-150;
+  }
+
+  .motion-all-standard {
+    @apply transition-all duration-200;
+  }
+
+  .motion-all-panel {
+    @apply transition-all duration-300;
+  }
+
+  .motion-layout-width {
+    @apply transition-[width] duration-200;
+  }
+
+  .motion-layout-width-bare {
+    @apply transition-[width];
+  }
+
+  .motion-sidebar-shell {
+    @apply transition-[width,padding] duration-200 motion-reduce:transition-none;
+  }
+
+  .motion-sidebar-item {
+    @apply transition-[color,background-color,box-shadow] duration-150 motion-reduce:transition-none;
+  }
+
+  .motion-panel {
+    @apply transition-transform duration-300 ease-out;
+  }
+
+  .motion-panel-width {
+    @apply transition-[width,min-width,border-color] duration-300 ease-out;
+  }
+
+  .motion-height-standard {
+    @apply transition-[height] duration-200 ease-out motion-reduce:transition-none;
+  }
+
+  .motion-grid-rows-standard {
+    @apply transition-[grid-template-rows] duration-200;
+  }
+
+  .motion-border-opacity {
+    @apply transition-[border-color,border-width,opacity] duration-200;
+  }
+
+  .motion-workflow-node {
+    @apply transition-[width,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)];
+  }
+
+  .motion-workflow-actions {
+    @apply transition-[opacity,width] duration-150 ease-[cubic-bezier(0.4,0,0.2,1)];
+  }
+
+  .motion-icon-spin {
+    @apply animate-spin;
+  }
+
+  .motion-pulse {
+    @apply animate-pulse;
+  }
+
+  .motion-safe-pulse {
+    @apply motion-safe:animate-pulse;
+  }
+
+  .motion-skeleton {
+    @apply animate-skeleton;
+  }
+
+  .motion-accordion-down {
+    @apply animate-accordion-down;
+  }
+
+  .motion-accordion-up {
+    @apply animate-accordion-up;
+  }
+
+  .motion-collapsible-down {
+    @apply animate-collapsible-down;
+  }
+
+  .motion-collapsible-up {
+    @apply animate-collapsible-up;
+  }
+
+  .motion-action-notice {
+    --motion-enter-y: -0.25rem;
+    animation: motion-enter var(--motion-duration-fast) var(--motion-ease-out);
+  }
+
+  .motion-radix-overlay[data-state='open'] {
+    animation: fade-in var(--motion-duration-fast) var(--motion-ease-out);
+  }
+
+  .motion-radix-overlay[data-state='closed'] {
+    animation: motion-fade-out var(--motion-duration-fast)
+      var(--motion-ease-out);
+  }
+
+  .motion-radix-popover,
+  .motion-radix-tooltip,
+  .motion-vertical-disclosure {
+    --motion-enter-scale: 1;
+    --motion-exit-scale: 1;
+  }
+
+  .motion-radix-popover[data-side='bottom'],
+  .motion-radix-tooltip[data-side='bottom'] {
+    --motion-enter-y: -0.5rem;
+  }
+
+  .motion-radix-popover[data-side='top'],
+  .motion-radix-tooltip[data-side='top'] {
+    --motion-enter-y: 0.5rem;
+  }
+
+  .motion-radix-popover[data-side='left'],
+  .motion-radix-tooltip[data-side='left'] {
+    --motion-enter-x: 0.5rem;
+  }
+
+  .motion-radix-popover[data-side='right'],
+  .motion-radix-tooltip[data-side='right'] {
+    --motion-enter-x: -0.5rem;
+  }
+
+  .motion-radix-popover[data-state='open'],
+  .motion-radix-tooltip,
+  .motion-vertical-disclosure[data-state='open'] {
+    --motion-enter-scale: 0.95;
+    animation: motion-enter var(--motion-duration-standard)
+      var(--motion-ease-out);
+  }
+
+  .motion-radix-popover[data-state='closed'],
+  .motion-radix-tooltip[data-state='closed'],
+  .motion-vertical-disclosure[data-state='closed'] {
+    --motion-exit-scale: 0.95;
+    animation: motion-exit var(--motion-duration-standard)
+      var(--motion-ease-out);
+  }
+
+  .motion-vertical-disclosure[data-state='open'] {
+    --motion-enter-y: -0.5rem;
+  }
+
+  .motion-vertical-disclosure[data-state='closed'] {
+    --motion-exit-y: -0.5rem;
+  }
+
+  .motion-radix-dialog-content[data-state='open'] {
+    animation: motion-dialog-enter var(--motion-duration-standard)
+      var(--motion-ease-out);
+  }
+
+  .motion-radix-dialog-content[data-state='closed'] {
+    animation: motion-dialog-exit var(--motion-duration-standard)
+      var(--motion-ease-out);
+  }
+
+  .motion-sheet-content[data-side='right'][data-state='open'] {
+    animation: motion-sheet-in-right var(--motion-duration-standard)
+      var(--motion-ease-out);
+  }
+
+  .motion-sheet-content[data-side='right'][data-state='closed'] {
+    animation: motion-sheet-out-right var(--motion-duration-standard)
+      var(--motion-ease-out);
+  }
+
+  .motion-sheet-content[data-side='left'][data-state='open'] {
+    animation: motion-sheet-in-left var(--motion-duration-standard)
+      var(--motion-ease-out);
+  }
+
+  .motion-sheet-content[data-side='left'][data-state='closed'] {
+    animation: motion-sheet-out-left var(--motion-duration-standard)
+      var(--motion-ease-out);
+  }
+
+  .motion-nested-button-colors button {
+    @apply transition-colors;
+  }
+}
+
+/* ── Base layer ── */
+
+@layer base {
+  a[href],
+  button,
+  [role='option'],
+  [role='menuitem'],
+  [role='menuitemcheckbox'],
+  [role='menuitemradio'],
+  [role='combobox'],
+  [role='tab'],
+  [role='switch'],
+  select,
+  summary,
+  [type='checkbox'],
+  [type='radio'] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  [type='checkbox']:disabled,
+  [type='radio']:disabled {
+    cursor: not-allowed;
+  }
+}
+
+/*
+ * Dark mode overrides.
+ * Both blocks below MUST stay in sync — CSS has no native way to
+ * share property sets between a @media context and a class selector.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --background: #141414;
+    --foreground: #e8e8e8;
+    --card: #1c1c1c;
+    --card-foreground: #e8e8e8;
+    --popover: #1c1c1c;
+    --popover-foreground: #e8e8e8;
+    --primary: #9cc9ff;
+    --primary-foreground: rgba(0, 0, 0, 0.87);
+    --secondary: #1c1c1c;
+    --secondary-foreground: #e8e8e8;
+    --muted: #252525;
+    --muted-foreground: rgba(255, 255, 255, 0.55);
+    --accent: #252525;
+    --accent-foreground: #e8e8e8;
+    --destructive: #ff252a;
+    --destructive-foreground: #171717;
+    --success: #16a34a;
+    --success-foreground: #171717;
+    --warning: #eab308;
+    --warning-foreground: #171717;
+    --info: #3b82f6;
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(255, 255, 255, 0.1);
+    --ring: #9cc9ff;
+    --surface: #1c1c1c;
+    --surface-foreground: #e8e8e8;
+    --input-border: rgba(255, 255, 255, 0.18);
+    --input-border-hover: rgba(255, 255, 255, 0.9);
+    --input-border-focus: var(--primary);
+    --overlay: rgba(0, 0, 0, 0.6);
+    --divider: rgba(255, 255, 255, 0.1);
+    --disabled: rgba(255, 255, 255, 0.08);
+    --disabled-foreground: rgba(255, 255, 255, 0.25);
+    --nav-text: #a0a0a0;
+    --nav-hover: rgba(255, 255, 255, 0.06);
+    --nav-active: rgba(255, 255, 255, 0.1);
+    --sidebar: #111111;
+    --sidebar-foreground: rgba(255, 255, 255, 0.9);
+    --sidebar-primary: #9cc9ff;
+    --sidebar-primary-foreground: rgba(0, 0, 0, 0.87);
+    --sidebar-accent: rgba(255, 255, 255, 0.06);
+    --sidebar-accent-foreground: #e8e8e8;
+    --sidebar-border: rgba(255, 255, 255, 0.08);
+    --sidebar-ring: #9cc9ff;
+    --tooltip: #252525;
+    --tooltip-foreground: rgba(255, 255, 255, 0.9);
+    --integration-icon-well: #ffffff;
+
+    /* CodeMirror syntax tokens — dark palette (AA on #141414). */
+    --cm-keyword: #c678dd;
+    --cm-string: #98c379;
+    --cm-number: #d19a66;
+    --cm-bool: #d19a66;
+    --cm-comment: #8b919e;
+    --cm-property: #e06c75;
+    --cm-variable: #e06c75;
+    --cm-function: #61afef;
+    --cm-type: #e5c07b;
+    --cm-operator: #56b6c2;
+    --cm-link: #61afef;
+    --cm-heading: #e06c75;
+    --cm-meta: #8b919e;
+    --cm-invalid: #ff5370;
+  }
+}
+
+/* Keep in sync with @media block above */
+.dark {
+  --background: #141414;
+  --foreground: #e8e8e8;
+  --card: #1c1c1c;
+  --card-foreground: #e8e8e8;
+  --popover: #1c1c1c;
+  --popover-foreground: #e8e8e8;
+  --primary: #9cc9ff;
+  --primary-foreground: rgba(0, 0, 0, 0.87);
+  --secondary: #1c1c1c;
+  --secondary-foreground: #e8e8e8;
+  --muted: #252525;
+  --muted-foreground: rgba(255, 255, 255, 0.55);
+  --accent: #252525;
+  --accent-foreground: #e8e8e8;
+  --destructive: #ff252a;
+  --destructive-foreground: #171717;
+  --success: #16a34a;
+  --success-foreground: #171717;
+  --warning: #eab308;
+  --warning-foreground: #171717;
+  --info: #3b82f6;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #9cc9ff;
+  --surface: #1c1c1c;
+  --surface-foreground: #e8e8e8;
+  --input-border: rgba(255, 255, 255, 0.18);
+  --input-border-hover: rgba(255, 255, 255, 0.9);
+  --input-border-focus: var(--primary);
+  --overlay: rgba(0, 0, 0, 0.6);
+  --divider: rgba(255, 255, 255, 0.1);
+  --disabled: rgba(255, 255, 255, 0.08);
+  --disabled-foreground: rgba(255, 255, 255, 0.25);
+  --nav-text: #a0a0a0;
+  --nav-hover: rgba(255, 255, 255, 0.06);
+  --nav-active: rgba(255, 255, 255, 0.1);
+  --sidebar: #111111;
+  --sidebar-foreground: rgba(255, 255, 255, 0.9);
+  --sidebar-primary: #9cc9ff;
+  --sidebar-primary-foreground: rgba(0, 0, 0, 0.87);
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #e8e8e8;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #9cc9ff;
+  --tooltip: #252525;
+  --tooltip-foreground: rgba(255, 255, 255, 0.9);
+  --integration-icon-well: #ffffff;
+
+  /* CodeMirror syntax tokens — dark palette (AA on #141414). */
+  --cm-keyword: #c678dd;
+  --cm-string: #98c379;
+  --cm-number: #d19a66;
+  --cm-bool: #d19a66;
+  --cm-comment: #8b919e;
+  --cm-property: #e06c75;
+  --cm-variable: #e06c75;
+  --cm-function: #61afef;
+  --cm-type: #e5c07b;
+  --cm-operator: #56b6c2;
+  --cm-link: #61afef;
+  --cm-heading: #e06c75;
+  --cm-meta: #8b919e;
+  --cm-invalid: #ff5370;
+}

@@ -1,0 +1,17 @@
+# Scope enforcement for the MCP audit-log REST API. `mcp:query` gates the audit
+# log only — MCP tool calls are gated per-tool (see the mcp: sections elsewhere).
+
+api:
+  # --- mcp:query (audit log) ---
+  - method: get
+    url: /api/mcp/audit-log
+    scopes: ['mcp:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/mcp/audit-log
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: get
+    url: /api/mcp/audit-log/facets
+    scopes: ['mcp:query']
+    expectations: { status: 200 }

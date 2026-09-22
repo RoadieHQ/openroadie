@@ -1,0 +1,178 @@
+tenant: development
+
+app:
+  title: openroadie
+  baseUrl: http://localhost:3333
+
+backend:
+  baseUrl: http://localhost:7008
+  listen:
+    port: 7008
+  database:
+    client: pg
+    connection:
+      host: localhost
+      port: 5432
+      user: postgres
+      database: postgres
+  cors:
+    origin:
+      - http://localhost:3000
+      - http://localhost:3333
+    methods: [GET, POST, PATCH, PUT, DELETE]
+    credentials: true
+  reading:
+    allow:
+      - host: example.com
+      - host: '*.mozilla.org'
+
+contextBundles:
+  enabled: true
+
+relationships:
+  suggestionProducer: api
+  # Splink is an optional additive candidate source for rule suggestions.
+  # Install `@roadiehq/catalog-datastore-module-splink` to register it. When
+  # enabled, it runs alongside the deterministic pipeline and its matches are
+  # merged into the same `relationship_rule` suggestions flow.
+  splink:
+    enabled: false
+
+single-sign-on:
+  name: guest
+  config: {}
+
+organization:
+  name: My Company
+
+secretsSettings:
+  storage: dotenv
+  dotenvPath: ../../secrets.env
+  secrets:
+    - name: GitHub personal access token
+      internalName: GITHUB_TOKEN
+      description: Token used by the built-in GitHub REST integration (auth_type=header).
+      helpUrl: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+    - name: GitHub App private key
+      internalName: GITHUB_APP_PRIVATE_KEY
+      description: PEM-encoded private key minted when you install the GitHub App wired via githubApps in app-config. Default ref for the github-app config resolver.
+      helpUrl: https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/managing-private-keys-for-github-apps
+    - name: GitHub App client secret
+      internalName: GITHUB_APP_CLIENT_SECRET
+      description: OAuth client secret for the GitHub App used to sign install-link state JWTs
+      helpUrl: https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/about-authentication-with-a-github-app
+    - name: GitLab personal access token
+      internalName: GITLAB_TOKEN
+      description: Token for the built-in GitLab integration.
+      helpUrl: https://docs.gitlab.com/user/profile/personal_access_tokens/
+    - name: Anthropic API Key
+      internalName: AI_PROVIDER_ANTHROPIC_API_KEY
+      description: Anthropic API Key
+    - name: OpenAI API Key
+      internalName: AI_PROVIDER_OPENAI_API_KEY
+      description: OpenAI API Key
+    - name: CircleCI personal API token
+      internalName: CIRCLECI_AUTH_TOKEN
+      description: Token for the built-in CircleCI integration.
+      helpUrl: https://circleci.com/docs/managing-api-tokens/
+    - name: PagerDuty REST API token
+      internalName: PAGERDUTY_TOKEN
+      description: Token for the built-in PagerDuty integration.
+      helpUrl: https://support.pagerduty.com/main/docs/api-access-keys
+    - name: Snyk API token
+      internalName: SNYK_TOKEN
+      description: Token for the built-in Snyk integration.
+      helpUrl: https://docs.snyk.io/snyk-api/authentication-for-api
+    - name: Buildkite API access token
+      internalName: BUILDKITE_TOKEN
+      description: Token for the built-in Buildkite integration.
+      helpUrl: https://buildkite.com/docs/apis/managing-api-tokens
+    - name: LaunchDarkly API access token
+      internalName: LAUNCHDARKLY_API_KEY
+      description: Token for the built-in LaunchDarkly integration.
+      helpUrl: https://launchdarkly.com/docs/home/account/api
+    - name: Bugsnag personal auth token
+      internalName: BUGSNAG_PERSONAL_TOKEN
+      description: Token for the built-in Bugsnag integration.
+      helpUrl: https://docs.bugsnag.com/api/data-access/
+    - name: Pulumi access token
+      internalName: PULUMI_ACCESS_TOKEN
+      description: Token for the built-in Pulumi integration.
+      helpUrl: https://www.pulumi.com/docs/pulumi-cloud/accounts/#access-tokens
+    - name: Shortcut access token
+      internalName: SHORTCUT_ACCESS_TOKEN
+      description: Token for the built-in Shortcut integration.
+      helpUrl: https://developer.shortcut.com/api/rest/v3#Authentication
+    - name: Datadog API key
+      internalName: DD_API_TOKEN
+      description: API key for the built-in Datadog integration.
+      helpUrl: https://docs.datadoghq.com/account_management/api-app-keys/
+    - name: Datadog application key
+      internalName: DD_APP_TOKEN
+      description: Application key for the built-in Datadog integration.
+      helpUrl: https://docs.datadoghq.com/account_management/api-app-keys/
+    - name: SonarCloud API token
+      internalName: SONARCLOUD_API_TOKEN
+      description: Token for the built-in SonarCloud integration.
+      helpUrl: https://docs.sonarsource.com/sonarqube-cloud/managing-your-account/managing-tokens/
+    - name: Rootly API key
+      internalName: ROOTLY_API_KEY
+      description: Key for the built-in Rootly integration.
+      helpUrl: https://docs.rootly.com/api-reference/overview
+    - name: Harness API key
+      internalName: HARNESS_API_KEY
+      description: Personal API key for the built-in Harness integration.
+      helpUrl: https://developer.harness.io/docs/platform/automation/api/api-quickstart/
+    - name: Humanitec API token
+      internalName: HUMANITEC_TOKEN
+      description: Token for the built-in Humanitec integration.
+      helpUrl: https://developer.humanitec.com/platform-orchestrator/reference/api-references/
+    - name: incident.io API key
+      internalName: INCIDENT_API_KEY
+      description: Key for the built-in incident.io integration.
+      helpUrl: https://api-docs.incident.io/
+    - name: Azure DevOps personal access token
+      internalName: AZURE_TOKEN
+      description: PAT used as the HTTP basic-auth password for the built-in Azure DevOps integration.
+      helpUrl: https://learn.microsoft.com/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate
+    - name: Bitbucket username
+      internalName: BITBUCKET_USER
+      description: Bitbucket Cloud username for the built-in bitbucket-cloud integration's basic auth.
+    - name: Bitbucket app password
+      internalName: BITBUCKET_APP_PASSWORD
+      description: Bitbucket Cloud app password for the built-in bitbucket-cloud integration.
+      helpUrl: https://support.atlassian.com/bitbucket-cloud/docs/app-passwords/
+    - name: Azure AD client ID
+      internalName: AZURE_CLIENT_ID
+      description: Client ID of the app registration used by the built-in microsoft-graph and azure-arm integrations.
+      helpUrl: https://learn.microsoft.com/entra/identity-platform/quickstart-register-app
+    - name: Azure AD client secret
+      internalName: AZURE_CLIENT_SECRET
+      description: Client secret of the app registration used by the built-in microsoft-graph and azure-arm integrations.
+      helpUrl: https://learn.microsoft.com/entra/identity-platform/quickstart-register-app
+    - name: Azure AD tenant ID
+      internalName: AZURE_TENANT_ID
+      description: Tenant ID interpolated into the token URL for the built-in microsoft-graph and azure-arm integrations.
+      helpUrl: https://learn.microsoft.com/entra/fundamentals/how-to-find-tenant
+    - name: GCP client email
+      internalName: GCP_CLIENT_EMAIL
+      description: JWT issuer for the built-in gcp-resources and gcp-workspace integrations.
+      helpUrl: https://cloud.google.com/iam/docs/service-account-overview
+    - name: GCP service account private key
+      internalName: GCP_PRIVATE_KEY
+      description: PEM-encoded JWT signing key for the built-in gcp-resources and gcp-workspace integrations.
+      helpUrl: https://cloud.google.com/iam/docs/keys-create-delete
+
+# To ingest GitHub data through a GitHub App of your own, register one
+# (https://docs.github.com/en/apps/creating-github-apps) and fill this in:
+#
+# githubApps:
+#   - appId: <your app id>
+#     slug: <your-app-slug>
+#     purposes: [data-source]
+#     hosts: [github.com]
+#     privateKeyRef: GITHUB_APP_PRIVATE_KEY
+#     clientId: <your client id>
+#     clientSecretRef: GITHUB_APP_CLIENT_SECRET
+#
+# A plain GITHUB_TOKEN secret works for most setups without an App.

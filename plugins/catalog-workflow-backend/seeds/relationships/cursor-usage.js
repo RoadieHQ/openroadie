@@ -1,0 +1,26 @@
+module.exports = [
+  {
+    name: 'Cursor member → spend',
+    description: 'Links Cursor team members to their billing-cycle spend.',
+    sourceSeedName: 'Cursor team members',
+    targetSeedName: 'Cursor member spend',
+    strategy: 'field-matching',
+    matchStrategy: 'exact',
+    sourceFieldExpression: '$string(id)',
+    targetFieldExpression: '$string(userId)',
+    relationshipType: 'hasSpend',
+    reciprocalRelationshipType: 'spendOf',
+  },
+  {
+    name: 'Cursor member → daily usage',
+    description: 'Links Cursor team members to their daily usage records.',
+    sourceSeedName: 'Cursor team members',
+    targetSeedName: 'Cursor daily usage (last 7 days)',
+    strategy: 'field-matching',
+    matchStrategy: 'exact',
+    sourceFieldExpression: '$string(id)',
+    targetFieldExpression: '$string(userId)',
+    relationshipType: 'hasUsage',
+    reciprocalRelationshipType: 'usageOf',
+  },
+];

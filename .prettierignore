@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+
+.playwright-mcp
+packages/e2e/playwright-report
+packages/e2e/test-results
+packages/backend/.tmp
+
+# Build output
+dist/
+dist-types/
+storybook-static/
+packages/openroadie/out/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# MCP eval output
+plugins/mcp-eval/results.json
+plugins/mcp-eval/transcripts.json
+
+# Local and generated agent files
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
+.agents/skills/
+skills-lock.json
+
+# Design docs are authored one-sentence-per-line; keep them out of the format gate.
+docs/design/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Local config
+*.local.yaml
+.env
+.env.local
+secrets.env
+
+# Yarn
+.yarn/*
+!.yarn/releases
+!.yarn/patches
+!.yarn/plugins
+
+# Runtime scripts are intentionally outside the format gate.
+scripts/
+**/scripts/
+scripts/**
+**/scripts/**
+
+# SDD process workspace (git-ignored scratch)
+.superpowers/

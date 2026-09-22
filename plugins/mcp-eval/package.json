@@ -1,0 +1,25 @@
+{
+  "name": "@roadiehq/mcp-eval",
+  "version": "0.0.1",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "eval": "node --import tsx eval.ts",
+    "eval:baseline": "node --import tsx eval.ts --baseline",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "@ai-sdk/amazon-bedrock": "^4.0.101",
+    "@ai-sdk/mcp": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "ai": "^6.0.3",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "prettier": "^3",
+    "tsx": "^4.19.0",
+    "vitest": "^4.1.11"
+  }
+}

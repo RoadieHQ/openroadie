@@ -1,0 +1,40 @@
+module.exports = [
+  {
+    name: 'Slack channel → memberships',
+    description:
+      'Links Slack channels to membership records fetched from each channel.',
+    sourceSeedName: 'Slack channels',
+    targetSeedName: 'Slack channel members (per channel)',
+    strategy: 'field-matching',
+    matchStrategy: 'exact',
+    sourceFieldExpression: 'id',
+    targetFieldExpression: '_parent.id',
+    relationshipType: 'hasMembership',
+    reciprocalRelationshipType: 'membershipOf',
+  },
+  {
+    name: 'Slack user → channel memberships',
+    description:
+      'Links Slack users to their channel membership records. Uses a distinct relationship type from "Slack channel → memberships" so context group traversal cannot hop from one channel to an unrelated channel through a shared user.',
+    sourceSeedName: 'Slack users',
+    targetSeedName: 'Slack channel members (per channel)',
+    strategy: 'field-matching',
+    matchStrategy: 'exact',
+    sourceFieldExpression: 'id',
+    targetFieldExpression: 'value',
+    relationshipType: 'heldMembership',
+    reciprocalRelationshipType: 'membershipHeldBy',
+  },
+  {
+    name: 'Slack user group → users',
+    description: 'Links Slack user groups to their listed users.',
+    sourceSeedName: 'Slack user groups',
+    targetSeedName: 'Slack users',
+    strategy: 'field-matching',
+    matchStrategy: 'array_contains',
+    sourceFieldExpression: 'users',
+    targetFieldExpression: 'id',
+    relationshipType: 'hasMember',
+    reciprocalRelationshipType: 'memberOf',
+  },
+];

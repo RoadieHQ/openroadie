@@ -1,0 +1,163 @@
+# Scope enforcement for the Actions REST API and MCP tools.
+#
+# Each row is one request under the scopes in `scopes` (empty → the sentinel
+# `deny:all`, which the harness sends so the backend can't fall through to
+# ALL_SCOPES). Positive rows assert the request cleared the guard; denial rows
+# assert the guard's 403 + "insufficient scope" body. Fixtures action_1/action_2
+# are seeded (see fixtures.ts).
+
+api:
+  # --- action:query (family listing) ---
+  - method: get
+    url: /api/actions/
+    scopes: ['action:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/actions/
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  # Narrowed family grant: the list is filtered to the one granted target.
+  - method: get
+    url: /api/actions/
+    scopes: ['action:query:{{action_1.id}}']
+    expectations:
+      status: 200
+      bodyIncludes: ['{{action_1.id}}']
+      bodyExcludes: ['{{action_2.id}}']
+
+  # --- action:create --- (empty body → 400 after the guard; no row created)
+  - method: post
+    url: /api/actions/
+    body: {}
+    scopes: ['action:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/actions/
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- action:create (PUT replace / PATCH merge) ---
+  - method: put
+    url: /api/actions/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['action:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: put
+    url: /api/actions/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: patch
+    url: /api/actions/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['action:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: patch
+    url: /api/actions/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- action:create (version restore mutates the action) ---
+  - method: post
+    url: /api/actions/00000000-0000-0000-0000-000000000000/versions/1/restore
+    scopes: ['action:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/actions/00000000-0000-0000-0000-000000000000/versions/1/restore
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- action:get ---
+  - method: get
+    url: /api/actions/{{action_1.id}}
+    scopes: ['action:get']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/actions/{{action_1.id}}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- action:delete --- (nonexistent id → 404 after the guard; no fixture harmed)
+  - method: delete
+    url: /api/actions/00000000-0000-0000-0000-000000000000
+    scopes: ['action:delete']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: delete
+    url: /api/actions/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- action:execute --- (draft execute; empty body → 400 after the guard)
+  - method: post
+    url: /api/actions/execute
+    body: {}
+    scopes: ['action:execute']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/actions/execute
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  # Per-instance execute: a grant narrowed to action_1 may run action_1...
+  - method: post
+    url: /api/actions/{{action_1.slug}}/execute
+    body: {}
+    scopes: ['action:execute:{{action_1.slug}}']
+    expectations: { status: { operator: '!=', value: 403 } }
+  # ...but not action_2.
+  - method: post
+    url: /api/actions/{{action_2.slug}}/execute
+    body: {}
+    scopes: ['action:execute:{{action_1.slug}}']
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+mcp:
+  # --- list-actions (family-scoped: action:query) ---
+  - tool: list-actions
+    scopes: ['action:query']
+    expectations: { listed: true, isError: false }
+  # Fully hidden: not advertised, and calling it errors as "tool not found"
+  # (the "insufficient scope" message only appears for a registered tool whose
+  # target is denied — see the narrowed rows below).
+  - tool: list-actions
+    scopes: []
+    expectations: { listed: false, isError: true }
+  # Narrowed family grant still advertises the tool, and its result is filtered
+  # to the granted target (the scope header is forwarded to the REST list, which
+  # applies row filtering) — action_1 is present, action_2 is not.
+  - tool: list-actions
+    scopes: ['action:query:{{action_1.slug}}']
+    expectations:
+      listed: true
+      isError: false
+      contentIncludes: ['{{action_1.slug}}']
+      contentExcludes: ['{{action_2.slug}}']
+
+  # --- execute-write-action (target-narrowed via scopeTarget) ---
+  - tool: execute-write-action
+    args: { action: '{{action_1.slug}}' }
+    scopes: ['action:execute']
+    # Scope passes; the run itself may fail on the dummy integration, so we only
+    # assert the call was not scope-denied.
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: execute-write-action
+    args: { action: '{{action_1.slug}}' }
+    scopes: []
+    expectations: { listed: false, isError: true }
+  # Narrowed grant: the granted target is admitted, another target is denied.
+  - tool: execute-write-action
+    args: { action: '{{action_1.slug}}' }
+    scopes: ['action:execute:{{action_1.slug}}']
+    expectations: { contentExcludes: ['insufficient scope'] }
+  - tool: execute-write-action
+    args: { action: '{{action_2.slug}}' }
+    scopes: ['action:execute:{{action_1.slug}}']
+    expectations: { isError: true, contentIncludes: ['insufficient scope'] }
+
+  # --- execute-read-action shares action:execute ---
+  - tool: execute-read-action
+    args: { action: '{{action_1.slug}}' }
+    scopes: ['action:execute']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }

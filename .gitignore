@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+
+.playwright-mcp
+packages/e2e/playwright-report
+packages/e2e/test-results
+packages/backend/.tmp
+
+# Build output
+dist/
+dist-types/
+storybook-static/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# Claude Code local settings
+.claude/settings.local.json
+CLAUDE.local.md
+
+# Agent skills
+.agents/skills/
+skills-lock.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Local config
+*.local.yaml
+
+# Yarn
+.yarn/*
+!.yarn/releases
+!.yarn/patches
+!.yarn/plugins
+
+# Environment
+.env
+.env.local
+
+secrets.env
+
+# Backend tmp files
+packages/backend/.tmp/
+
