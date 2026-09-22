@@ -1,0 +1,99 @@
+# Scope enforcement for the catalog-datastore REST API and MCP tools.
+# List/query endpoints return 200 even when empty, so they need no fixtures;
+# get/create/delete/execute hit dummy ids and assert only that the guard passed.
+
+api:
+  # --- catalog-datastore:query ---
+  - method: get
+    url: /api/catalog-datastore/objects
+    scopes: ['catalog-datastore:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/catalog-datastore/objects
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- catalog-datastore:get --- (nonexistent object → 404 after the guard)
+  - method: get
+    url: /api/catalog-datastore/objects/00000000-0000-0000-0000-000000000000/missing
+    scopes: ['catalog-datastore:get']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: get
+    url: /api/catalog-datastore/objects/00000000-0000-0000-0000-000000000000/missing
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- catalog-datastore:create ---
+  - method: post
+    url: /api/catalog-datastore/objects/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['catalog-datastore:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-datastore/objects/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- catalog-datastore:delete ---
+  - method: delete
+    url: /api/catalog-datastore/objects/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000
+    scopes: ['catalog-datastore:delete']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: delete
+    url: /api/catalog-datastore/objects/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- catalog-datastore:execute --- (index rebuild)
+  - method: post
+    url: /api/catalog-datastore/indexes/00000000-0000-0000-0000-000000000000/key/rebuild
+    body: {}
+    scopes: ['catalog-datastore:execute']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-datastore/indexes/00000000-0000-0000-0000-000000000000/key/rebuild
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+mcp:
+  # --- catalog-datastore:query ---
+  - tool: list-catalog-datastore-objects
+    args: { datasourceId: '00000000-0000-0000-0000-000000000000' }
+    scopes: ['catalog-datastore:query']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: list-catalog-datastore-objects
+    args: { datasourceId: '00000000-0000-0000-0000-000000000000' }
+    scopes: []
+    expectations: { listed: false, isError: true }
+  - tool: search-catalog-datastore
+    args: { query: 'x' }
+    scopes: ['catalog-datastore:query']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+
+  # --- catalog-datastore:get ---
+  - tool: get-catalog-datastore-schema
+    args: { datasourceId: '00000000-0000-0000-0000-000000000000' }
+    scopes: ['catalog-datastore:get']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: get-catalog-datastore-schema
+    args: { datasourceId: '00000000-0000-0000-0000-000000000000' }
+    scopes: []
+    expectations: { listed: false, isError: true }
+
+  # --- datasource:query (MCP-only) ---
+  - tool: list-catalog-datastore-datasources
+    scopes: ['datasource:query']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: list-catalog-datastore-datasources
+    scopes: []
+    expectations: { listed: false, isError: true }
+
+  # --- datasource:create (MCP-only) ---
+  - tool: create-catalog-datastore-datasource
+    scopes: ['datasource:create']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: create-catalog-datastore-datasource
+    scopes: []
+    expectations: { listed: false, isError: true }

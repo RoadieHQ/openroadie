@@ -1,0 +1,20 @@
+{
+  "name": "openroadie-telemetry",
+  "description": "Sends session telemetry to your openroadie instance — model, prompts, subagent context — so the MCP audit log shows the full picture behind each tool call.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Roadie"
+  },
+  "userConfig": {
+    "url": {
+      "type": "string",
+      "description": "Your openroadie instance URL (e.g. https://portal.example.com)",
+      "required": true
+    },
+    "token": {
+      "type": "string",
+      "description": "Service token for authentication",
+      "sensitive": true
+    }
+  }
+}

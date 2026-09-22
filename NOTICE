@@ -1,0 +1,21 @@
+OpenRoadie
+Copyright 2022-2026 Larder Software Limited
+
+This product includes software developed at
+Larder Software Limited (https://roadie.io/).
+
+This product includes software originally developed as part of the
+Backstage project (https://backstage.io/), copyright Spotify AB,
+licensed under the Apache License, Version 2.0. The following
+packages are derived from Backstage (v1.47.1) and have been
+substantially modified from their original form:
+
+  - packages/config           (from @backstage/config)
+  - packages/config-loader    (from @backstage/config-loader)
+  - packages/core-plugin-api  (from @backstage/core-plugin-api)
+  - packages/errors           (from @backstage/errors)
+  - packages/types            (from @backstage/types)
+  - packages/extensions-api   (from @backstage/backend-plugin-api)
+  - packages/backend-defaults (from @backstage/backend-defaults)
+  - packages/cli              (from @backstage/cli)
+  - plugins/backend-common    (from @backstage/backend-common)

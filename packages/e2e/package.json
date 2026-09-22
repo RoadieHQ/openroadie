@@ -1,0 +1,23 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "benchmark:app-warmup": "playwright test --config=playwright.benchmark.config.ts app-warmup.bench.ts",
+    "benchmark:navigation": "playwright test --config=playwright.benchmark.config.ts navigation-speed.bench.ts",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@playwright/test": "^1.52.0",
+    "@roadiehq/scopes": "workspace:*",
+    "@types/js-yaml": "^4.0.9",
+    "js-yaml": "^4.3.2",
+    "zod": "^4.0.0"
+  }
+}

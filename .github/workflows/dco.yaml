@@ -1,0 +1,110 @@
+---
+name: DCO
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dco-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  dco:
+    name: Developer Certificate of Origin
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # fetch-depth: 0 so base..head is walkable; the PR ref alone is shallow.
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check Signed-off-by on every commit
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_AUTHOR_TYPE: ${{ github.event.pull_request.user.type }}
+        run: |
+          set -uo pipefail
+
+          # Merge commits carry no authorship of their own, so --no-merges.
+          commits=$(git rev-list --no-merges "${BASE_SHA}..${HEAD_SHA}")
+
+          if [ -z "$commits" ]; then
+            echo "No non-merge commits in this pull request; nothing to check."
+            exit 0
+          fi
+
+          failed=0
+          for sha in $commits; do
+            author_email=$(git show -s --format='%ae' "$sha")
+            author_name=$(git show -s --format='%an' "$sha")
+            subject=$(git show -s --format='%s' "$sha")
+
+            # A bot can't certify the DCO; the human who merges does. Exempt
+            # bot-authored commits only on a PR GitHub says a bot opened —
+            # the author email alone is forgeable, the PR author is not. A
+            # human commit pushed onto a bot's PR still needs a sign-off.
+            if [ "$PR_AUTHOR_TYPE" = "Bot" ] \
+              && [[ "$author_email" == *"[bot]@users.noreply.github.com" ]]; then
+              echo "skip ${sha:0:8}  ${author_email} (bot)"
+              continue
+            fi
+
+            # Trailers only: a "Signed-off-by" quoted in the body does not count.
+            signoffs=$(git show -s --format='%(trailers:key=Signed-off-by,valueonly)' "$sha")
+
+            if [ -z "$signoffs" ]; then
+              echo "::error::${sha:0:8} (\"${subject}\") has no Signed-off-by line."
+              failed=1
+              continue
+            fi
+
+            # The sign-off must belong to the commit author. Compare on email,
+            # case-insensitively — Git preserves the case the user typed.
+            if ! printf '%s\n' "$signoffs" \
+              | grep -qiF "<${author_email}>"; then
+              echo "::error::${sha:0:8} (\"${subject}\") is signed off, but not by its author."
+              echo "  author:    ${author_name} <${author_email}>"
+              echo "  sign-offs: $(printf '%s' "$signoffs" | tr '\n' ';')"
+              failed=1
+              continue
+            fi
+
+            echo "ok  ${sha:0:8}  ${author_email}"
+          done
+
+          if [ "$failed" -ne 0 ]; then
+            cat <<'EOF'
+
+          ------------------------------------------------------------------
+          This project requires a Developer Certificate of Origin sign-off on
+          every commit. See https://developercertificate.org/ and the DCO
+          section of CONTRIBUTING.md.
+
+          To sign off new commits as you make them:
+
+              git commit -s -m "your message"
+
+          To add a sign-off to the last commit:
+
+              git commit --amend --signoff
+              git push --force-with-lease
+
+          To sign off every commit in this branch (replace main if you
+          branched from something else):
+
+              git rebase --signoff main
+              git push --force-with-lease
+
+          The sign-off must use the same name and email as the commit author.
+          ------------------------------------------------------------------
+          EOF
+            exit 1
+          fi
+
+          echo "All commits are signed off."

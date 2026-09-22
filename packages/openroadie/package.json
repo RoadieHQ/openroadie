@@ -1,0 +1,11 @@
+{
+  "name": "@roadiehq/openroadie-packaging",
+  "version": "1.0.0",
+  "description": "Assembles the standalone, globally-installable `openroadie` npm package.",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {
+    "assemble": "node scripts/assemble.mjs",
+    "test": "node bin/openroadie.test.js"
+  }
+}

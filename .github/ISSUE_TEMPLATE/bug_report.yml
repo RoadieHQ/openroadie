@@ -1,0 +1,88 @@
+name: Bug report
+description: Something in openroadie does not work the way it should.
+labels: ['bug', 'needs triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug.
+
+        **Do not paste tokens, API keys, or the contents of `secrets.env`.**
+        openroadie holds credentials for the systems you connect to it — redact
+        them before pasting logs or config. If the bug itself is a security
+        problem, stop here and email security@roadie.io.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect to happen, and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The smallest set of steps that reliably produces the problem.
+      placeholder: |
+        1. Run `npx @roadiehq/openroadie-cli up`
+        2. Connect a GitHub integration
+        3. Trigger a data source run
+        4. See the error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: how-running
+    attributes:
+      label: How are you running openroadie?
+      options:
+        - CLI (npx @roadiehq/openroadie-cli up)
+        - Docker image (ghcr.io/roadiehq/openroadie)
+        - docker compose from a checkout
+        - Directly from a checkout (yarn dev)
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Release tag, image tag, or commit SHA. `npx @roadiehq/openroadie-cli status` prints it.
+      placeholder: v0.4.2
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: OS and Node version
+      placeholder: macOS 15.3 (arm64), Node 22.14.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: area
+    attributes:
+      label: Which part of openroadie?
+      description: Optional, but it speeds up routing.
+      placeholder: Data sources, the datastore, an integration, the MCP server, actions, capabilities, the UI, the CLI…
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or error output
+      description: Backend logs, the browser console, or CLI output. This is rendered as a code block, so no backticks needed.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: I redacted any tokens, secrets, or private URLs from what I pasted.
+          required: true

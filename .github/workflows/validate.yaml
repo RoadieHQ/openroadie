@@ -1,0 +1,170 @@
+---
+name: Validate PR
+run-name: 'Validate — ${{ github.event.pull_request.title }}'
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify (prettier, lint, typecheck)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NODE_OPTIONS: --max-old-space-size=6144
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+
+      - name: Verify (prettier, lint, typecheck)
+        run: yarn verify
+
+      - name: Check for dirty files
+        run: |
+          if ! git diff --exit-code; then
+            echo "Error: verify left tracked files dirty"
+            exit 1
+          fi
+
+  build:
+    name: Build
+    needs: [verify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NODE_OPTIONS: --max-old-space-size=6144
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+
+      - name: Build
+        run: yarn tsc && yarn build
+
+      - name: Check for dirty files
+        run: |
+          if ! git diff --exit-code; then
+            echo "Error: build left tracked files dirty"
+            exit 1
+          fi
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write # OIDC for the seed-replay fixture bucket role
+    env:
+      NODE_OPTIONS: --max-old-space-size=6144
+      TEST_POSTGRES_HOST: 127.0.0.1
+      TEST_POSTGRES_PORT: 5432
+      TEST_POSTGRES_USER: postgres
+      TEST_POSTGRES_DATABASE: postgres
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+
+      # Fork PRs get no OIDC token and the repo variable may not be set yet;
+      # in both cases the replay suite skips (loudly). When the role IS
+      # assumable, SEED_REPLAY_REQUIRED turns any skip into a failure so the
+      # replay tests can never silently stop running.
+      # continue-on-error: a broken role assumption must not block the whole
+      # unit-test suite. SEED_REPLAY_REQUIRED derives from intent (variable
+      # set, not a fork), so if creds fail the replay tests alone fail with a
+      # "refusing to skip" error while everything else still runs.
+      - name: AWS credentials for the seed-replay fixture bucket
+        id: replay-creds
+        if: ${{ vars.SEED_REPLAY_ROLE_ARN != '' && !github.event.pull_request.head.repo.fork }}
+        continue-on-error: true
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.SEED_REPLAY_ROLE_ARN }}
+          aws-region: eu-west-1
+
+      - name: Run tests
+        run: yarn test:ci
+        env:
+          SEED_REPLAY_REQUIRED: ${{ vars.SEED_REPLAY_ROLE_ARN != '' && !github.event.pull_request.head.repo.fork && 'true' || '' }}
+
+      # `yarn test:ci` runs vitest in projects mode at the repo root, so
+      # coverage is aggregated into a single root-level coverage/ directory
+      # rather than per-package. Replaces the previous per-workspace reports.
+      - name: Coverage report
+        if: always()
+        uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          json-summary-path: coverage/coverage-summary.json
+          json-final-path: coverage/coverage-final.json
+
+  audit:
+    name: Dependency Audit
+    needs: [verify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+
+      - name: Audit dependencies
+        run: yarn npm audit --severity moderate --all
+        continue-on-error: true
+
+  story-tests:
+    name: Story Tests (storybook)
+    needs: [verify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NODE_OPTIONS: --max-old-space-size=6144
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+
+      - name: Install Playwright Chromium
+        run: yarn workspace app exec playwright install chromium --with-deps
+
+      - name: Run story tests
+        run: yarn test:storybook
+
+  ui-smoke:
+    name: UI Smoke (app + storybook)
+    needs: [verify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NODE_OPTIONS: --max-old-space-size=6144
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+
+      - name: UI smoke (app build + storybook)
+        run: yarn ui:smoke
+
+      - name: Check for dirty files
+        run: |
+          if ! git diff --exit-code; then
+            echo "Error: ui:smoke left tracked files dirty"
+            exit 1
+          fi

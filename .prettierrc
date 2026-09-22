@@ -1,0 +1,7 @@
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "arrowParens": "avoid",
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "tailwindStylesheet": "./packages/app/src/styles.css"
+}

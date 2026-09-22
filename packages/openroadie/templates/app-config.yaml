@@ -1,0 +1,51 @@
+# OpenRoadie configuration.
+#
+# Values like ${DATABASE_URL} are substituted from the environment (and from a
+# .env file in this directory). Override any key with APP_CONFIG_* env vars too,
+# e.g. APP_CONFIG_backend_listen_port=8080.
+
+tenant: openroadie
+
+app:
+  title: OpenRoadie
+  # Served same-origin with the API; used for absolute links.
+  baseUrl: http://localhost:7008
+
+backend:
+  baseUrl: http://localhost:7008
+  listen:
+    # Bind to localhost only by default. Set to 0.0.0.0 to expose OpenRoadie on
+    # the network — only do this once you have configured authentication below.
+    host: 127.0.0.1
+    port: 7008
+  auth:
+    keys:
+      - secret: ${OPENROADIE_AUTH_SECRET}
+    # Single-user local default: no auth. Remove this line and configure a real
+    # auth provider before exposing OpenRoadie beyond localhost.
+    dangerouslyDisableDefaultAuthPolicy: true
+  database:
+    client: pg
+    # A Postgres connection string, e.g. postgres://user:pass@host:5432/dbname
+    connection: ${DATABASE_URL}
+  cors:
+    origin:
+      - http://localhost:7008
+    methods: [GET, POST, PATCH, PUT, DELETE]
+    credentials: true
+
+organization:
+  name: My Company
+
+relations:
+  suggestionProducer: api
+
+# Integration secrets are read from the .env file referenced here.
+secretsSettings:
+  storage: dotenv
+  dotenvPath: .env
+  secrets:
+    - name: GitHub personal access token
+      internalName: GITHUB_TOKEN
+      description: Token used by the built-in GitHub integration.
+      helpUrl: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens

@@ -1,0 +1,109 @@
+version: 2
+
+updates:
+  # Yarn workspaces: one entry covers the root plus packages/* and plugins/*.
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Dublin
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      # Without grouping, a repo this size produces dozens of PRs a week and
+      # nobody reads any of them.
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+          - 'react-router*'
+      radix:
+        patterns:
+          - '@radix-ui/*'
+      tooling:
+        patterns:
+          - 'eslint*'
+          - '@typescript-eslint/*'
+          - 'prettier*'
+          - 'typescript'
+          - 'vite*'
+          - 'vitest*'
+          - '@vitejs/*'
+      storybook:
+        patterns:
+          - 'storybook'
+          - '@storybook/*'
+      testing:
+        patterns:
+          - '@testing-library/*'
+          - '@playwright/*'
+          - 'playwright*'
+      aws-sdk:
+        patterns:
+          - '@aws-sdk/*'
+          - '@smithy/*'
+      opentelemetry:
+        patterns:
+          - '@opentelemetry/*'
+      minor-and-patch:
+        # Everything else, but only the quiet updates — a major stays its own PR.
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Pinned by `resolutions` in the root package.json. Bumping them here
+      # produces a PR that does not change what actually gets installed.
+      - dependency-name: 'luxon'
+      - dependency-name: '@types/luxon'
+      - dependency-name: 'knex'
+      - dependency-name: 'graphql'
+      - dependency-name: '@smithy/types'
+      - dependency-name: '@smithy/middleware-endpoint'
+      # React 18 is deliberate; a React 19 bump is a project, not a dependency update.
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-dom'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/react-dom'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Dublin
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns:
+          - '*'
+
+  - package-ecosystem: docker
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Dublin
+    labels:
+      - dependencies
+    commit-message:
+      prefix: build

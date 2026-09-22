@@ -1,0 +1,127 @@
+# Scope enforcement for the relationship-rules REST API and MCP tools.
+
+api:
+  # --- relationship-rule:query ---
+  - method: get
+    url: /api/catalog-datastore/relationship-rules
+    scopes: ['relationship-rule:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/catalog-datastore/relationship-rules
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- relationship-rule:get ---
+  - method: get
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000
+    scopes: ['relationship-rule:get']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: get
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- relationship-rule:create ---
+  - method: post
+    url: /api/catalog-datastore/relationship-rules
+    body: {}
+    scopes: ['relationship-rule:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-datastore/relationship-rules
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- relationship-rule:delete ---
+  - method: delete
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000
+    scopes: ['relationship-rule:delete']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: delete
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- relationship-rule:dry-run ---
+  - method: post
+    url: /api/catalog-datastore/relationship-rules/preview
+    body: {}
+    scopes: ['relationship-rule:dry-run']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-datastore/relationship-rules/preview
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- relationship-rule:create (PUT replace / PATCH merge) ---
+  # Both write verbs, same scope: replacing and merging are the same authority
+  # over the same resource.
+  - method: put
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['relationship-rule:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: put
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: patch
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['relationship-rule:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: patch
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- relationship-rule:execute (bulk approve) ---
+  - method: post
+    url: /api/catalog-datastore/relationship-rules/approve
+    body: { ids: ['00000000-0000-0000-0000-000000000000'] }
+    scopes: ['relationship-rule:execute']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-datastore/relationship-rules/approve
+    body: { ids: ['00000000-0000-0000-0000-000000000000'] }
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- relationship-rule:execute (apply) ---
+  - method: post
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000/apply
+    scopes: ['relationship-rule:execute']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000/apply
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- relationship-rule:execute (set state) ---
+  # Guarded as `execute` rather than `create`: it drives the same transition
+  # verbs, so it must not be reachable by a token that can only write fields.
+  - method: put
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000/state
+    body: { state: 'active' }
+    scopes: ['relationship-rule:execute']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: put
+    url: /api/catalog-datastore/relationship-rules/00000000-0000-0000-0000-000000000000/state
+    body: { state: 'active' }
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+# Only create-relationship-rule is mounted in an MCP server (the "manage"
+# server). list/delete/dry-run/apply relationship-rule tools exist in code but
+# aren't exposed via MCP, so those scopes are covered by the REST rows above.
+mcp:
+  - tool: create-relationship-rule
+    scopes: ['relationship-rule:create']
+    expectations: { listed: true, contentExcludes: ['insufficient scope'] }
+  - tool: create-relationship-rule
+    scopes: []
+    expectations: { listed: false, isError: true }

@@ -1,0 +1,42 @@
+{
+  "name": "@roadiehq/mcp-catalog-datastore-module",
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "restricted",
+    "main": "dist/index.cjs.js",
+    "types": "dist/index.d.ts"
+  },
+  "roadie": {
+    "role": "backend-plugin"
+  },
+  "scripts": {
+    "start": "roadie-cli package start",
+    "build": "roadie-cli package build",
+    "lint": "roadie-cli package lint",
+    "test": "vitest run",
+    "test:ci": "vitest run --passWithNoTests --coverage",
+    "clean": "roadie-cli package clean",
+    "prepack": "roadie-cli package prepack",
+    "postpack": "roadie-cli package postpack"
+  },
+  "dependencies": {
+    "@roadiehq/ai-backend": "workspace:^",
+    "@roadiehq/ai-node": "workspace:^",
+    "@roadiehq/extensions-api": "workspace:^",
+    "@roadiehq/plugin-mcp-node": "workspace:^",
+    "@roadiehq/roadie-mcp-server": "workspace:^",
+    "@roadiehq/scopes": "workspace:^",
+    "@roadiehq/scopes-common": "workspace:^",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@roadiehq/backend-test-utils": "workspace:^",
+    "vitest": "^4.1.11"
+  },
+  "files": [
+    "dist"
+  ]
+}

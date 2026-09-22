@@ -1,0 +1,47 @@
+# Scope enforcement for the relationships REST API and the create-relationship MCP tool.
+
+api:
+  # --- relationship:query ---
+  - method: get
+    url: /api/catalog-datastore/relationships
+    scopes: ['relationship:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/catalog-datastore/relationships
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- relationship:get ---
+  - method: get
+    url: /api/catalog-datastore/relationships/00000000-0000-0000-0000-000000000000
+    scopes: ['relationship:get']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: get
+    url: /api/catalog-datastore/relationships/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- relationship:create (bulk upsert) ---
+  - method: put
+    url: /api/catalog-datastore/relationships/bulk
+    body: {}
+    scopes: ['relationship:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: put
+    url: /api/catalog-datastore/relationships/bulk
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- relationship:delete ---
+  - method: delete
+    url: /api/catalog-datastore/relationships/00000000-0000-0000-0000-000000000000
+    scopes: ['relationship:delete']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: delete
+    url: /api/catalog-datastore/relationships/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+# create-relationship exists in code but isn't mounted in any MCP server, so
+# relationship:create is covered by the REST rows above only.

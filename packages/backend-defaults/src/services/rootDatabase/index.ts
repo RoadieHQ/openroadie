@@ -1,0 +1,1 @@
+export { rootDatabaseServiceFactory } from './rootDatabaseServiceFactory';

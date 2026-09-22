@@ -1,0 +1,90 @@
+# Scope enforcement for the catalog-workflow REST API (no MCP surface).
+
+api:
+  # --- catalog-workflow:query ---
+  - method: get
+    url: /api/catalog-workflow/workflows
+    scopes: ['catalog-workflow:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/catalog-workflow/workflows
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- catalog-workflow:get ---
+  - method: get
+    url: /api/catalog-workflow/workflows/00000000-0000-0000-0000-000000000000
+    scopes: ['catalog-workflow:get']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: get
+    url: /api/catalog-workflow/workflows/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- catalog-workflow:create ---
+  - method: post
+    url: /api/catalog-workflow/workflows
+    body: {}
+    scopes: ['catalog-workflow:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-workflow/workflows
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- catalog-workflow:create (PUT replace / PATCH merge) ---
+  - method: put
+    url: /api/catalog-workflow/workflows/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['catalog-workflow:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: put
+    url: /api/catalog-workflow/workflows/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: patch
+    url: /api/catalog-workflow/workflows/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: ['catalog-workflow:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: patch
+    url: /api/catalog-workflow/workflows/00000000-0000-0000-0000-000000000000
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- catalog-workflow:delete ---
+  - method: delete
+    url: /api/catalog-workflow/workflows/00000000-0000-0000-0000-000000000000
+    scopes: ['catalog-workflow:delete']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: delete
+    url: /api/catalog-workflow/workflows/00000000-0000-0000-0000-000000000000
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- catalog-workflow:dry-run ---
+  - method: post
+    url: /api/catalog-workflow/workflows/dry-run
+    body: {}
+    scopes: ['catalog-workflow:dry-run']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-workflow/workflows/dry-run
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- catalog-workflow:execute ---
+  - method: post
+    url: /api/catalog-workflow/workflows/00000000-0000-0000-0000-000000000000/execute
+    body: {}
+    scopes: ['catalog-workflow:execute']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/catalog-workflow/workflows/00000000-0000-0000-0000-000000000000/execute
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }

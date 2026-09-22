@@ -1,0 +1,10 @@
+{
+  "flagValues": {
+    "catalog-customization": true,
+    "permissions-available": true,
+    "relationships": true,
+    "webhooks": false,
+    "ai-providers": false,
+    "workspace-creation": false
+  }
+}

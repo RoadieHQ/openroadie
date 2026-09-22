@@ -1,0 +1,78 @@
+{
+  "name": "@roadiehq/backend-defaults",
+  "version": "0.1.1",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "Apache-2.0",
+  "private": true,
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.cjs.js",
+    "types": "dist/index.d.ts"
+  },
+  "roadie": {
+    "role": "node-library"
+  },
+  "scripts": {
+    "start": "roadie-cli package start",
+    "build": "roadie-cli package build",
+    "lint": "roadie-cli package lint",
+    "test": "vitest run",
+    "test:ci": "vitest run --passWithNoTests --coverage",
+    "clean": "roadie-cli package clean",
+    "prepack": "roadie-cli package prepack",
+    "postpack": "roadie-cli package postpack"
+  },
+  "devDependencies": {
+    "@roadiehq/backend-test-utils": "workspace:^",
+    "@types/compression": "^1.7.5",
+    "@types/express": "^4.17.6",
+    "@types/ioredis-mock": "^8.2.5",
+    "@types/jsonwebtoken": "^9",
+    "@types/lodash": "^4.14.168",
+    "@types/morgan": "^1.9.9",
+    "@types/pako": "^1.0.1",
+    "aws-sdk-client-mock": "^4.1.0",
+    "aws-sdk-client-mock-jest": "^4.1.0",
+    "ioredis-mock": "^8.9.0",
+    "vitest": "^4.1.11",
+    "wait-for-expect": "^3.0.2"
+  },
+  "files": [
+    "dist",
+    "migrations",
+    "src/openapi.yaml"
+  ],
+  "dependencies": {
+    "@aws-sdk/client-sns": "^3.525.0",
+    "@aws-sdk/client-sqs": "^3.525.0",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-prometheus": "^0.217.0",
+    "@roadiehq/backend-common": "workspace:^",
+    "@roadiehq/config": "workspace:^",
+    "@roadiehq/config-loader": "workspace:^",
+    "@roadiehq/extensions-api": "workspace:^",
+    "@roadiehq/healthcheck-backend": "workspace:^",
+    "@roadiehq/prometheus-metrics": "workspace:^",
+    "@roadiehq/types": "workspace:^",
+    "compression": "^1.7.4",
+    "cron": "^3.0.0",
+    "express": "^4.17.1",
+    "express-promise-router": "^4.1.0",
+    "helmet": "^7.0.0",
+    "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "knex": "^2.0.0",
+    "lodash": "^4.17.21",
+    "luxon": "^3.0.0",
+    "morgan": "^1.12.0",
+    "p-limit": "^3.1.0",
+    "pako": "^1.0.11",
+    "pg-format": "^1.0.4",
+    "prom-client": "^14.2.0",
+    "triple-beam": "^1.4.1",
+    "uuid": "^14.0.0",
+    "winston": "^3.14.1",
+    "zod": "^3.23.8"
+  }
+}

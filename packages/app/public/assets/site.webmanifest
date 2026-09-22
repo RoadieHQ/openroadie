@@ -1,0 +1,16 @@
+{
+  "name": "Roadie Catalog Builder",
+  "short_name": "Roadie",
+  "description": "Roadie - Catalog Builder",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f8f8",
+  "theme_color": "#f8f8f8",
+  "icons": [
+    {
+      "src": "/assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

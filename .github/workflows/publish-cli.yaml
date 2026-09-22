@@ -1,0 +1,119 @@
+---
+name: Publish CLI to npm
+run-name: 'Publish CLI — ${{ github.ref_name }}'
+
+# Fires on a semver tag, e.g. `git tag v0.1.0 && git push origin v0.1.0`.
+# The tag version is the single source of truth — it stamps both the npm
+# packages and the GHCR image so the CLI and its image stay in lockstep.
+on:
+  push:
+    tags:
+      - 'v[0-9]*.[0-9]*.[0-9]*'
+
+permissions:
+  contents: read
+  id-token: write # lets npm record build provenance (a signed "this came from CI" record)
+
+jobs:
+  publish:
+    name: Build + publish @roadiehq/openroadie-cli
+    # npm publishing makes the code public — gated until the open-source launch
+    # decision. Set the repo variable OPENROADIE_PUBLISH_NPM=true to enable;
+    # the GHCR image (publish-image.yaml) is unaffected and stays private.
+    if: vars.OPENROADIE_PUBLISH_NPM == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+
+      # Stamp both packages with the pushed tag version so npm publishes the
+      # same version the image workflow tags GHCR with (otherwise npm would ship
+      # whatever version happens to sit in package.json).
+      - name: Set package versions from the tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          node -e '
+            const fs = require("fs");
+            const v = process.argv[1];
+            for (const p of ["packages/openroadie-cli", "packages/openroadie-setup"]) {
+              const f = p + "/package.json";
+              const j = JSON.parse(fs.readFileSync(f, "utf8"));
+              j.version = v;
+              fs.writeFileSync(f, JSON.stringify(j, null, 2) + "\n");
+            }
+          ' "$VERSION"
+          echo "Stamped version $VERSION"
+
+      # roadie-cli is the repo's build tool; it must be built before it can build
+      # the two packages we ship.
+      - name: Build the roadie CLI tool
+        run: yarn workspace @roadiehq/cli build
+
+      # Emit the workspace declaration files (dist-types/) — `roadie-cli package
+      # build` for the setup package consumes them and fails without a prior tsc.
+      - name: Typecheck (emit dist-types)
+        run: yarn tsc
+
+      # `openroadie-setup` build also bundles the Ink wizard (build-wizard.mjs).
+      - name: Build the setup wizard package
+        run: yarn workspace @roadiehq/openroadie-setup build
+
+      - name: Build the openroadie CLI package
+        run: yarn workspace @roadiehq/openroadie-cli build
+
+      # Publish order matters: the CLI depends on setup via `workspace:^`, which
+      # `yarn npm publish` rewrites to the real version at publish time, so setup
+      # must exist on the registry first. `--tolerate-republish` makes each step
+      # a no-op if that version is already published, so a re-run after a
+      # mid-publish failure doesn't get blocked on the already-published package.
+      - name: Publish @roadiehq/openroadie-setup
+        run: yarn workspace @roadiehq/openroadie-setup npm publish --access ${{ vars.OPENROADIE_NPM_ACCESS || 'restricted' }} --tolerate-republish
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+      - name: Publish @roadiehq/openroadie-cli
+        run: yarn workspace @roadiehq/openroadie-cli npm publish --access ${{ vars.OPENROADIE_NPM_ACCESS || 'restricted' }} --tolerate-republish
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+  publish-standalone:
+    name: Assemble + publish standalone `openroadie`
+    if: vars.OPENROADIE_PUBLISH_NPM == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+
+      # assemble.mjs builds the backend bundle + frontend itself and stamps the
+      # generated package.json from OPENROADIE_VERSION (the same tag the CLI
+      # packages and the GHCR image use).
+      - name: Assemble the standalone package
+        env:
+          OPENROADIE_VERSION: ${{ github.ref_name }}
+          # Empty at launch → assemble.mjs falls back to its default
+          # (@roadiehq/openroadie); set OPENROADIE_PACKAGE_NAME=openroadie to
+          # ship the unscoped public name.
+          OPENROADIE_PACKAGE_NAME: ${{ vars.OPENROADIE_PACKAGE_NAME }}
+        run: |
+          export OPENROADIE_VERSION="${OPENROADIE_VERSION#v}"
+          yarn workspace @roadiehq/openroadie-packaging assemble
+
+      # Authenticate first (a private scoped package 404s to anonymous
+      # `npm view`, which would look like "not published" and cause a duplicate
+      # publish). Then skip-if-already-published against the ACTUAL assembled
+      # name — scoped @roadiehq/openroadie now, unscoped `openroadie` at launch.
+      - name: Publish the standalone package
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        working-directory: packages/openroadie/out
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$HOME/.npmrc"
+          NAME="$(node -p "require('./package.json').name")"
+          VERSION="$(node -p "require('./package.json').version")"
+          if npm view "${NAME}@${VERSION}" version >/dev/null 2>&1; then
+            echo "${NAME}@${VERSION} already published — skipping"
+            exit 0
+          fi
+          npm publish --access ${{ vars.OPENROADIE_NPM_ACCESS || 'restricted' }}

@@ -1,0 +1,24 @@
+# Scope enforcement for the mcp-settings REST API.
+
+api:
+  # --- mcp-settings:query ---
+  - method: get
+    url: /api/mcp-settings/servers
+    scopes: ['mcp-settings:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/mcp-settings/servers
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- mcp-settings:create ---
+  - method: put
+    url: /api/mcp-settings/servers
+    body: {}
+    scopes: ['mcp-settings:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: put
+    url: /api/mcp-settings/servers
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
