@@ -1,0 +1,53 @@
+{
+  "name": "@roadiehq/openroadie-cli",
+  "version": "0.1.0",
+  "description": "Install CLI that drives a self-hosted OpenRoadie from zero to a live, agent-queryable catalog",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "Apache-2.0",
+  "bin": {
+    "openroadie": "bin/openroadie.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.cjs.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.cjs.js",
+    "exports": {
+      ".": "./dist/index.cjs.js",
+      "./package.json": "./package.json"
+    }
+  },
+  "roadie": {
+    "role": "cli"
+  },
+  "scripts": {
+    "build": "roadie-cli package build",
+    "lint": "roadie-cli package lint",
+    "test": "roadie-cli package test",
+    "clean": "roadie-cli package clean"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@roadiehq/openroadie-setup": "workspace:^",
+    "commander": "^13.0.0",
+    "ora": "^8.1.0",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "docker-compose.yml",
+    "skill",
+    "llms-install.md"
+  ],
+  "devDependencies": {
+    "@roadiehq/cli": "workspace:^"
+  }
+}

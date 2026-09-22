@@ -1,0 +1,16 @@
+export {
+  WorkspacesClient,
+  WORKSPACE_TYPES,
+  DEFAULT_WORKSPACE_ID,
+  type CreateWorkspaceInput,
+  type CreateTeamInput,
+  type Team,
+  type TeamMember,
+  type UpdateTeamInput,
+  type UpdateWorkspaceInput,
+  type Workspace,
+  type WorkspaceMember,
+  type WorkspaceMemberList,
+  type WorkspaceType,
+  type WorkspacesApi,
+} from './workspaces-client';

@@ -1,0 +1,22 @@
+# Scope enforcement for the write-only session-telemetry ingestion API. The
+# token baked into IDE telemetry hooks carries only `mcp-telemetry:create`, so a
+# leaked hook config can post telemetry and nothing else. Telemetry reads are
+# gated by `mcp:query` (see mcp.yaml), so this token cannot read events back.
+
+api:
+  # --- mcp-telemetry:create (ingest) ---
+  - method: post
+    url: /api/mcp/session-telemetry/claude-code
+    body: {}
+    scopes: ['mcp-telemetry:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/mcp/session-telemetry/claude-code
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  # A telemetry-only token must not be able to read telemetry back.
+  - method: get
+    url: /api/mcp/session-telemetry/
+    scopes: ['mcp-telemetry:create']
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }

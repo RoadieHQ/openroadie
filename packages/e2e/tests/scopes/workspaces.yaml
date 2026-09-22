@@ -1,0 +1,96 @@
+# Scope enforcement for the workspaces REST API.
+#
+# The default workspace (seeded by the initial migration) is the target for the
+# get/delete probes: it always exists, and delete refuses it with a 409, which
+# still proves the scope guard let the request through.
+
+api:
+  # --- workspace:query ---
+  - method: get
+    url: /api/workspaces
+    scopes: ['workspace:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/workspaces
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- workspace:get ---
+  - method: get
+    url: /api/workspaces/00000000-0000-4000-8000-000000000001
+    scopes: ['workspace:get']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/workspaces/00000000-0000-4000-8000-000000000001
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- workspace:create ---
+  # The route guard admits the narrowed personal grant; an organization create
+  # then re-checks for the un-narrowed scope inside the handler.
+  - method: post
+    url: /api/workspaces
+    body: {}
+    scopes: ['workspace:create:personal']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/workspaces
+    body: { name: 'Scope probe', slug: 'scope-probe', type: 'organization' }
+    scopes: ['workspace:create:personal']
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: post
+    url: /api/workspaces
+    body: {}
+    scopes: ['workspace:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/workspaces
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- workspace:delete ---
+  - method: delete
+    url: /api/workspaces/00000000-0000-4000-8000-000000000001
+    scopes: ['workspace:delete']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: delete
+    url: /api/workspaces/00000000-0000-4000-8000-000000000001
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+
+  # --- team scopes ---
+  - method: get
+    url: /api/workspaces/teams
+    scopes: ['team:query']
+    expectations: { status: 200 }
+  - method: get
+    url: /api/workspaces/teams
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: get
+    url: /api/workspaces/teams/00000000-0000-4000-8000-000000000001/members
+    scopes: ['team:get']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: get
+    url: /api/workspaces/teams/00000000-0000-4000-8000-000000000001/members
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: post
+    url: /api/workspaces/teams
+    body: {}
+    scopes: ['team:create']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: post
+    url: /api/workspaces/teams
+    body: {}
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }
+  - method: delete
+    url: /api/workspaces/teams/00000000-0000-4000-8000-000000000001
+    scopes: ['team:delete']
+    expectations: { status: { operator: '!=', value: 403 } }
+  - method: delete
+    url: /api/workspaces/teams/00000000-0000-4000-8000-000000000001
+    scopes: []
+    expectations: { status: 403, bodyIncludes: ['insufficient scope'] }

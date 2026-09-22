@@ -1,0 +1,330 @@
+{
+  "name": "@roadiehq/ui",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.esm.js",
+    "types": "dist/index.d.ts"
+  },
+  "scripts": {
+    "lint": "roadie-cli package lint",
+    "test": "vitest run",
+    "test:ci": "vitest run --passWithNoTests --coverage",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist dist-types"
+  },
+  "dependencies": {
+    "@codemirror/language": "^6.10.0",
+    "@codemirror/lint": "^6.8.0",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.34.0",
+    "@lezer/highlight": "^1.2.0",
+    "@uiw/react-codemirror": "^4.25.9",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^1.7.0",
+    "motion": "^12.39.0",
+    "radix-ui": "^1.4.3",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.5.0",
+    "vaul": "^1.1.2"
+  },
+  "peerDependencies": {
+    "@streamdown/cjk": "^1.0.0",
+    "@streamdown/code": "^1.0.0",
+    "@streamdown/math": "^1.0.0",
+    "@streamdown/mermaid": "^1.0.0",
+    "ai": "^6.0.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-hook-form": "^7.27.0",
+    "react-router": "^8",
+    "shiki": "^4.0.0",
+    "streamdown": "^2.0.0",
+    "use-stick-to-bottom": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@streamdown/cjk": {
+      "optional": true
+    },
+    "@streamdown/code": {
+      "optional": true
+    },
+    "@streamdown/math": {
+      "optional": true
+    },
+    "@streamdown/mermaid": {
+      "optional": true
+    },
+    "ai": {
+      "optional": true
+    },
+    "shiki": {
+      "optional": true
+    },
+    "streamdown": {
+      "optional": true
+    },
+    "use-stick-to-bottom": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@storybook/react": "^10.6.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.0.0",
+    "@types/react": "^19",
+    "jsdom": "^29.0.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "storybook": "^10.6.0",
+    "vitest": "^4.1.11"
+  },
+  "exports": {
+    "./styles/tokens.css": "./src/styles/tokens.css",
+    "./motion": "./src/lib/motion.ts",
+    "./ai-elements/chain-of-thought": "./src/components/ai-elements/chain-of-thought.tsx",
+    "./ai-elements/code-block": "./src/components/ai-elements/code-block.tsx",
+    "./ai-elements/conversation": "./src/components/ai-elements/conversation.tsx",
+    "./ai-elements/message": "./src/components/ai-elements/message.tsx",
+    "./ai-elements/reasoning": "./src/components/ai-elements/reasoning.tsx",
+    "./ai-elements/shimmer": "./src/components/ai-elements/shimmer.tsx",
+    "./ai-elements/tool": "./src/components/ai-elements/tool.tsx",
+    "./accordion": "./src/components/accordion.tsx",
+    "./advanced-section": "./src/components/advanced-section.tsx",
+    "./alert": "./src/components/alert.tsx",
+    "./autocomplete": "./src/components/autocomplete.tsx",
+    "./badge": "./src/components/badge.tsx",
+    "./button": "./src/components/button.tsx",
+    "./card": "./src/components/card.tsx",
+    "./collapsible": "./src/components/collapsible.tsx",
+    "./combobox": "./src/components/combobox.tsx",
+    "./multi-combobox": "./src/components/multi-combobox.tsx",
+    "./checkbox": "./src/components/checkbox.tsx",
+    "./definition-list": "./src/components/definition-list.tsx",
+    "./confirmation-dialog": "./src/components/confirmation-dialog.tsx",
+    "./copy-button": "./src/components/copy-button.tsx",
+    "./dialog": "./src/components/dialog.tsx",
+    "./drawer": "./src/components/drawer.tsx",
+    "./dropdown-menu": "./src/components/dropdown-menu.tsx",
+    "./editor": "./src/components/editor.tsx",
+    "./empty-state": "./src/components/empty-state.tsx",
+    "./field-hint": "./src/components/field-hint.tsx",
+    "./form": "./src/components/form.tsx",
+    "./form-section": "./src/components/form-section.tsx",
+    "./inline-code": "./src/components/inline-code.tsx",
+    "./input": "./src/components/input.tsx",
+    "./label": "./src/components/label.tsx",
+    "./pagination": "./src/components/pagination.tsx",
+    "./outlined-input": "./src/components/outlined-input.tsx",
+    "./outlined-number-input": "./src/components/outlined-number-input.tsx",
+    "./outlined-select": "./src/components/outlined-select.tsx",
+    "./outlined-textarea": "./src/components/outlined-textarea.tsx",
+    "./popover": "./src/components/popover.tsx",
+    "./resizable-drawer": "./src/components/resizable-drawer/index.ts",
+    "./select": "./src/components/select.tsx",
+    "./separator": "./src/components/separator.tsx",
+    "./sheet": "./src/components/sheet.tsx",
+    "./skeleton": "./src/components/skeleton.tsx",
+    "./spinner": "./src/components/spinner.tsx",
+    "./status-indicator": "./src/components/status-indicator.tsx",
+    "./step-flow": "./src/components/step-flow/index.ts",
+    "./switch": "./src/components/switch.tsx",
+    "./tabs": "./src/components/tabs.tsx",
+    "./table": "./src/components/table.tsx",
+    "./textarea": "./src/components/textarea.tsx",
+    "./toaster": "./src/components/toaster.tsx",
+    "./toggle-group": "./src/components/toggle-group.tsx",
+    "./tooltip": "./src/components/tooltip.tsx",
+    "./toolbar": "./src/components/toolbar/index.ts",
+    "./editor-header": "./src/components/editor-header/index.ts",
+    "./item-list": "./src/components/item-list/index.ts",
+    "./mentions-text-field": "./src/components/mentions-text-field/index.ts",
+    "./utils": "./src/lib/utils.ts"
+  },
+  "typesVersions": {
+    "*": {
+      "accordion": [
+        "src/components/accordion.tsx"
+      ],
+      "motion": [
+        "src/lib/motion.ts"
+      ],
+      "advanced-section": [
+        "src/components/advanced-section.tsx"
+      ],
+      "alert": [
+        "src/components/alert.tsx"
+      ],
+      "autocomplete": [
+        "src/components/autocomplete.tsx"
+      ],
+      "ai-elements/chain-of-thought": [
+        "src/components/ai-elements/chain-of-thought.tsx"
+      ],
+      "ai-elements/code-block": [
+        "src/components/ai-elements/code-block.tsx"
+      ],
+      "ai-elements/conversation": [
+        "src/components/ai-elements/conversation.tsx"
+      ],
+      "ai-elements/message": [
+        "src/components/ai-elements/message.tsx"
+      ],
+      "ai-elements/reasoning": [
+        "src/components/ai-elements/reasoning.tsx"
+      ],
+      "ai-elements/shimmer": [
+        "src/components/ai-elements/shimmer.tsx"
+      ],
+      "ai-elements/tool": [
+        "src/components/ai-elements/tool.tsx"
+      ],
+      "badge": [
+        "src/components/badge.tsx"
+      ],
+      "button": [
+        "src/components/button.tsx"
+      ],
+      "card": [
+        "src/components/card.tsx"
+      ],
+      "collapsible": [
+        "src/components/collapsible.tsx"
+      ],
+      "combobox": [
+        "src/components/combobox.tsx"
+      ],
+      "multi-combobox": [
+        "src/components/multi-combobox.tsx"
+      ],
+      "checkbox": [
+        "src/components/checkbox.tsx"
+      ],
+      "definition-list": [
+        "src/components/definition-list.tsx"
+      ],
+      "confirmation-dialog": [
+        "src/components/confirmation-dialog.tsx"
+      ],
+      "copy-button": [
+        "src/components/copy-button.tsx"
+      ],
+      "dialog": [
+        "src/components/dialog.tsx"
+      ],
+      "drawer": [
+        "src/components/drawer.tsx"
+      ],
+      "dropdown-menu": [
+        "src/components/dropdown-menu.tsx"
+      ],
+      "editor": [
+        "src/components/editor.tsx"
+      ],
+      "empty-state": [
+        "src/components/empty-state.tsx"
+      ],
+      "field-hint": [
+        "src/components/field-hint.tsx"
+      ],
+      "form": [
+        "src/components/form.tsx"
+      ],
+      "form-section": [
+        "src/components/form-section.tsx"
+      ],
+      "inline-code": [
+        "src/components/inline-code.tsx"
+      ],
+      "input": [
+        "src/components/input.tsx"
+      ],
+      "label": [
+        "src/components/label.tsx"
+      ],
+      "pagination": [
+        "src/components/pagination.tsx"
+      ],
+      "outlined-input": [
+        "src/components/outlined-input.tsx"
+      ],
+      "outlined-number-input": [
+        "src/components/outlined-number-input.tsx"
+      ],
+      "outlined-select": [
+        "src/components/outlined-select.tsx"
+      ],
+      "outlined-textarea": [
+        "src/components/outlined-textarea.tsx"
+      ],
+      "popover": [
+        "src/components/popover.tsx"
+      ],
+      "resizable-drawer": [
+        "src/components/resizable-drawer/index.ts"
+      ],
+      "select": [
+        "src/components/select.tsx"
+      ],
+      "separator": [
+        "src/components/separator.tsx"
+      ],
+      "sheet": [
+        "src/components/sheet.tsx"
+      ],
+      "skeleton": [
+        "src/components/skeleton.tsx"
+      ],
+      "spinner": [
+        "src/components/spinner.tsx"
+      ],
+      "status-indicator": [
+        "src/components/status-indicator.tsx"
+      ],
+      "switch": [
+        "src/components/switch.tsx"
+      ],
+      "tabs": [
+        "src/components/tabs.tsx"
+      ],
+      "table": [
+        "src/components/table.tsx"
+      ],
+      "textarea": [
+        "src/components/textarea.tsx"
+      ],
+      "toaster": [
+        "src/components/toaster.tsx"
+      ],
+      "toggle-group": [
+        "src/components/toggle-group.tsx"
+      ],
+      "tooltip": [
+        "src/components/tooltip.tsx"
+      ],
+      "toolbar": [
+        "src/components/toolbar/index.ts"
+      ],
+      "editor-header": [
+        "src/components/editor-header/index.ts"
+      ],
+      "item-list": [
+        "src/components/item-list/index.ts"
+      ],
+      "mentions-text-field": [
+        "src/components/mentions-text-field/index.ts"
+      ],
+      "utils": [
+        "src/lib/utils.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "src/styles"
+  ]
+}

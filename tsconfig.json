@@ -1,0 +1,41 @@
+{
+  "include": [
+    "globals.d.ts",
+    "packages/*/src",
+    "plugins/*/src",
+    "plugins/*/dev",
+    "plugins/*/migrations",
+    "internal/*/src"
+  ],
+  "exclude": [
+    "packages/app/src",
+    "packages/ui/src",
+    "**/*.test.ts",
+    "**/*.test-utils.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ],
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "ES2022",
+    "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "outDir": "dist-types",
+    "rootDir": ".",
+    "jsx": "react",
+    "skipLibCheck": true,
+    "noUnusedLocals": false
+  }
+}

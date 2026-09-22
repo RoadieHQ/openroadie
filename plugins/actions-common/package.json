@@ -1,0 +1,35 @@
+{
+  "name": "@roadiehq/actions-common",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "Apache-2.0",
+  "private": true,
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.cjs.js",
+    "types": "dist/index.d.ts"
+  },
+  "roadie": {
+    "role": "common-library"
+  },
+  "scripts": {
+    "build": "roadie-cli package build",
+    "start": "roadie-cli package start",
+    "lint": "roadie-cli package lint",
+    "test": "vitest run",
+    "test:ci": "vitest run --passWithNoTests --coverage",
+    "prepack": "roadie-cli package prepack",
+    "postpack": "roadie-cli package postpack",
+    "clean": "roadie-cli package clean"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.11"
+  }
+}

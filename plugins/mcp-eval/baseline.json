@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "provider": "bedrock",
+    "model": "qwen.qwen3-235b-a22b-2507-v1:0",
+    "trials": 4,
+    "recordedAt": "2026-08-13T21:00:31.000Z",
+    "sourceRuns": [
+      "https://github.com/RoadieHQ/openroadie/actions/runs/31740914046",
+      "https://github.com/RoadieHQ/openroadie/actions/runs/31742423266",
+      "https://github.com/RoadieHQ/openroadie/actions/runs/31742780833",
+      "https://github.com/RoadieHQ/openroadie/actions/runs/31743644329"
+    ]
+  },
+  "results": {
+    "cross-source-identity": {
+      "passed": true,
+      "answerCorrect": true,
+      "toolCalls": 3,
+      "wrongTools": 1,
+      "tokens": 33117,
+      "costUsd": 0.01172311
+    },
+    "pagerduty-schema": {
+      "passed": true,
+      "answerCorrect": true,
+      "toolCalls": 2,
+      "wrongTools": 0,
+      "tokens": 23300,
+      "costUsd": 0.008353055
+    },
+    "shortcut-relationship-traversal": {
+      "passed": true,
+      "answerCorrect": true,
+      "toolCalls": 3,
+      "wrongTools": 1,
+      "tokens": 51967,
+      "costUsd": 0.018099835
+    }
+  }
+}

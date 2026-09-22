@@ -1,0 +1,137 @@
+---
+name: E2E Tests
+run-name: 'E2E — ${{ github.event.pull_request.title }}'
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: e2e-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NODE_OPTIONS: --max-old-space-size=6144
+      CI: true
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+
+      - name: Build backend
+        run: yarn workspace backend build
+
+      - name: Debug - Check PostgreSQL connection
+        run: |
+          echo "=== PostgreSQL Service Status ==="
+          pg_isready -h localhost -p 5432 -U postgres || echo "pg_isready not available, checking with psql..."
+          psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT version();" || echo "psql failed"
+          echo ""
+          echo "=== Environment ==="
+          echo "CI=$CI"
+          echo "NODE_OPTIONS=$NODE_OPTIONS"
+
+      - name: Install Playwright browsers
+        run: yarn workspace e2e exec playwright install chromium
+
+      - name: Run E2E tests
+        id: e2e-tests
+        run: yarn workspace e2e test --project=chromium
+        env:
+          LOG_LEVEL: debug
+
+      - name: Debug - Show server logs on failure
+        if: failure()
+        run: |
+          echo "=== Backend Server Log ==="
+          cat backend.log 2>/dev/null || echo "No backend.log found"
+          echo ""
+          echo "=== Frontend Server Log ==="
+          cat frontend.log 2>/dev/null || echo "No frontend.log found"
+          echo ""
+          echo "=== Check if ports are listening ==="
+          ss -tlnp | grep -E ':(7008|3333)' || echo "No processes listening on expected ports"
+          echo ""
+          echo "=== Running processes ==="
+          ps aux | grep -E '(node|yarn)' | head -20
+
+      - name: Upload test results
+        id: upload-report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: packages/e2e/playwright-report/
+          retention-days: 7
+
+      - name: Upload server logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-logs
+          path: |
+            backend.log
+            frontend.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Comment on PR with report link
+        if: ${{ always() && !cancelled() && steps.e2e-tests.outcome != 'skipped' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEST_OUTCOME: ${{ steps.e2e-tests.outcome }}
+        run: |
+          if [ "$TEST_OUTCOME" = "success" ]; then
+            STATUS="## E2E Tests Passed"
+          else
+            STATUS="## E2E Tests Failed"
+          fi
+          gh pr comment ${{ github.event.pull_request.number }} --body "$STATUS
+
+          View the [Playwright Report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ steps.upload-report.outputs.artifact-id }}).
+
+          Download the artifact and run \`npx playwright show-report\` to view locally."
+
+  mock-integrations-container:
+    name: Mock-integrations container smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build and boot the mock profile
+        run: |
+          docker compose --profile mock up -d --build mock-integrations
+          for i in $(seq 1 30); do curl -sf http://localhost:7050/healthz && exit 0; sleep 2; done
+          docker compose --profile mock logs mock-integrations
+          exit 1
+
+      - name: Serves stored fixtures and typed 404s
+        run: |
+          set -euo pipefail
+          test "$(curl -sf 'http://localhost:7050/github/user/repos' | jq -r '.[0].full_name')" = "roadiehq/smoke-test"
+          test "$(curl -s -o /dev/null -w '%{http_code}' 'http://localhost:7050/github/unknown/path')" = "404"
+          curl -s 'http://localhost:7050/github/unknown/path' | jq -e '.missingKey == "github/GET/unknown/path.json"' > /dev/null

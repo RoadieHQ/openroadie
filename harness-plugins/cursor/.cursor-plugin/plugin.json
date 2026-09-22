@@ -1,0 +1,8 @@
+{
+  "name": "openroadie",
+  "description": "Connects Cursor to your openroadie developer portal via MCP.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Roadie"
+  }
+}

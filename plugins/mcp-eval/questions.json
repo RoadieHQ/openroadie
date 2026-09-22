@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cross-source-identity",
+    "turns": [
+      "Find the PagerDuty user named Brian Fletcher. Follow the samePerson relationships and return all three records as datasource ID, object ID, name, and email. Use the relationship traversal tool rather than separate searches."
+    ],
+    "expectedToolPath": [
+      "explore_objects_search",
+      "explore_related_objects_get"
+    ],
+    "expectedAnswerIncludes": [
+      "40eddcec-94f8-48d5-b475-08eef5c9654d",
+      "PIHZSHO",
+      "668ce32d-8daf-4a52-982c-fa7053137981",
+      "652e9d0cfeb2881282dd4227",
+      "a3499499-ad62-4a6e-a0e6-d290aa497a5a",
+      "5f8840cb-4741-427a-a1f2-84eb539cdff1",
+      "brian@example.com"
+    ]
+  },
+  {
+    "id": "pagerduty-schema",
+    "turns": [
+      "Discover the PagerDuty users datasource by name, then show its schema. Include the datasource ID and list its top-level fields."
+    ],
+    "expectedToolPath": ["explore_datasources_list", "explore_schema_get"],
+    "expectedAnswerIncludes": [
+      "40eddcec-94f8-48d5-b475-08eef5c9654d",
+      "name",
+      "email",
+      "role",
+      "avatar_url",
+      "billed"
+    ]
+  },
+  {
+    "id": "shortcut-relationship-traversal",
+    "turns": [
+      "Find Brian Fletcher's Shortcut member record, then use its follows relationships to list at least the first five related Shortcut epics. End with exactly `truncated: true` or `truncated: false` based on the tool result."
+    ],
+    "expectedToolPath": [
+      "explore_objects_search",
+      "explore_related_objects_get"
+    ],
+    "expectedAnswerIncludes": [
+      "address pen test findings 2025",
+      "deterministic actions v1",
+      "Local Roadie on Laptop",
+      "tenant scoped access to aws resources",
+      "Auth0 Authentication",
+      "truncated: true"
+    ]
+  }
+]

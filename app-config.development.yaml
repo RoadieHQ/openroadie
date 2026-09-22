@@ -1,0 +1,34 @@
+tenant: development
+
+app:
+  baseUrl: http://localhost:3333
+
+backend:
+  baseUrl: http://localhost:7008
+  listen:
+    port: 7008
+  auth:
+    keys:
+      - secret: development-secret-do-not-use-in-production
+    dangerouslyDisableDefaultAuthPolicy: true
+  database:
+    client: pg
+    connection:
+      host: localhost
+      port: 5432
+      user: postgres
+      database: postgres
+  cors:
+    origin:
+      - http://localhost:3000
+      - http://localhost:3333
+    methods: [GET, POST, PATCH, PUT, DELETE]
+    credentials: true
+
+single-sign-on:
+  name: guest
+  config: {}
+
+secretsSettings:
+  storage: dotenv
+  dotenvPath: ../../secrets.env

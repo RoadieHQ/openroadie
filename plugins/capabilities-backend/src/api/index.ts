@@ -1,0 +1,1 @@
+export { CapabilitiesController } from './CapabilitiesController';

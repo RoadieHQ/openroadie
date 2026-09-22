@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest a capability or an improvement.
+labels: ['enhancement', 'needs triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For anything large, it is worth talking it through first — it is faster than a
+        round trip on an issue, and it saves you building something we were
+        already planning to change.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the situation you are in, not the solution you have in mind. This is the part we most need.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like openroadie to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What have you tried or considered?
+      description: Workarounds you are using today, or other approaches you rejected and why.
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Would you be willing to contribute this?
+      options:
+        - label: I would be interested in opening a pull request for this.

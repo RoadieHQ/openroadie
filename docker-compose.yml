@@ -1,0 +1,88 @@
+# Self-hosted OpenRoadie: the server plus its Postgres, bootable with just
+# `docker compose up`. The `openroadie` service pulls the published image whose
+# tag is pinned by the CLI (`openroadie up` injects OPENROADIE_IMAGE_TAG = the
+# CLI's own version so the running server matches the CLI that deployed it);
+# defaults to `latest` when run by hand.
+#
+# To build the image locally instead of pulling (e.g. before it is published):
+#   docker build -t ghcr.io/roadiehq/openroadie:latest .
+#   OPENROADIE_IMAGE_TAG=latest docker compose up -d
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - openroadie-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  openroadie:
+    image: ghcr.io/roadiehq/openroadie:${OPENROADIE_IMAGE_TAG:-latest}
+    # From a checkout, `openroadie up` runs `compose up --build`, which builds
+    # this from source; from an npx install the packaged compose pulls the image.
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: '5432'
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - '7008:7008'
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'node -e "fetch(''http://localhost:7008/readiness'').then(r=>process.exit(r.status===200?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # Recorded third-party API responses for testing data sources without live
+  # accounts. Opt-in: `docker compose --profile mock up`. Point an
+  # integration's host at http://localhost:7050/<slug> (from other compose
+  # services: http://mock-integrations:7050/<slug>). Reads S3 when
+  # MOCK_INTEGRATIONS_S3_BUCKET is set (AWS creds via env), else the mounted
+  # fixtures directory.
+  mock-integrations:
+    profiles: [mock]
+    image: ghcr.io/roadiehq/mock-integrations:${MOCK_INTEGRATIONS_IMAGE_TAG:-latest}
+    build:
+      context: packages/mock-integrations
+      dockerfile: Dockerfile
+    environment:
+      MOCK_INTEGRATIONS_S3_BUCKET: ${MOCK_INTEGRATIONS_S3_BUCKET:-}
+      MOCK_INTEGRATIONS_S3_PREFIX: ${MOCK_INTEGRATIONS_S3_PREFIX:-fixtures}
+      MOCK_INTEGRATIONS_DIR: /fixtures
+      AWS_REGION: ${AWS_REGION:-eu-west-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+    volumes:
+      - ${MOCK_INTEGRATIONS_FIXTURES:-./packages/mock-integrations/smoke}:/fixtures:ro
+    ports:
+      - '7050:7050'
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'node -e "fetch(''http://localhost:7050/healthz'').then(r=>process.exit(r.status===200?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  openroadie-db: {}
