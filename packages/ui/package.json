@@ -72,7 +72,7 @@
     }
   },
   "devDependencies": {
-    "@storybook/react": "^10.5.0",
+    "@storybook/react": "^10.6.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.0.0",
@@ -80,7 +80,7 @@
     "jsdom": "^29.0.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "storybook": "^10.5.0",
+    "storybook": "^10.6.0",
     "vitest": "^4.1.11"
   },
   "exports": {
