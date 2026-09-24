@@ -35,7 +35,7 @@
     "aws-sdk-client-mock": "^4.1.0",
     "aws-sdk-client-mock-jest": "^4.1.0",
     "ioredis-mock": "^8.9.0",
-    "vitest": "^4.1.11",
+    "vitest": "^5.0.1",
     "wait-for-expect": "^3.0.2"
   },
   "files": [

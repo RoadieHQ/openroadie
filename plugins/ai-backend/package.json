@@ -46,7 +46,7 @@
     "@types/compression": "^1.7.5",
     "@types/express": "*",
     "@types/lodash": "^4.14.168",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.1"
   },
   "files": [
     "dist"
