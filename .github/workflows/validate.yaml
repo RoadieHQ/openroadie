@@ -22,7 +22,7 @@ jobs:
     env:
       NODE_OPTIONS: --max-old-space-size=6144
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       - name: Verify (prettier, lint, typecheck)
@@ -43,7 +43,7 @@ jobs:
     env:
       NODE_OPTIONS: --max-old-space-size=6144
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       - name: Build
@@ -83,7 +83,7 @@ jobs:
       TEST_POSTGRES_USER: postgres
       TEST_POSTGRES_DATABASE: postgres
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       # Fork PRs get no OIDC token and the repo variable may not be set yet;
@@ -98,7 +98,7 @@ jobs:
         id: replay-creds
         if: ${{ vars.SEED_REPLAY_ROLE_ARN != '' && !github.event.pull_request.head.repo.fork }}
         continue-on-error: true
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.SEED_REPLAY_ROLE_ARN }}
           aws-region: eu-west-1
@@ -124,7 +124,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       - name: Audit dependencies
@@ -139,7 +139,7 @@ jobs:
     env:
       NODE_OPTIONS: --max-old-space-size=6144
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       - name: Install Playwright Chromium
@@ -156,7 +156,7 @@ jobs:
     env:
       NODE_OPTIONS: --max-old-space-size=6144
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       - name: UI smoke (app build + storybook)
