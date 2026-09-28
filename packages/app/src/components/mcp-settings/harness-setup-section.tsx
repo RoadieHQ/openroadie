@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   ChevronDown,
   ChevronRight,
@@ -12,6 +12,7 @@ import { CopyButton } from '@roadiehq/ui/copy-button';
 import { Spinner } from '@roadiehq/ui/spinner';
 import { cn } from '@roadiehq/ui/utils';
 import { useMcpAudit, useServiceTokens } from '../../api';
+import { ResponseError } from '../../api/infrastructure';
 import type { HarnessConfig, InstallStep } from '../../api/mcp-audit';
 
 // A telemetry-only service token: it can post session telemetry and nothing
@@ -89,18 +90,13 @@ function SelectedHarnessSetup({
 }) {
   const serviceTokens = useServiceTokens();
   const [showFallback, setShowFallback] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
-  const [generating, setGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const generate = useCallback(async () => {
-    setGenerating(true);
-    setError(null);
-    try {
-      // Non-expiring so users never have to re-install the hooks; revocable
-      // from the Service Tokens admin page.
-      const grantsMcpAccess = config.harness === 'claude-code';
-      const result = await serviceTokens.create({
+  const grantsMcpAccess = config.harness === 'claude-code';
+  const tokenMutation = useMutation({
+    // Non-expiring so users never have to re-install the hooks; revocable
+    // from the Service Tokens admin page.
+    mutationFn: () =>
+      serviceTokens.create({
         name: grantsMcpAccess
           ? `MCP client — ${config.label}`
           : `MCP telemetry — ${config.label}`,
@@ -108,28 +104,32 @@ function SelectedHarnessSetup({
           ? [...new Set([...mcpScopes, TELEMETRY_SCOPE])]
           : [TELEMETRY_SCOPE],
         expiresInDays: null,
-      });
-      setToken(result.token);
-    } catch (e: unknown) {
-      setError(
-        e instanceof Error ? e.message : 'Failed to generate install command',
-      );
-    } finally {
-      setGenerating(false);
-    }
-  }, [serviceTokens, config.harness, config.label, mcpScopes]);
+      }),
+  });
+
+  const token = tokenMutation.data?.token ?? null;
+  // Deployments without a token issuer (the OSS backend has no
+  // /api/service-tokens) leave MCP and telemetry ungated, so the command
+  // works as-is without an embedded token.
+  const tokensUnsupported =
+    tokenMutation.error instanceof ResponseError &&
+    tokenMutation.error.statusCode === 404;
+  const error =
+    tokenMutation.error && !tokensUnsupported
+      ? tokenMutation.error.message || 'Failed to generate install command'
+      : null;
 
   const installStep: InstallStep = token
     ? { ...config.step, value: withAuthHeader(config.step.value, token) }
     : config.step;
   const mcpOnlyStep =
-    token && config.harness === 'claude-code' && config.mcpOnlyStep
+    token && grantsMcpAccess && config.mcpOnlyStep
       ? {
           ...config.mcpOnlyStep,
           value: withMcpAuthHeader(config.mcpOnlyStep.value, token),
         }
       : config.mcpOnlyStep;
-  const canShowMcpOnlyStep = config.harness !== 'claude-code' || token;
+  const canShowMcpOnlyStep = !grantsMcpAccess || token || tokensUnsupported;
 
   return (
     <div className="space-y-3">
@@ -139,10 +139,18 @@ function SelectedHarnessSetup({
         <>
           <StepBlock step={installStep} />
           <p className="text-xs text-muted-foreground">
-            {config.harness === 'claude-code'
+            {grantsMcpAccess
               ? 'Embeds a token limited to the installed MCP tools and session telemetry.'
               : 'Embeds a telemetry-only access token.'}{' '}
             Revoke it any time from the Service Tokens page.
+          </p>
+        </>
+      ) : tokensUnsupported ? (
+        <>
+          <StepBlock step={installStep} />
+          <p className="text-xs text-muted-foreground">
+            This deployment doesn't issue service tokens, so the command
+            installs without one.
           </p>
         </>
       ) : (
@@ -150,11 +158,11 @@ function SelectedHarnessSetup({
           <Button
             variant="secondary"
             size="sm"
-            onClick={generate}
-            disabled={generating}
+            onClick={() => tokenMutation.mutate()}
+            disabled={tokenMutation.isPending}
             type="button"
           >
-            {generating ? (
+            {tokenMutation.isPending ? (
               <Spinner size={14} />
             ) : (
               <Terminal className="size-4" />
