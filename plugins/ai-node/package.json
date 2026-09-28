@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.6",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.1"
   },
   "dependencies": {
     "@ai-sdk/mcp": "^1.0.0",

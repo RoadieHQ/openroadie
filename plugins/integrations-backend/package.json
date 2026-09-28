@@ -54,7 +54,7 @@
     "@types/luxon": "^3",
     "@types/supertest": "^6.0.3",
     "supertest": "^7.1.4",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.1"
   },
   "files": [
     "dist",
