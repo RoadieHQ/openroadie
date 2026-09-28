@@ -1,6 +1,6 @@
 # Stage 1: Extract only package.json files for workspace resolution
 # This avoids manually listing every workspace package.json
-FROM node:24-slim AS packages
+FROM node:26-slim AS packages
 
 WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
@@ -14,7 +14,7 @@ RUN find packages plugins -mindepth 2 ! -name "package.json" -delete 2>/dev/null
     true
 
 # Stage 2: Install dependencies, build, and prune
-FROM node:24-slim AS build
+FROM node:26-slim AS build
 
 WORKDIR /app
 RUN corepack enable
@@ -57,7 +57,7 @@ RUN rm -rf packages/e2e packages/ui packages/backend-test-utils && \
     true
 
 # Stage 3: Production runtime
-FROM node:24-slim
+FROM node:26-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dumb-init \
