@@ -1,62 +1,61 @@
 # openroadie
 
-Open-source context store and agentic control platform. Connect your data, build guardrails, then let your agents run wild.
+**An organisational context store and control platform for AI agents. You bring your own agents.**
+
+openroadie is not an agent builder. It's the layer your agents plug into so they understand your organisation and can act safely within it.
+
+If you're giving AI agents real access inside your organisation, you need both good context and tight control. That's what we built openroadie for. It builds a self-hosted graph of your organisation from the tools you already use, serves it to agents over MCP, and limits them to the deterministic actions you define, scoped to the user or service driving each agent.
 
 ---
 
-Openroadie turns your organisational metadata about your software into a self-hosted, always-on context layer for you and your team. You can then attach and bound actions that are permissible for any agent to execute, then wrap everything in tokenised MCP servers.
+## Why
 
-Openroadie is a control center designed to curate context for any agentic task — like triaging incidents and publishing findings to Slack or turning bug tickets into PRs.
+To do real work, like triaging an incident, turning a bug ticket into a PR or finding who owns a failing service, an agent needs to know how your org fits together: which repo deploys which service, who is on call for it, which alerts and tickets point at it. That information is spread across a dozen SaaS APIs. Most setups either give the agent a raw API token for each one or paste context in by hand.
 
-It runs locally on your machine by default, but can run in a Docker container, on VMs, or within your company infrastructure.
+openroadie indexes that metadata ahead of time, keeps it fresh on a schedule and exposes it through one tokenised MCP endpoint. Writes go through deterministic actions that an admin has defined, so the agent picks an action and fills in its parameters rather than composing arbitrary API calls. Access to actions, capabilities, context groups and data is scoped per caller, so an agent working for an on-call engineer and one running in CI can see and do different things.
 
-**Quickstart**
+## Features
 
-You can install **openroadie** to run on any machine: on your laptop, on a dedicated computer like a Mac Mini, or on a server in the cloud.
+- **40 integrations out of the box.** GitHub, GitLab, Bitbucket, Jira, Linear, Shortcut, Slack, PagerDuty, incident.io, Rootly, Datadog, Dynatrace, Sentry, Snyk, Wiz, SonarQube, AWS, GCP, Azure, Kubernetes, Argo CD, Terraform Cloud, Okta, Microsoft Graph and more. Any other HTTP or GraphQL API can be added as a custom integration from the setup wizard, `openroadie integrations create` or the web UI.
+- **Scheduled ingestion pipelines.** Each data source is a pipeline (fetch → transform → store) that runs on a cron schedule. Data is processed page by page through Postgres, so memory use stays flat no matter how large the dataset is.
+- **Observed, not declared.** Raw data from each service is stored as JSON as it arrives, with no model to define up front. Schemas are inferred, trigram full-text search covers everything, and rules then build the relationships and group concepts together.
+- **Relationship graph.** Objects are linked across sources (`github.repo` → `pagerduty.service` → `okta.user`) by a mix of curated relations and automated processes. You write declarative rules by hand where you know the join, and an automated suggester profiles your data and proposes candidate joins with confidence scores for review. Rules can also call an integration to resolve a match, and they re-apply automatically whenever the data changes.
+- **MCP server.** Tools are grouped (`explore` read-only, `manage`, `actions`, `integrations`), each group can be switched on or off, and every tool call runs with the caller's own identity.
+- **Deterministic actions.** An action is a versioned, schema-validated sequence of steps, and each step can call a different integration and use earlier steps' outputs (e.g. look up a service's owner in PagerDuty, then open a GitHub issue and post to Slack). The agent supplies only the parameters, and inputs are validated and escaped, so the same inputs always run the same steps.
+- **Scoped access.** Every REST route and MCP tool checks a `resource:verb[:target]` scope (e.g. `action:execute:restart-pod`), resolved from the user or service token driving the agent. Tools the caller can't use aren't listed, and lists are filtered to the actions, capabilities and context groups they've been granted. The open-source build ships with an allow-all resolver, so you plug in your own to enforce per-caller grants.
+- **Capabilities.** Versioned, reusable instruction sets ("playbooks") that agents can discover and follow.
+- **Context groups.** Collapse objects from different services into one higher-level concept. For example, a PagerDuty user and a GitHub user become a single "Employee", or a repo, its on-call service and its alerts become one "Service". Groups are precomputed, so a single call returns the whole bundle.
+- **Audit log and metrics.** Every MCP tool call is logged with sensitive values redacted. Prometheus metrics are included.
+- **Portable config.** Data sources, rules, context groups, capabilities and actions export as YAML manifests that you can commit to git and import into another environment.
+- **Web UI and CLI.** Use the React portal for browsing the graph and reviewing rules.
+- **Self-hosted.** One Node.js process plus Postgres. Run it on a laptop, a Mac Mini, a VM or your own infrastructure.
 
-The most powerful way to run **openroadie** is on a server in the cloud. This allows data ingestion to continue running even when your laptop is shut, and makes it easier to trigger your agents through third-party services like Slack, GitHub, and Datadog. See the self-hosting guide for details, especially with respect to security hardening.
+## Quickstart
 
-**Install**
+**Prerequisites:** Node.js 22.22+ (or 24+), `yarn`, Docker (for Postgres)
 
-Full walk-through: [Getting started with openroadie](./docs/getting-started.md).
-
-**openroadie** runs from source — there is no published container image or npm package.
-
-**From Source**
-
-**Warning**
-
-This runs **openroadie** directly on the machine you're installing on.
-
-**Prerequisites**: Node.js 22.12.x or later, `yarn`, `uv` (for running the agent server via `uvx`)
-
-```
-git clone https://github.com/RoadieHQ/openroadie.git openroadie
-cd openroadie
+```bash
 docker run -d --name openroadie-dev-db -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres:16
 yarn install
 yarn dev
 ```
 
----
+- UI: http://localhost:3333
+- API: http://localhost:7008
 
-Access the UI at http://localhost:3333.
+Create datasources, capabilities, actions, relationships and point your agent at the MCP endpoint found on the following page:
 
-Access the backend at http://localhost:7008
+```text
+http://localhost:3333/admin/mcp-servers
+```
 
-**Architecture**
-
-Openroadie grew out of a long-term project inside Roadie, a Developer Portal company, which in turn was based on Spotify’s Backstage open-source Internal Developer Portal.
-
-As such, it inherits some architectural features from those previous applications — notably Backstage's dependency-injection "New Backend System" of composable plugins.
-
-At a glance, OpenRoadie is a single Node.js backend plus Postgres, organised around two planes:
+## How it works
 
 ```mermaid
 flowchart LR
     SRC["Data sources<br/>GitHub · Datadog · AWS · …"]
 
-    subgraph or["OpenRoadie"]
+    subgraph or["openroadie"]
         direction TB
         DATA["Data plane<br/>integrations → workflows →<br/>datastore + relationship graph"]
         CTRL["Control plane<br/>MCP servers · actions · AI agents"]
@@ -70,21 +69,21 @@ flowchart LR
     AGENTS <-->|MCP| CTRL
 ```
 
-- **Data plane** — connectors ingest metadata on a schedule into a Postgres-backed context store; a rules engine relates objects into a knowledge graph.
-- **Control plane** — curated, guardrailed actions are exposed to agents through tokenised MCP servers, so every tool runs with the caller's own permissions.
+- **Data plane:** connectors ingest metadata on a schedule into a Postgres-backed store, and a rules engine links objects into a graph.
+- **Control plane:** curated actions and read tools are exposed through tokenised MCP servers, so each tool runs with the caller's permissions.
 
-See **[ARCHITECTURE.md](./ARCHITECTURE.md)** for the full breakdown, with layered diagrams of the runtime, backend composition, and both planes.
+## Deployment
 
-**Sharing a setup**
+On your laptop, openroadie only ingests data while the machine is awake. For always-on ingestion, and to trigger agents from Slack, GitHub or Datadog webhooks, run it on a server. There is a `Dockerfile` and a `docker-compose.yml` (openroadie plus Postgres 16). openroadie currently runs from source. There is no published container image or npm package yet.
 
-A working configuration — data sources, relationship rules, context groups, capabilities — can be exported as a directory of YAML manifests and imported into another environment:
+## Background
 
-```
-yarn workspace @roadiehq/openroadie-cli build
-node packages/openroadie-cli/bin/openroadie.js bundle export -o ./my-bundle
-node packages/openroadie-cli/bin/openroadie.js bundle import ./my-bundle --dry-run
-```
+openroadie grew out of a long-running internal project at [Roadie](https://roadie.io), a hosted developer portal built on Spotify's [Backstage](https://backstage.io). It keeps Backstage's plugin-based, dependency-injected backend architecture. Backstage is not required, and openroadie does not depend on it.
 
-**Conventions & Coding Standards**
+## Contributing
 
-See `CONTRIBUTING.md` for guidelines on how to contribute to this project.
+Issues and PRs are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for conventions and [SECURITY.md](./SECURITY.md) for reporting vulnerabilities.
+
+## License
+
+[Apache 2.0](./LICENSE)
