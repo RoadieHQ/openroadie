@@ -354,10 +354,6 @@ sequenceDiagram
     AB-->>U: result (never exposes raw credentials)
 ```
 
-> **External agent server.** The README lists `uvx` as a prerequisite for "the agent server." That is
-> an external/optional component and is **not** wired into these TypeScript plugins — the in-repo
-> agent runtime is `ai-backend`'s AI-SDK `ToolLoopAgent`.
-
 ---
 
 ## 6. Frontend
