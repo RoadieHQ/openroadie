@@ -82,7 +82,7 @@ openroadie grew out of a long-running internal project at [Roadie](https://roadi
 
 ## Contributing
 
-Issues and PRs are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for conventions and [SECURITY.md](./SECURITY.md) for reporting vulnerabilities.
+Issues and PRs are welcome. Come say hello on [Discord](https://discord.com/invite/3NybApFpUU). See [CONTRIBUTING.md](./CONTRIBUTING.md) for conventions and [SECURITY.md](./SECURITY.md) for reporting vulnerabilities.
 
 ## License
 
