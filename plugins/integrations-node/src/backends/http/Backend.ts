@@ -37,6 +37,7 @@ import {
   isPdfContentType,
   mayBeBinaryDocument,
 } from './pdfText';
+import { isXmlContentType, parseXmlBody } from './xmlBody';
 
 const REQUEST_LOG_RESPONSE_HEADER_ALLOWLIST = new Set(['link']);
 
@@ -763,6 +764,11 @@ export class HttpBackend implements IntegrationBackend {
     let data: unknown;
     if (contentType?.includes('application/json')) {
       data = await response.json();
+    } else if (isXmlContentType(contentType)) {
+      // Parsed so arrayPath / expressions reach the fields as they would a
+      // JSON body; malformed XML stays the raw text.
+      const text = await response.text();
+      data = parseXmlBody(text) ?? text;
     } else if (
       isPdfContentType(contentType) ||
       mayBeBinaryDocument(contentType)
