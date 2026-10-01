@@ -1627,6 +1627,98 @@ describe('HttpBackend', () => {
     });
   });
 
+  describe('XML parsing', () => {
+    const backend = () =>
+      new HttpBackend({
+        logger: voidLogger,
+        envVarAllowList: new Set(),
+        secretStore: envBackedSecretStore,
+      });
+
+    async function collectPages(
+      response: undici.Response,
+      options: Partial<HttpRequestOptions> = {},
+    ) {
+      mockFetch.mockResolvedValue(response);
+      const pages = [];
+      for await (const page of backend().requestPages(mockIntegration, {
+        backendType: 'http',
+        path: '/feed',
+        ...options,
+      })) {
+        pages.push(page);
+      }
+      return pages;
+    }
+
+    it('selects items from an RSS feed with arrayPath', async () => {
+      const rss = `<?xml version="1.0"?>
+        <rss version="2.0"><channel>
+          <title>News</title>
+          <item><guid>a</guid><title>First</title></item>
+          <item><guid>b</guid><title>Second</title></item>
+        </channel></rss>`;
+
+      const pages = await collectPages(
+        new undici.Response(rss, {
+          status: 200,
+          headers: { 'content-type': 'application/rss+xml; charset=utf-8' },
+        }),
+        { arrayPath: 'rss.channel.item' },
+      );
+
+      expect(pages).toHaveLength(1);
+      expect(pages[0].items).toEqual([
+        { guid: 'a', title: 'First' },
+        { guid: 'b', title: 'Second' },
+      ]);
+    });
+
+    it('selects items from a SOAP response through its namespaces', async () => {
+      const soap = `<?xml version="1.0" encoding="utf-8"?>
+        <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+          <soap:Body>
+            <GetMeetingsResponse xmlns="http://moderngov.test/">
+              <meeting><id>1</id></meeting>
+              <meeting><id>2</id></meeting>
+            </GetMeetingsResponse>
+          </soap:Body>
+        </soap:Envelope>`;
+
+      const pages = await collectPages(
+        new undici.Response(soap, {
+          status: 200,
+          headers: { 'content-type': 'text/xml; charset=utf-8' },
+        }),
+        { arrayPath: 'Envelope.Body.GetMeetingsResponse.meeting' },
+      );
+
+      expect(pages[0].items).toEqual([{ id: '1' }, { id: '2' }]);
+    });
+
+    it('keeps malformed XML as the raw text', async () => {
+      const pages = await collectPages(
+        new undici.Response('<root><unclosed></root>', {
+          status: 200,
+          headers: { 'content-type': 'application/xml' },
+        }),
+      );
+
+      expect(pages[0].items).toEqual(['<root><unclosed></root>']);
+    });
+
+    it('leaves XML-looking text/plain responses as text', async () => {
+      const pages = await collectPages(
+        new undici.Response('<root><a>1</a></root>', {
+          status: 200,
+          headers: { 'content-type': 'text/plain' },
+        }),
+      );
+
+      expect(pages[0].items).toEqual(['<root><a>1</a></root>']);
+    });
+  });
+
   describe('PDF text extraction', () => {
     const backend = () =>
       new HttpBackend({
