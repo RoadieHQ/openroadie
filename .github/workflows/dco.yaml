@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 5
     steps:
       # fetch-depth: 0 so base..head is walkable; the PR ref alone is shallow.
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
