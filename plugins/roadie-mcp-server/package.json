@@ -23,7 +23,7 @@
     "postpack": "roadie-cli package postpack"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.31.0",
     "@roadiehq/config": "workspace:^",
     "@roadiehq/errors": "workspace:^",
     "@roadiehq/extensions-api": "workspace:^",
@@ -37,14 +37,14 @@
     "js-tiktoken": "^1.0.21",
     "knex": "^3.1.0",
     "prom-client": "^14.2.0",
-    "uuid": "^14.0.0",
+    "uuid": "^14.0.2",
     "zod": "^4.0.0"
   },
   "devDependencies": {
     "@roadiehq/backend-test-utils": "workspace:^",
     "@roadiehq/types": "workspace:^",
     "@types/express": "^4.17.6",
-    "supertest": "^7.1.4",
+    "supertest": "^7.3.0",
     "vitest": "^4.1.11"
   },
   "files": [
