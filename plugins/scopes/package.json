@@ -28,7 +28,7 @@
     "@types/express": "^4.17.6"
   },
   "devDependencies": {
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.3"
   },
   "files": [
     "dist"

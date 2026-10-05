@@ -48,6 +48,6 @@
   "devDependencies": {
     "@types/jsonwebtoken": "^9",
     "@types/luxon": "^3",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.3"
   }
 }
