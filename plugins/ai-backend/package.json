@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.0",
-    "@ai-sdk/mcp": "^1.0.0",
+    "@ai-sdk/mcp": "^2.0.66",
     "@ai-sdk/openai": "^3.0.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@roadiehq/ai-node": "workspace:^",

@@ -27,7 +27,7 @@
     "vitest": "^4.1.11"
   },
   "dependencies": {
-    "@ai-sdk/mcp": "^1.0.0",
+    "@ai-sdk/mcp": "^2.0.66",
     "@ai-sdk/provider": "^3.0.0",
     "@roadiehq/extensions-api": "workspace:^",
     "ai": "^6.0.3",

@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^4.0.101",
-    "@ai-sdk/mcp": "^1.0.0",
+    "@ai-sdk/mcp": "^2.0.66",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "ai": "^6.0.3",
     "zod": "^4.1.8"
