@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@ai-sdk/mcp": "^1.0.0",
-    "@ai-sdk/provider": "^3.0.0",
+    "@ai-sdk/provider": "^4.0.21",
     "@roadiehq/extensions-api": "workspace:^",
     "ai": "^6.0.3",
     "express": "^4.17.1",
