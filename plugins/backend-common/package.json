@@ -24,9 +24,9 @@
     "clean": "roadie-cli package clean"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.525.0",
-    "@aws-sdk/credential-providers": "^3.525.0",
-    "@aws-sdk/util-arn-parser": "^3.525.0",
+    "@aws-sdk/client-s3": "^3.1146.0",
+    "@aws-sdk/credential-providers": "^3.1146.0",
+    "@aws-sdk/util-arn-parser": "^3.972.41",
     "@manypkg/get-packages": "^2.2.2",
     "@octokit/rest": "^20.0.2",
     "@roadiehq/backend-defaults": "workspace:^",
