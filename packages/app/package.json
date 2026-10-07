@@ -42,7 +42,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@types/dagre": "^0.7.54",
     "@xyflow/react": "^12.12.0",
-    "ai": "^6.0.143",
+    "ai": "^7.0.127",
     "ajv": "^8.17.1",
     "cm6-graphql": "^0.2.2",
     "dagre": "^0.8.5",

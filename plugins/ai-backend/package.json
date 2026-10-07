@@ -35,7 +35,7 @@
     "@roadiehq/config": "workspace:^",
     "@roadiehq/extensions-api": "workspace:^",
     "@roadiehq/scopes": "workspace:^",
-    "ai": "^6.0.3",
+    "ai": "^7.0.127",
     "express": "^4.17.1",
     "express-promise-router": "^4.1.0",
     "lodash": "^4.17.21",

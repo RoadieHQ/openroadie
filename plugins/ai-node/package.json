@@ -30,7 +30,7 @@
     "@ai-sdk/mcp": "^1.0.0",
     "@ai-sdk/provider": "^3.0.0",
     "@roadiehq/extensions-api": "workspace:^",
-    "ai": "^6.0.3",
+    "ai": "^7.0.127",
     "express": "^4.17.1",
     "zod": "^4.0.0"
   },
