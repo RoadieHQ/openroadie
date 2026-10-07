@@ -54,16 +54,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ai-sdk/gateway@npm:3.0.203":
-  version: 3.0.203
-  resolution: "@ai-sdk/gateway@npm:3.0.203"
+"@ai-sdk/gateway@npm:4.0.103":
+  version: 4.0.103
+  resolution: "@ai-sdk/gateway@npm:4.0.103"
   dependencies:
-    "@ai-sdk/provider": "npm:3.0.18"
-    "@ai-sdk/provider-utils": "npm:4.0.55"
+    "@ai-sdk/provider": "npm:4.0.21"
+    "@ai-sdk/provider-utils": "npm:5.0.53"
     "@vercel/oidc": "npm:3.2.0"
   peerDependencies:
     zod: ^3.25.76 || ^4.1.8
-  checksum: 10/9d550ad3e6ef60c9ec9e39c35cd8314abb26b6141be449ef3190b1b5f1121273b456fbadcaa9741dd3a1e4c8289d4ee02909f3b361cf47b60f3832a34ec1f100
+  checksum: 10/675ac4ff01d71a0cf022f8a6d52c1372b5fadc4cd8f5846ec2174feddd44bd34803897c90e521caf4abeabee4042ef8af450d73e5b190a10d052cb58a4435ed5
   languageName: node
   linkType: hard
 
@@ -134,6 +134,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ai-sdk/provider-utils@npm:5.0.53":
+  version: 5.0.53
+  resolution: "@ai-sdk/provider-utils@npm:5.0.53"
+  dependencies:
+    "@ai-sdk/provider": "npm:4.0.21"
+    "@standard-schema/spec": "npm:^1.1.0"
+    "@workflow/serde": "npm:4.1.0"
+    eventsource-parser: "npm:^3.0.8"
+    undici: "npm:^7.29.0"
+  peerDependencies:
+    zod: ^3.25.76 || ^4.1.8
+  checksum: 10/393780c92ecf875d4a7afbed76f75be6e9a39f34527f99ceef140cbec0ee6cd8746a83a04956216be574b925f0284b469c20c0a0c7b7c0783695914b6da5ca6b
+  languageName: node
+  linkType: hard
+
 "@ai-sdk/provider@npm:3.0.10":
   version: 3.0.10
   resolution: "@ai-sdk/provider@npm:3.0.10"
@@ -158,6 +173,15 @@ __metadata:
   dependencies:
     json-schema: "npm:^0.4.0"
   checksum: 10/a045834cdfc698354c8f5da27c99b36e233eb1834035fe324714d1d14776b51663aa548c61a52e0b7630057b6691f563a1389d428c3e43d8504d1c0ffa716440
+  languageName: node
+  linkType: hard
+
+"@ai-sdk/provider@npm:4.0.21":
+  version: 4.0.21
+  resolution: "@ai-sdk/provider@npm:4.0.21"
+  dependencies:
+    json-schema: "npm:^0.4.0"
+  checksum: 10/c8937fc04a0d05c352d8b4496e4bc3e402654a3cd0c4c64a524e5a1f1bdb956cb9c0a5a38647a8f856668f9a067452556e5a713319cc34123357fbae7664978a
   languageName: node
   linkType: hard
 
@@ -5552,7 +5576,7 @@ __metadata:
     "@types/compression": "npm:^1.7.5"
     "@types/express": "npm:*"
     "@types/lodash": "npm:^4.17.25"
-    ai: "npm:^6.0.3"
+    ai: "npm:^7.0.127"
     express: "npm:^4.17.1"
     express-promise-router: "npm:^4.1.0"
     lodash: "npm:^4.17.21"
@@ -5570,7 +5594,7 @@ __metadata:
     "@ai-sdk/provider": "npm:^3.0.0"
     "@roadiehq/extensions-api": "workspace:^"
     "@types/express": "npm:^4.17.6"
-    ai: "npm:^6.0.3"
+    ai: "npm:^7.0.127"
     express: "npm:^4.17.1"
     vitest: "npm:^5.0.3"
     zod: "npm:^4.0.0"
@@ -6081,7 +6105,7 @@ __metadata:
     "@ai-sdk/amazon-bedrock": "npm:^4.0.101"
     "@ai-sdk/mcp": "npm:^1.0.0"
     "@modelcontextprotocol/sdk": "npm:^1.32.0"
-    ai: "npm:^6.0.3"
+    ai: "npm:^7.0.127"
     eslint: "npm:^9.39.4"
     prettier: "npm:^3"
     tsx: "npm:^4.23.15"
@@ -9502,6 +9526,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@workflow/serde@npm:4.1.0":
+  version: 4.1.0
+  resolution: "@workflow/serde@npm:4.1.0"
+  checksum: 10/eb07267e28d75ca86e8bb4186326b25e6bc50b78d324abdf3fbd8723c33b157655c0e30261f8f4e5c7a0fc68bf1182f263d2dbd85aa43e3cbab5825c462e88a3
+  languageName: node
+  linkType: hard
+
 "@xobotyi/scrollbar-width@npm:^1.9.5":
   version: 1.9.5
   resolution: "@xobotyi/scrollbar-width@npm:1.9.5"
@@ -9629,17 +9660,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ai@npm:^6.0.143, ai@npm:^6.0.3":
-  version: 6.0.293
-  resolution: "ai@npm:6.0.293"
+"ai@npm:^7.0.127":
+  version: 7.0.127
+  resolution: "ai@npm:7.0.127"
   dependencies:
-    "@ai-sdk/gateway": "npm:3.0.203"
-    "@ai-sdk/provider": "npm:3.0.18"
-    "@ai-sdk/provider-utils": "npm:4.0.55"
-    "@opentelemetry/api": "npm:^1.9.0"
+    "@ai-sdk/gateway": "npm:4.0.103"
+    "@ai-sdk/provider": "npm:4.0.21"
+    "@ai-sdk/provider-utils": "npm:5.0.53"
   peerDependencies:
     zod: ^3.25.76 || ^4.1.8
-  checksum: 10/157c71beffc307641dcd2ec8e49b64c79dda6dd7454f2e7ef3ef4c62d4cd05c010452b4ba662da7d87d8c404fc480b0a2d3c00c95d7b6660134552c47109bde3
+  checksum: 10/28bc71e17f64597a8d142bc02937bf38777cd7b6775530f62c66db0f972b9da315ed6907f97b2578a5d7f2db768342b07aa533af5df5a0d11c226c622cb89354
   languageName: node
   linkType: hard
 
@@ -9802,7 +9832,7 @@ __metadata:
     "@vitest/browser-playwright": "npm:5.0.3"
     "@vitest/coverage-v8": "npm:5.0.3"
     "@xyflow/react": "npm:^12.12.0"
-    ai: "npm:^6.0.143"
+    ai: "npm:^7.0.127"
     ajv: "npm:^8.17.1"
     cm6-graphql: "npm:^0.2.2"
     dagre: "npm:^0.8.5"

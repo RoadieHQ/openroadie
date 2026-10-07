@@ -13,7 +13,7 @@
     "@ai-sdk/amazon-bedrock": "^4.0.101",
     "@ai-sdk/mcp": "^1.0.0",
     "@modelcontextprotocol/sdk": "^1.32.0",
-    "ai": "^6.0.3",
+    "ai": "^7.0.127",
     "zod": "^4.1.8"
   },
   "devDependencies": {
