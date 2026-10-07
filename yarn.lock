@@ -5508,7 +5508,7 @@ __metadata:
     aws-sdk-client-mock: "npm:^4.1.0"
     aws-sdk-client-mock-jest: "npm:^4.1.0"
     compression: "npm:^1.7.4"
-    cron: "npm:^3.0.0"
+    cron: "npm:^4.4.0"
     express: "npm:^4.17.1"
     express-promise-router: "npm:^4.1.0"
     helmet: "npm:^7.0.0"
@@ -11237,13 +11237,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cron@npm:^3.0.0":
-  version: 3.5.0
-  resolution: "cron@npm:3.5.0"
+"cron@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "cron@npm:4.4.0"
   dependencies:
-    "@types/luxon": "npm:~3.4.0"
-    luxon: "npm:~3.5.0"
-  checksum: 10/0e667d87c9acc162db835439bff2664483f1fcbd471ae30a26c7426c736fa1798d27067cc4d0294d8a27890a1bc6c9deeefe47811cc339f11a8ba8288f51886d
+    "@types/luxon": "npm:~3.7.0"
+    luxon: "npm:~3.7.0"
+  checksum: 10/c969fdace813cc2b5898d755eb37a8a7e4192e4b43ef7b1a96c25bf9f54d5bcab016bfe851de297b570b67b4b5a37a2b242bde4a7c839860471ca243cdac79f6
   languageName: node
   linkType: hard
 
