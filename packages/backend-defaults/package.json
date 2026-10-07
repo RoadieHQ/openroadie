@@ -55,7 +55,7 @@
     "@roadiehq/healthcheck-backend": "workspace:^",
     "@roadiehq/prometheus-metrics": "workspace:^",
     "@roadiehq/types": "workspace:^",
-    "compression": "^1.7.4",
+    "compression": "^1.8.2",
     "cron": "^4.4.0",
     "express": "^4.17.1",
     "express-promise-router": "^4.1.0",
