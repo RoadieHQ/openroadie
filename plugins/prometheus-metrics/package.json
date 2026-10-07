@@ -32,7 +32,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.10.1",
     "@types/express-prometheus-middleware": "^1.2.1",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.3"
   },
   "files": [
     "dist"

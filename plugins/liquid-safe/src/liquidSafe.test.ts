@@ -166,13 +166,17 @@ describe('renderLiquidSafe', () => {
 
   describe('budgets', () => {
     it('rejects template-driven runaway work via the cooperative render limit', async () => {
+      // Nested small ranges rather than one huge range: LiquidJS materializes
+      // a range into an array before the loop starts, so `(1..100000000)`
+      // spent ~1.5s allocating before the render limit could ever fire, and
+      // timed out under a loaded full-suite run.
       await expect(
         renderLiquidSafe(
-          '{% for i in (1..100000000) %}{{ i }}{% endfor %}',
+          '{% for i in (1..10000) %}{% for j in (1..10000) %}{{ j }}{% endfor %}{% endfor %}',
           {},
           { budget: { timeoutMs: 100 } },
         ),
-      ).rejects.toThrow();
+      ).rejects.toThrow(/render limit exceeded/);
     });
 
     it('rejects output larger than the output budget', async () => {
