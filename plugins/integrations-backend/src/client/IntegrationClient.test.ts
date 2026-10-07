@@ -15,6 +15,31 @@ import {
 import type { SecretStoreService } from '@roadiehq/secrets-node';
 import type { SecretsMetadataService } from '@roadiehq/secrets-settings-backend';
 
+// These tests cover how the client resolves credentials and validates options,
+// not what the remote API returns — each one only needs the outbound request to
+// fail. Without these mocks the HTTP backend made real calls to api.github.com
+// and the AWS backend picked up ambient credentials (or probed IMDS) and called
+// Cloud Control, so the suite's runtime — and whether it hit the 5s test
+// timeout — depended on the network and the machine it ran on.
+vi.mock('@aws-sdk/credential-providers', () => {
+  const noAmbientCredentials = () => async () => {
+    throw new Error('No AWS credentials in unit tests');
+  };
+  return {
+    fromNodeProviderChain: noAmbientCredentials,
+    fromTemporaryCredentials: noAmbientCredentials,
+  };
+});
+vi.mock('undici', async importOriginal => {
+  const actual = await importOriginal<typeof import('undici')>();
+  return {
+    ...actual,
+    fetch: vi.fn(
+      async () => new actual.Response('Bad credentials', { status: 401 }),
+    ),
+  };
+});
+
 const envBackedSecretStore: SecretStoreService = {
   resolver: () => ({
     async resolve(refs) {
