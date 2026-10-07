@@ -27,7 +27,7 @@
     "dist"
   ],
   "dependencies": {
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "vitest": "^4.1.11"
