@@ -36,7 +36,7 @@
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@roadiehq/openroadie-setup": "workspace:^",
     "commander": "^13.0.0",
-    "ora": "^8.1.0",
+    "ora": "^9.4.1",
     "yaml": "^2.9.0",
     "zod": "^4.4.3"
   },

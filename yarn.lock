@@ -5742,7 +5742,7 @@ __metadata:
     esbuild: "npm:^0.28.1"
     eslint: "npm:^9.39.4"
     fs-extra: "npm:^11.2.0"
-    ora: "npm:^8.1.0"
+    ora: "npm:^9.4.1"
     p-limit: "npm:^6.1.0"
     postcss: "npm:^8.5.23"
     rollup: "npm:^4.27.0"
@@ -5990,7 +5990,7 @@ __metadata:
     "@roadiehq/cli": "workspace:^"
     "@roadiehq/openroadie-setup": "workspace:^"
     commander: "npm:^13.0.0"
-    ora: "npm:^8.1.0"
+    ora: "npm:^9.4.1"
     yaml: "npm:^2.9.0"
     zod: "npm:^4.4.3"
   bin:
@@ -10669,10 +10669,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cli-spinners@npm:^2.7.0, cli-spinners@npm:^2.9.2":
+"cli-spinners@npm:^2.7.0":
   version: 2.9.2
   resolution: "cli-spinners@npm:2.9.2"
   checksum: 10/a0a863f442df35ed7294424f5491fa1756bd8d2e4ff0c8736531d886cec0ece4d85e8663b77a5afaf1d296e3cbbebff92e2e99f52bbea89b667cbe789b994794
+  languageName: node
+  linkType: hard
+
+"cli-spinners@npm:^3.2.0":
+  version: 3.4.0
+  resolution: "cli-spinners@npm:3.4.0"
+  checksum: 10/6a4021c1999011fc34ae714f055dcdafb56309abc1f8fb021ea7d9370dfc524485fe8684226015e5fe6053dd30544e74270184ff7edc3fa4d37043b8efd0a054
   languageName: node
   linkType: hard
 
@@ -15264,14 +15271,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-unicode-supported@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "is-unicode-supported@npm:1.3.0"
-  checksum: 10/20a1fc161afafaf49243551a5ac33b6c4cf0bbcce369fcd8f2951fbdd000c30698ce320de3ee6830497310a8f41880f8066d440aa3eb0a853e2aa4836dd89abc
-  languageName: node
-  linkType: hard
-
-"is-unicode-supported@npm:^2.0.0":
+"is-unicode-supported@npm:^2.0.0, is-unicode-supported@npm:^2.1.0":
   version: 2.1.0
   resolution: "is-unicode-supported@npm:2.1.0"
   checksum: 10/f254e3da6b0ab1a57a94f7273a7798dd35d1d45b227759f600d0fa9d5649f9c07fa8d3c8a6360b0e376adf916d151ec24fc9a50c5295c58bae7ca54a76a063f9
@@ -16235,13 +16235,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"log-symbols@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "log-symbols@npm:6.0.0"
+"log-symbols@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "log-symbols@npm:7.0.1"
   dependencies:
-    chalk: "npm:^5.3.0"
-    is-unicode-supported: "npm:^1.3.0"
-  checksum: 10/510cdda36700cbcd87a2a691ea08d310a6c6b449084018f7f2ec4f732ca5e51b301ff1327aadd96f53c08318e616276c65f7fe22f2a16704fb0715d788bc3c33
+    is-unicode-supported: "npm:^2.0.0"
+    yoctocolors: "npm:^2.1.1"
+  checksum: 10/0862313d84826b551582e39659b8586c56b65130c5f4f976420e2c23985228334f2a26fc4251ac22bf0a5b415d9430e86bf332557d934c10b036f9a549d63a09
   languageName: node
   linkType: hard
 
@@ -17964,20 +17964,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ora@npm:^8.1.0":
-  version: 8.2.0
-  resolution: "ora@npm:8.2.0"
+"ora@npm:^9.4.1":
+  version: 9.4.1
+  resolution: "ora@npm:9.4.1"
   dependencies:
-    chalk: "npm:^5.3.0"
+    chalk: "npm:^5.6.2"
     cli-cursor: "npm:^5.0.0"
-    cli-spinners: "npm:^2.9.2"
+    cli-spinners: "npm:^3.2.0"
     is-interactive: "npm:^2.0.0"
-    is-unicode-supported: "npm:^2.0.0"
-    log-symbols: "npm:^6.0.0"
-    stdin-discarder: "npm:^0.2.2"
-    string-width: "npm:^7.2.0"
-    strip-ansi: "npm:^7.1.0"
-  checksum: 10/cea932fdcb29549cd7b5af81f427760986429cadc752b1dd4bf31bc6821f5ba137e1ef9a18cde7bdfbe5b4e3d3201e76b048765c51a27b15d18c57ac0e0a909a
+    is-unicode-supported: "npm:^2.1.0"
+    log-symbols: "npm:^7.0.1"
+    stdin-discarder: "npm:^0.3.2"
+    string-width: "npm:^8.1.0"
+  checksum: 10/58b0b6c6ee20b30806e2e0bbf84f81b7517e21c9b721d0b7f186e12b9ef2e0be190174bf53085123efae6c8d120dcd9788708602e78e91188b9e12ff71abc275
   languageName: node
   linkType: hard
 
@@ -21456,10 +21455,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stdin-discarder@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "stdin-discarder@npm:0.2.2"
-  checksum: 10/642ffd05bd5b100819d6b24a613d83c6e3857c6de74eb02fc51506fa61dc1b0034665163831873868157c4538d71e31762bcf319be86cea04c3aba5336470478
+"stdin-discarder@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "stdin-discarder@npm:0.3.2"
+  checksum: 10/63c6912146efe079fd048ecc02e5c3bf5aaa4cb268ad4e365603d845444dd3048daa45868c2690c5fe2d020ba47273c8a20df684a8c424fb4bd7f359c795c2f5
   languageName: node
   linkType: hard
 
@@ -21607,7 +21606,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"string-width@npm:^7.0.0, string-width@npm:^7.2.0":
+"string-width@npm:^7.0.0":
   version: 7.2.0
   resolution: "string-width@npm:7.2.0"
   dependencies:
@@ -23955,6 +23954,13 @@ __metadata:
   version: 1.2.2
   resolution: "yocto-queue@npm:1.2.2"
   checksum: 10/92dd9880c324dbc94ff4b677b7d350ba8d835619062b7102f577add7a59ab4d87f40edc5a03d77d369dfa9d11175b1b2ec4a06a6f8a5d8ce5d1306713f66ee41
+  languageName: node
+  linkType: hard
+
+"yoctocolors@npm:^2.1.1":
+  version: 2.2.0
+  resolution: "yoctocolors@npm:2.2.0"
+  checksum: 10/8b2761daad30ca3b5b717fc12d9a30aea23f8d757d355b29b6b53c3a570de236fd85b17040c5196b18573fe38a4a981f48f111efa9a29c743e0878e26137b2b1
   languageName: node
   linkType: hard
 
