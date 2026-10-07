@@ -23,7 +23,7 @@
     "postpack": "roadie-cli package postpack"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.31.0",
     "@roadiehq/config": "workspace:^",
     "@roadiehq/errors": "workspace:^",
     "@roadiehq/extensions-api": "workspace:^",

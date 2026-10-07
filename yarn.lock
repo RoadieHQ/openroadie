@@ -2771,12 +2771,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hono/node-server@npm:^1.19.9":
-  version: 1.19.17
-  resolution: "@hono/node-server@npm:1.19.17"
+"@hono/node-server@npm:^1.19.9 || ^2.0.5":
+  version: 2.1.3
+  resolution: "@hono/node-server@npm:2.1.3"
   peerDependencies:
     hono: ^4
-  checksum: 10/b3fb8f627e59caafdcf49b463d5263931ccc404cb2d58999b9863636e68dcf01e919a73a449761db07349bd39dc91983b68a9f549b4c9927fde8c2de7e498689
+  checksum: 10/3b895ebd085504721a31dab0c05dad11a3ad4d23db6a348e60f86deb03cf6967ea67a9258a77a0f38dd445d7e7bc3069e7c24169510a83d3a6b0420112938e36
   languageName: node
   linkType: hard
 
@@ -3183,11 +3183,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@modelcontextprotocol/sdk@npm:^1.29.0":
-  version: 1.29.0
-  resolution: "@modelcontextprotocol/sdk@npm:1.29.0"
+"@modelcontextprotocol/sdk@npm:^1.31.0":
+  version: 1.32.1
+  resolution: "@modelcontextprotocol/sdk@npm:1.32.1"
   dependencies:
-    "@hono/node-server": "npm:^1.19.9"
+    "@hono/node-server": "npm:^1.19.9 || ^2.0.5"
     ajv: "npm:^8.17.1"
     ajv-formats: "npm:^3.0.1"
     content-type: "npm:^1.0.5"
@@ -3212,7 +3212,7 @@ __metadata:
       optional: true
     zod:
       optional: false
-  checksum: 10/ff551b97e06b661f95fec8fd34e112c446e69894a84a9979cdac369fb5de27f0a1a5c1f4e2a1f270cc60f93e54c28a8059a94ca51c3d528d2670ade874b244f9
+  checksum: 10/0078f2782a70d4a73dd49269d01d4d5c4c5a405934ec7a9f496d0007b38dbb518a4cfa742953b46d77dcebf4f2ce5ab0cc68b4fdc9338ddb4e93315c7d3dde16
   languageName: node
   linkType: hard
 
@@ -5312,7 +5312,7 @@ __metadata:
     "@ai-sdk/anthropic": "npm:^3.0.0"
     "@ai-sdk/mcp": "npm:^1.0.0"
     "@ai-sdk/openai": "npm:^3.0.0"
-    "@modelcontextprotocol/sdk": "npm:^1.29.0"
+    "@modelcontextprotocol/sdk": "npm:^1.31.0"
     "@roadiehq/ai-node": "workspace:^"
     "@roadiehq/config": "workspace:^"
     "@roadiehq/extensions-api": "workspace:^"
@@ -5848,7 +5848,7 @@ __metadata:
   dependencies:
     "@ai-sdk/amazon-bedrock": "npm:^4.0.101"
     "@ai-sdk/mcp": "npm:^1.0.0"
-    "@modelcontextprotocol/sdk": "npm:^1.29.0"
+    "@modelcontextprotocol/sdk": "npm:^1.31.0"
     ai: "npm:^6.0.3"
     eslint: "npm:^9.39.4"
     prettier: "npm:^3"
@@ -5890,7 +5890,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@roadiehq/openroadie-cli@workspace:packages/openroadie-cli"
   dependencies:
-    "@modelcontextprotocol/sdk": "npm:^1.29.0"
+    "@modelcontextprotocol/sdk": "npm:^1.31.0"
     "@roadiehq/cli": "workspace:^"
     "@roadiehq/openroadie-setup": "workspace:^"
     commander: "npm:^13.0.0"
@@ -5976,7 +5976,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@roadiehq/roadie-mcp-server@workspace:plugins/roadie-mcp-server"
   dependencies:
-    "@modelcontextprotocol/sdk": "npm:^1.29.0"
+    "@modelcontextprotocol/sdk": "npm:^1.31.0"
     "@roadiehq/backend-test-utils": "workspace:^"
     "@roadiehq/config": "workspace:^"
     "@roadiehq/errors": "workspace:^"
@@ -12344,7 +12344,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "e2e@workspace:packages/e2e"
   dependencies:
-    "@modelcontextprotocol/sdk": "npm:^1.29.0"
+    "@modelcontextprotocol/sdk": "npm:^1.31.0"
     "@playwright/test": "npm:^1.52.0"
     "@roadiehq/scopes": "workspace:*"
     "@types/js-yaml": "npm:^4.0.9"

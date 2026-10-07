@@ -30,7 +30,7 @@
     "@ai-sdk/anthropic": "^3.0.0",
     "@ai-sdk/mcp": "^1.0.0",
     "@ai-sdk/openai": "^3.0.0",
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.31.0",
     "@roadiehq/ai-node": "workspace:^",
     "@roadiehq/config": "workspace:^",
     "@roadiehq/extensions-api": "workspace:^",
