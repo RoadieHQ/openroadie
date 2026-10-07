@@ -53,7 +53,7 @@
     "jsonata": "^2.2.2",
     "knex": "^3.1.0",
     "supertest": "^7.3.1",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.3"
   },
   "files": [
     "dist",

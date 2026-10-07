@@ -42,9 +42,9 @@
     "@spotify/prettier-config": "^12.0.0",
     "@types/lodash": "^4.17.25",
     "@types/supertest": "^7.2.1",
-    "prettier": "^2.2.1",
+    "prettier": "^3.9.9",
     "supertest": "^7.3.1",
-    "vitest": "^4.1.11",
+    "vitest": "^5.0.3",
     "yaml": "^1.10.0"
   },
   "prettier": "@spotify/prettier-config",
