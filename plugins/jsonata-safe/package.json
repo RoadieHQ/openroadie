@@ -23,7 +23,7 @@
     "clean": "roadie-cli package clean"
   },
   "dependencies": {
-    "jsonata": "^2.1.0",
+    "jsonata": "^2.2.2",
     "yaml": "^2.7.0"
   },
   "files": [

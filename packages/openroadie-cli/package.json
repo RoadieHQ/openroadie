@@ -33,7 +33,7 @@
     "clean": "roadie-cli package clean"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.31.0",
+    "@modelcontextprotocol/sdk": "^1.32.0",
     "@roadiehq/openroadie-setup": "workspace:^",
     "commander": "^13.0.0",
     "ora": "^9.4.1",

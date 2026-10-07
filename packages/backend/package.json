@@ -40,8 +40,8 @@
   },
   "devDependencies": {
     "@roadiehq/backend-test-utils": "workspace:^",
-    "esbuild": "^0.28.1",
-    "tsx": "^4.19.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
     "vitest": "^5.0.3"
   }
 }
