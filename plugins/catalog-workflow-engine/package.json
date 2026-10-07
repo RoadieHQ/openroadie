@@ -34,8 +34,8 @@
     "@roadiehq/integrations-node": "workspace:^",
     "@roadiehq/jsonata-safe": "workspace:^",
     "@roadiehq/types": "workspace:^",
-    "jsonata": "^2.1.0",
-    "uuid": "^14.0.0"
+    "jsonata": "^2.2.2",
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "@roadiehq/backend-test-utils": "workspace:^",
