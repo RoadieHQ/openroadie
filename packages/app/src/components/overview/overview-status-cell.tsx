@@ -16,10 +16,7 @@ import { cn } from '@roadiehq/ui/utils';
  * label lives in the tooltip (and inline only in the `expanded` variant).
  */
 export type OverviewStatusTone =
-  | 'success'
-  | 'muted'
-  | 'warning'
-  | 'destructive';
+  'success' | 'muted' | 'warning' | 'destructive';
 
 /** The overview taxonomy's tones map 1:1 onto the ui primitive's, bar naming. */
 function toIndicatorTone(tone: OverviewStatusTone): StatusIndicatorTone {

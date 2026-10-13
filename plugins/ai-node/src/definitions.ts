@@ -145,8 +145,7 @@ export interface AiService {
   streamUI(options: AiCallOptions): Promise<void>;
   invoke(
     options:
-      | Omit<ModelCallOptions, 'response'>
-      | Omit<AgentCallOptions, 'response'>,
+      Omit<ModelCallOptions, 'response'> | Omit<AgentCallOptions, 'response'>,
   ): Promise<AiResponse>;
 
   generateObject<T>(

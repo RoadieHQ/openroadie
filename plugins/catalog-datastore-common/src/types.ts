@@ -328,11 +328,7 @@ export interface RelationshipInput {
 }
 
 export type RelationshipRuleMatchStrategy =
-  | 'exact'
-  | 'contains'
-  | 'array_contains'
-  | 'regex'
-  | 'person_name_alias';
+  'exact' | 'contains' | 'array_contains' | 'regex' | 'person_name_alias';
 export type RelationshipRuleStrategy = 'field-matching' | 'integration-backed';
 export const RELATIONSHIP_RULE_STRATEGIES: readonly RelationshipRuleStrategy[] =
   ['field-matching', 'integration-backed'];
@@ -658,10 +654,7 @@ export type RelationshipSuggestionFieldSemantic =
   | 'unknown';
 
 export type RelationshipSuggestionSemanticCompatibility =
-  | 'same-domain'
-  | 'related-domain'
-  | 'weak-domain'
-  | 'mismatch';
+  'same-domain' | 'related-domain' | 'weak-domain' | 'mismatch';
 
 export interface DatasourceFilter {
   datasourceId?: string;

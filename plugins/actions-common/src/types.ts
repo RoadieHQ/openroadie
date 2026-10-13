@@ -14,11 +14,7 @@ export interface JsonSchema {
 
 /** Supported parameter types (v1: flat scalars + a string array, no recursion). */
 export type ParamType =
-  | 'string'
-  | 'number'
-  | 'integer'
-  | 'boolean'
-  | 'array<string>';
+  'string' | 'number' | 'integer' | 'boolean' | 'array<string>';
 
 /** A single input parameter definition. Flat — no nesting in v1. */
 export interface ActionParam {

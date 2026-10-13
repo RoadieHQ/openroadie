@@ -51,7 +51,7 @@ export async function resolveAction(
   }
 
   const search = encodeURIComponent(ref);
-  for (let offset = 0, total = Infinity; offset < total; ) {
+  for (let offset = 0, total = Infinity; offset < total;) {
     const response = await fetchClient(
       `${baseUrl}/?search=${search}&offset=${offset}`,
     );

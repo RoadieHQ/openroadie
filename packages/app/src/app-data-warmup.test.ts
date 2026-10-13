@@ -102,8 +102,7 @@ describe('warmAppData', () => {
   it('does not write a response after the active workspace changes', async () => {
     const { apis, queryClient } = createDependencies();
     let resolveActions:
-      | ((value: { items: never[]; total: number }) => void)
-      | undefined;
+      ((value: { items: never[]; total: number }) => void) | undefined;
     vi.mocked(apis.actions.list).mockImplementation(
       () =>
         new Promise(resolve => {

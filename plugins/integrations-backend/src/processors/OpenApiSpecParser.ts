@@ -75,8 +75,7 @@ function extractSchemaFromContent(
 
   for (const mediaType of preferredMediaTypes) {
     const mediaTypeContent = content[mediaType] as
-      | Record<string, unknown>
-      | undefined;
+      Record<string, unknown> | undefined;
     if (mediaTypeContent?.schema) {
       return mediaTypeContent.schema as JsonValue;
     }
@@ -484,8 +483,7 @@ export class OpenApiSpecParser implements SpecParser {
 
       for (const method of HTTP_METHODS) {
         const operation = pathObj[method] as
-          | Record<string, unknown>
-          | undefined;
+          Record<string, unknown> | undefined;
         if (!operation) {
           continue;
         }

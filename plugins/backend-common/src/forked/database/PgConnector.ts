@@ -95,8 +95,7 @@ export function getPgConnectionConfig(
   parseConnectionString?: boolean,
 ): Knex.PgConnectionConfig | string {
   const connection = dbConfig.get('connection') as
-    | Knex.PgConnectionConfig
-    | string;
+    Knex.PgConnectionConfig | string;
   const isConnectionString =
     typeof connection === 'string' || connection instanceof String;
   const autoParse = typeof parseConnectionString !== 'boolean';

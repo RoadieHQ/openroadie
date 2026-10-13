@@ -21,11 +21,7 @@ import { WorkflowDefinition } from './workflow';
  * Workflow execution status
  */
 export type ExecutionStatus =
-  | 'pending'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'cancelled';
+  'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
 
 /**
  * How the workflow was triggered
@@ -92,11 +88,7 @@ export interface NodeExecution {
 }
 
 export type NodeExecutionStatus =
-  | 'pending'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'skipped';
+  'pending' | 'running' | 'completed' | 'failed' | 'skipped';
 
 /**
  * Final output from a workflow execution

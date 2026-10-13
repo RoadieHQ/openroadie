@@ -1,7 +1,5 @@
 export type AwsSourceMode =
-  | 'cloud-control'
-  | 'service-api'
-  | 'configured-accounts';
+  'cloud-control' | 'service-api' | 'configured-accounts';
 
 export type AwsServiceHttpMethod = 'GET' | 'POST';
 

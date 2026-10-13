@@ -14,12 +14,7 @@ import { getStatusColors, getVariantColors } from './step-flow-styles';
 export type { StepVariant } from './step-flow-styles';
 
 export type StepStatus =
-  | 'pending'
-  | 'configured'
-  | 'running'
-  | 'success'
-  | 'error'
-  | 'warning';
+  'pending' | 'configured' | 'running' | 'success' | 'error' | 'warning';
 
 export interface StepNodeProps {
   icon: React.ReactNode;

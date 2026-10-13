@@ -138,14 +138,12 @@ export function useBottomNavItems(): NavItem[] {
         disclosureOnly: true,
         submenu: adminSections
           .filter(section => section.path !== PATHS.ADMIN_MCP_AUDIT_LOG)
-          .map(
-            ({ label, path, icon }): NavSubItem => ({
-              label,
-              path,
-              match: 'path',
-              icon,
-            }),
-          ),
+          .map(({ label, path, icon }): NavSubItem => ({
+            label,
+            path,
+            match: 'path',
+            icon,
+          })),
       },
     ];
   }, [adminEnabled, adminSections]);

@@ -94,11 +94,7 @@ export function getToggleActionVerb(nextEnabled: boolean): string {
  * ------------------------------------------------------------------ */
 
 export type ExecutionOutcome =
-  | 'succeeded'
-  | 'partial'
-  | 'failed'
-  | 'running'
-  | 'never';
+  'succeeded' | 'partial' | 'failed' | 'running' | 'never';
 
 export const EXECUTION = {
   succeeded: { label: 'Completed', tone: 'success' },

@@ -26,7 +26,7 @@
     "@roadiehq/config": "workspace:^",
     "@roadiehq/errors": "workspace:^",
     "@roadiehq/types": "workspace:^",
-    "chokidar": "^3.5.2",
+    "chokidar": "^5.0.0",
     "fs-extra": "^11.2.0",
     "lodash": "^4.17.21",
     "minimist": "^1.2.5",

@@ -191,9 +191,7 @@ Judge from those before spending a dry-run. \`explore_relationship_rule_get\` re
 
           const raw = (result.items ?? []).map(r => {
             const evidence = r.evidenceSummary as
-              | { explanation?: string }
-              | null
-              | undefined;
+              { explanation?: string } | null | undefined;
             return {
               id: r.id as string,
               name: r.name as string,
@@ -202,24 +200,16 @@ Judge from those before spending a dry-run. \`explore_relationship_rule_get\` re
               sourceDatasourceId: r.sourceDatasourceId as string,
               targetDatasourceId: r.targetDatasourceId as string,
               sourceFieldExpression: r.sourceFieldExpression as
-                | string
-                | undefined,
+                string | undefined,
               targetFieldExpression: r.targetFieldExpression as
-                | string
-                | undefined,
+                string | undefined,
               sourceFilterExpression: r.sourceFilterExpression as
-                | string
-                | null
-                | undefined,
+                string | null | undefined,
               targetFilterExpression: r.targetFilterExpression as
-                | string
-                | null
-                | undefined,
+                string | null | undefined,
               relationshipType: r.relationshipType as string,
               reciprocalRelationshipType: r.reciprocalRelationshipType as
-                | string
-                | null
-                | undefined,
+                string | null | undefined,
               strategy: r.strategy as string | undefined,
               matchStrategy: r.matchStrategy as string | undefined,
               suggestionKind: r.suggestionKind as string | null | undefined,

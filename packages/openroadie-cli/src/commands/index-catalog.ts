@@ -22,11 +22,7 @@ interface ExecuteResponse {
 }
 
 type ExecutionStatus =
-  | 'pending'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'cancelled';
+  'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
 
 /** `GET /executions/:id` returns `{ data: { status, ... } }`. */
 interface ExecutionResponse {

@@ -38,8 +38,4 @@ export type ServiceMock<TService> = {
  * @public
  */
 export type TestDatabaseId =
-  | 'POSTGRES_17'
-  | 'POSTGRES_16'
-  | 'POSTGRES_15'
-  | 'POSTGRES_13'
-  | 'SQLITE_3';
+  'POSTGRES_17' | 'POSTGRES_16' | 'POSTGRES_15' | 'POSTGRES_13' | 'SQLITE_3';

@@ -97,8 +97,7 @@ const errors = {
 };
 
 type ConfigValidateResult =
-  | true
-  | { expected: string; value?: unknown; key?: string };
+  true | { expected: string; value?: unknown; key?: string };
 
 /**
  * An implementation of the `Config` interface that uses a plain JavaScript object

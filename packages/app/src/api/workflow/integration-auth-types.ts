@@ -11,5 +11,4 @@ export type KnownIntegrationAuthType =
   (typeof KNOWN_INTEGRATION_AUTH_TYPES)[number];
 
 export type IntegrationAuthType =
-  | KnownIntegrationAuthType
-  | (string & NonNullable<unknown>);
+  KnownIntegrationAuthType | (string & NonNullable<unknown>);

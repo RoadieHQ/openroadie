@@ -21,9 +21,7 @@ import type {
 } from '@roadiehq/extensions-api';
 
 export type IntegrationUsageKind =
-  | 'data-source'
-  | 'action'
-  | 'relationship-rule';
+  'data-source' | 'action' | 'relationship-rule';
 
 export interface IntegrationUsageRef {
   kind: IntegrationUsageKind;

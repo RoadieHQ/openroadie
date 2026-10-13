@@ -18,7 +18,7 @@
  * packages/config-loader/src/sources/FileConfigSource.ts at v1.47.1, and modified.
  */
 
-import chokidar from 'chokidar';
+import { watch, type FSWatcher } from 'chokidar';
 import fs from 'fs-extra';
 import { isAbsolute, basename, dirname, resolve } from 'node:path';
 import { NotFoundError } from '@roadiehq/errors';
@@ -129,11 +129,11 @@ export class FileConfigSource implements ConfigSource {
     const signal = options?.signal;
     const configFileName = basename(this.#path);
     let watchedPaths: string[] | null = null;
-    let watcher: chokidar.FSWatcher | null = null;
+    let watcher: FSWatcher | null = null;
 
     if (this.#watch) {
       watchedPaths = new Array<string>();
-      watcher = chokidar.watch(this.#path, {
+      watcher = watch(this.#path, {
         usePolling: process.env.NODE_ENV === 'test',
       });
     }
@@ -216,10 +216,7 @@ export class FileConfigSource implements ConfigSource {
     return `FileConfigSource{path="${this.#path}"}`;
   }
 
-  #waitForEvent(
-    watcher: chokidar.FSWatcher,
-    signal?: AbortSignal,
-  ): Promise<WatchEvent> {
+  #waitForEvent(watcher: FSWatcher, signal?: AbortSignal): Promise<WatchEvent> {
     return new Promise(resolve => {
       function onChange() {
         resolve('change');

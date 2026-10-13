@@ -803,8 +803,7 @@ export class IntegrationSchemaDao {
     }
 
     const countResult = (await query.clone().count('* as total').first()) as
-      | { total: string | number }
-      | undefined;
+      { total: string | number } | undefined;
     const total = Number(countResult?.total ?? 0);
 
     const rows = await query

@@ -21,12 +21,7 @@ import { WorkflowType } from './workflow';
  * Node type categories
  */
 export type NodeCategory =
-  | 'trigger'
-  | 'source'
-  | 'transform'
-  | 'catalog'
-  | 'sink'
-  | 'control';
+  'trigger' | 'source' | 'transform' | 'catalog' | 'sink' | 'control';
 
 /**
  * Definition of a node type (for registry and UI)

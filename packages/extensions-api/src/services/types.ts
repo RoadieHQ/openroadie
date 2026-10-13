@@ -33,10 +33,7 @@ import type { Readable } from 'node:stream';
  * @public
  */
 export type AuditorServiceEventSeverityLevel =
-  | 'low'
-  | 'medium'
-  | 'high'
-  | 'critical';
+  'low' | 'medium' | 'high' | 'critical';
 
 /** @public */
 export type AuditorServiceCreateEventOptions = {
@@ -359,10 +356,7 @@ export type SchedulerServiceTaskDescriptor = {
  */
 export interface SchedulerServiceTaskScheduleDefinition {
   frequency:
-    | { cron: string }
-    | Duration
-    | HumanDuration
-    | { trigger: 'manual' };
+    { cron: string } | Duration | HumanDuration | { trigger: 'manual' };
   timeout: Duration | HumanDuration;
   initialDelay?: Duration | HumanDuration;
   scope?: 'global' | 'local';
@@ -585,9 +579,9 @@ export type ServiceRefsToInstances<
   T extends { [key in string]: ServiceRef<unknown> },
   TScope extends 'root' | 'plugin' = 'root' | 'plugin',
 > = {
-  [key in keyof T as T[key]['scope'] extends TScope
-    ? key
-    : never]: T[key]['multiton'] extends true | undefined
+  [
+    key in keyof T as T[key]['scope'] extends TScope ? key : never
+  ]: T[key]['multiton'] extends true | undefined
     ? Array<T[key]['T']>
     : T[key]['T'];
 };
