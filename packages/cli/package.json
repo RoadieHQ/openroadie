@@ -35,8 +35,8 @@
     "fs-extra": "^11.2.0",
     "ora": "^9.4.1",
     "p-limit": "^6.1.0",
-    "postcss": "^8.5.28",
-    "rollup": "^4.64.0",
+    "postcss": "^8.5.29",
+    "rollup": "^4.64.4",
     "rollup-plugin-dts": "^6.5.1",
     "rollup-plugin-esbuild": "^6.1.0",
     "rollup-plugin-postcss": "^4.0.0"

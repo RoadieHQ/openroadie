@@ -35,7 +35,7 @@
     "@roadiehq/jsonata-safe": "workspace:^",
     "@roadiehq/types": "workspace:^",
     "jsonata": "^2.2.2",
-    "uuid": "^14.0.2"
+    "uuid": "^14.0.3"
   },
   "devDependencies": {
     "@roadiehq/backend-test-utils": "workspace:^",
