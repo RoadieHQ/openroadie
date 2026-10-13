@@ -78,6 +78,11 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: '@types/react-dom'
         update-types: ['version-update:semver-major']
+      # ESLint 10 removed the legacy context methods (context.getFilename etc.)
+      # that eslint-plugin-react 7.37 and eslint-plugin-jsx-a11y 6.10 still call;
+      # lint crashes on load. Lift once both plugins declare ESLint 10 support.
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: github-actions
     directory: '/'
