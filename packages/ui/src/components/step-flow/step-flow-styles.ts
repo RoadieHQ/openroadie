@@ -1,9 +1,5 @@
 export type StepVariant =
-  | 'trigger'
-  | 'source'
-  | 'transform'
-  | 'sink'
-  | 'output';
+  'trigger' | 'source' | 'transform' | 'sink' | 'output';
 
 type StepColors = {
   primary: string;

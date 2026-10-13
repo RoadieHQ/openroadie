@@ -5,12 +5,7 @@ import type { IntegrationAuthType } from './integration-auth-types';
 export type { IntegrationAuthType };
 
 type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 export const WORKFLOW_TYPES = ['data-ingestion'] as const;
 export type WorkflowType = (typeof WORKFLOW_TYPES)[number];
@@ -124,11 +119,7 @@ export interface GraphLayout extends WorkspaceOwnershipFields {
 }
 
 export type ExecutionStatus =
-  | 'pending'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'cancelled';
+  'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
 
 export type TriggerType = 'scheduled' | 'manual' | 'webhook' | 'event';
 
@@ -170,11 +161,7 @@ export interface NodeExecution {
 }
 
 export type NodeExecutionStatus =
-  | 'pending'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'skipped';
+  'pending' | 'running' | 'completed' | 'failed' | 'skipped';
 
 export interface WorkflowOutputSink {
   nodeId: string;
@@ -483,12 +470,7 @@ export function parseDuplicateObjectIdStrategy(
 }
 
 export type NodeCategory =
-  | 'trigger'
-  | 'source'
-  | 'transform'
-  | 'catalog'
-  | 'sink'
-  | 'control';
+  'trigger' | 'source' | 'transform' | 'catalog' | 'sink' | 'control';
 
 export interface NodeTypeDefinition {
   type: string;

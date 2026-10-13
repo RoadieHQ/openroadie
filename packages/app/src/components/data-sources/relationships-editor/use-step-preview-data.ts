@@ -70,11 +70,7 @@ function useSampleObject(
 
 export type StepPreviewData = ReturnType<typeof useStepPreviewData>;
 export type SourceEvaluationState =
-  | 'browsing'
-  | 'needs-preview'
-  | 'matched'
-  | 'unmatched'
-  | 'failed';
+  'browsing' | 'needs-preview' | 'matched' | 'unmatched' | 'failed';
 
 /**
  * Owns "which sampled object flows through the preview chain" and the live

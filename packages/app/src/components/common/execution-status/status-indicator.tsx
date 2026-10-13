@@ -11,12 +11,7 @@ import {
  * any workflow-api coupling while remaining assignable from both.
  */
 export type StatusValue =
-  | 'pending'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'cancelled'
-  | 'skipped';
+  'pending' | 'running' | 'completed' | 'failed' | 'cancelled' | 'skipped';
 
 export function getStatusLabel(status: StatusValue): string {
   switch (status) {

@@ -62,8 +62,7 @@ const AWS_REGIONS = [
 const AWS_REGION_OPTIONS = AWS_REGIONS.map(r => ({ value: r }));
 
 type AwsTagFieldName =
-  | 'awsOrganizations.requiredTags'
-  | 'awsOrganizations.excludedTags';
+  'awsOrganizations.requiredTags' | 'awsOrganizations.excludedTags';
 
 interface AwsTagFieldsProps {
   control: Control<IntegrationFormValues>;

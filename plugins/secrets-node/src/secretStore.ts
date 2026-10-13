@@ -163,8 +163,7 @@ export function selectOssStoreFromConfig(options: {
   const { config, logger } = options;
   const mode =
     (config.getOptionalString('secretsSettings.storage') as
-      | SecretStorageMode
-      | undefined) ?? 'dotenv';
+      SecretStorageMode | undefined) ?? 'dotenv';
 
   if (mode === 'env') {
     return createEnvSecretStore({

@@ -380,8 +380,7 @@ export function seedByName(seeds: Seed[], name: string): Seed {
 
 export function loadSeeds(module: string): Seed[] {
   const loaded = require(`../../seeds/${module}`) as
-    | Seed[]
-    | { default?: Seed[] };
+    Seed[] | { default?: Seed[] };
   const seeds = Array.isArray(loaded) ? loaded : (loaded.default ?? []);
   return applyPresentationSelectorsToSeeds(seeds);
 }

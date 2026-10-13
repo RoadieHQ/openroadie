@@ -7,12 +7,7 @@ import { Button } from '@roadiehq/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@roadiehq/ui/tooltip';
 
 type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 type SelectOption = {
   label: string;

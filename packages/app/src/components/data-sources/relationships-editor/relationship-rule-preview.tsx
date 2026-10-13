@@ -27,10 +27,7 @@ interface PreviewRelationshipRow {
 }
 
 export type RelationshipPreviewFilter =
-  | 'all'
-  | 'matched'
-  | 'direct'
-  | 'unmatched';
+  'all' | 'matched' | 'direct' | 'unmatched';
 
 export function buildPreviewRelationshipRows(
   items: RelationshipRulePreviewItem[],

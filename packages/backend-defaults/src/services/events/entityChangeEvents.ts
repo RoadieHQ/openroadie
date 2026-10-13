@@ -5,10 +5,7 @@ export const entityChangeTopics = {
 } as const;
 
 export type EntityChangeOperation =
-  | 'created'
-  | 'updated'
-  | 'deleted'
-  | 'restored';
+  'created' | 'updated' | 'deleted' | 'restored';
 
 export interface EntityChangeEventPayload {
   id: string;

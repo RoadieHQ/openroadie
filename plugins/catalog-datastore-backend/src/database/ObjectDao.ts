@@ -547,17 +547,19 @@ export class ObjectDao {
     ]);
     const [sourceRows, destinationRows] = await Promise.all([
       this.knex(RELATIONSHIP_TABLE_NAME)
-        .select<
-          RelationshipCountRow[]
-        >('source_datasource_id as datasource_id', 'source_object_id as object_id')
+        .select<RelationshipCountRow[]>(
+          'source_datasource_id as datasource_id',
+          'source_object_id as object_id',
+        )
         .count('id as relationship_count')
         .where('workspace_id', workspaceId)
         .whereIn(['source_datasource_id', 'source_object_id'], pairs)
         .groupBy('source_datasource_id', 'source_object_id'),
       this.knex(RELATIONSHIP_TABLE_NAME)
-        .select<
-          RelationshipCountRow[]
-        >('destination_datasource_id as datasource_id', 'destination_object_id as object_id')
+        .select<RelationshipCountRow[]>(
+          'destination_datasource_id as datasource_id',
+          'destination_object_id as object_id',
+        )
         .count('id as relationship_count')
         .where('workspace_id', workspaceId)
         .whereIn(['destination_datasource_id', 'destination_object_id'], pairs)
@@ -772,9 +774,14 @@ export class ObjectDao {
 
     const rowsQuery = q
       .clone()
-      .select<
-        GraphNodeRow[]
-      >('id', 'datasource_id', 'object_id', 'created_at', 'updated_at', this.graphNodeDisplayNameSelect())
+      .select<GraphNodeRow[]>(
+        'id',
+        'datasource_id',
+        'object_id',
+        'created_at',
+        'updated_at',
+        this.graphNodeDisplayNameSelect(),
+      )
       .orderBy('updated_at', 'desc');
 
     if (limit !== undefined) {

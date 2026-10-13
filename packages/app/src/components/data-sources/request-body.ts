@@ -1,6 +1,5 @@
 export type RequestBodyParseResult =
-  | { ok: true; value: unknown }
-  | { ok: false; error: string };
+  { ok: true; value: unknown } | { ok: false; error: string };
 
 export function parseRequestBodyText(
   text: string | undefined,

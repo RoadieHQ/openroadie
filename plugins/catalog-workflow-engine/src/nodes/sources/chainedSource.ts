@@ -367,8 +367,7 @@ export const chainedSourceNode: RegisteredNodeType = {
           ? applyResolvedHttpPagination(
               itemConfig,
               integration.config?.paginationDefault as
-                | PaginationConfig
-                | undefined,
+                PaginationConfig | undefined,
             )
           : { config: itemConfig };
       const { objectIdExpression, requestOptions } = buildRequestOptions(

@@ -428,9 +428,7 @@ export function buildProgram(): Command {
           relationshipType: opts.relationship,
           reciprocalRelationshipType: opts.reciprocal,
           strategy: opts.strategy as
-            | 'field-matching'
-            | 'integration-backed'
-            | undefined,
+            'field-matching' | 'integration-backed' | undefined,
           matchStrategy: opts.matchStrategy as
             | 'exact'
             | 'contains'

@@ -145,8 +145,7 @@ export class WebhooksController {
 
   register: RequestHandler = async (req, res) => {
     const body = req.body as
-      | { url?: unknown; secret?: unknown; filters?: unknown }
-      | undefined;
+      { url?: unknown; secret?: unknown; filters?: unknown } | undefined;
     if (!body || typeof body.url !== 'string' || body.url.length === 0) {
       res.status(400).json({ error: { message: 'url is required' } });
       return;

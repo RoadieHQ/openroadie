@@ -72,8 +72,7 @@ describe('AppDataWarmup', () => {
   it('cancels the previous warmup and fills the new workspace after switching', async () => {
     const { apis, queryClient } = createDependencies();
     let resolveWorkspaceA:
-      | ((value: { items: never[]; total: number }) => void)
-      | undefined;
+      ((value: { items: never[]; total: number }) => void) | undefined;
     vi.spyOn(apis.actions, 'list')
       .mockImplementationOnce(
         () =>

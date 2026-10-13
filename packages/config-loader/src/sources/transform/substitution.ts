@@ -27,8 +27,7 @@ export type SubstitutionFunc = (name: string) => Promise<string | undefined>;
  * Result of a transform operation.
  */
 export type TransformResult<T> =
-  | { applied: false }
-  | { applied: true; value: T | undefined; newDir?: string };
+  { applied: false } | { applied: true; value: T | undefined; newDir?: string };
 
 /**
  * A transform function that processes configuration values.

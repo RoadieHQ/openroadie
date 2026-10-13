@@ -220,8 +220,7 @@ export function TransformSteps() {
       />
       {transforms.map((transform, index) => {
         const transformOutput = nodeOutputs[transform.id] as
-          | unknown[]
-          | undefined;
+          unknown[] | undefined;
         const transformError = nodeErrors[transform.id];
         const isTransformRunning = runningNodes.has(transform.id);
         const hasTransformOutput =
