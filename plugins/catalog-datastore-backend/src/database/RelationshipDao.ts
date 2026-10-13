@@ -710,9 +710,9 @@ export class RelationshipDao {
     const byRuleRows = await this.relationshipTable()
       .where('workspace_id', workspaceId)
       .select('rule_id')
-      .count<
-        Array<{ rule_id: string | null; count: string | number }>
-      >('* as count')
+      .count<Array<{ rule_id: string | null; count: string | number }>>(
+        '* as count',
+      )
       .groupBy('rule_id');
     const byOriginAndRuleRows = await this.relationshipTable()
       .where('workspace_id', workspaceId)

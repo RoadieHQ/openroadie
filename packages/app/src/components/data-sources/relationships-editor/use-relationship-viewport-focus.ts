@@ -68,11 +68,9 @@ export function useRelationshipViewportFocus<
       const sourceNodeId = `${nodeIdPrefix}${sourceDatasourceId}`;
       const targetNodeId = `${nodeIdPrefix}${targetDatasourceId}`;
       const sourceNode = reactFlowInstance.getInternalNode(sourceNodeId) as
-        | InternalNode
-        | undefined;
+        InternalNode | undefined;
       const targetNode = reactFlowInstance.getInternalNode(targetNodeId) as
-        | InternalNode
-        | undefined;
+        InternalNode | undefined;
       if (!sourceNode || !targetNode) {
         return;
       }

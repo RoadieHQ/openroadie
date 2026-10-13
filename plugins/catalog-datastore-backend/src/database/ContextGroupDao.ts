@@ -626,8 +626,7 @@ export class ContextGroupDao {
 
       const sourceNode = workflow ? findSourceNode(workflow) : undefined;
       const integrationId = sourceNode?.data?.config?.integrationId as
-        | string
-        | undefined;
+        string | undefined;
       const integration = integrationId
         ? integrationsById.get(integrationId)
         : undefined;
@@ -1355,7 +1354,12 @@ export class ContextGroupDao {
           rule_name: string;
           rule_slug: string;
         }>
-      >(`${GROUP_TABLE}.id as group_id`, `${GROUP_TABLE}.rule_id as rule_id`, `${RULE_TABLE}.name as rule_name`, `${RULE_TABLE}.slug as rule_slug`);
+      >(
+        `${GROUP_TABLE}.id as group_id`,
+        `${GROUP_TABLE}.rule_id as rule_id`,
+        `${RULE_TABLE}.name as rule_name`,
+        `${RULE_TABLE}.slug as rule_slug`,
+      );
 
     const titles = await this.getContextTitles(
       rows.map(row => row.group_id),

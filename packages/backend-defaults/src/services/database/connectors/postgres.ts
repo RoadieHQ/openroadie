@@ -387,8 +387,7 @@ function computePgPluginConfig(
     .getOptionalConfig(`${pluginPath(pluginId)}.knexConfig`)
     ?.get() as Record<string, unknown> | undefined;
   const baseKnexConfig = config.getOptionalConfig('knexConfig')?.get() as
-    | Record<string, unknown>
-    | undefined;
+    Record<string, unknown> | undefined;
   const additionalKnexConfig = merge(
     baseKnexConfig ?? {},
     pluginKnexConfig ?? {},
@@ -418,9 +417,7 @@ function computePgPluginConfig(
 
   const pluginConnection = normalizeConnection(
     config.getOptional(`${pluginPath(pluginId)}.connection`) as
-      | string
-      | Record<string, unknown>
-      | undefined,
+      string | Record<string, unknown> | undefined,
   );
 
   baseConnection.application_name ||= `roadie_plugin_${pluginId}`;

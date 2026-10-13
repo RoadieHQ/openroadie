@@ -285,8 +285,7 @@ export function useDataSources(options?: UseDataSourcesOptions) {
       const nodeType = sourceType ? nodeTypesMap.get(sourceType) : undefined;
 
       const sourceConfig = sourceNode?.data?.config as
-        | Record<string, unknown>
-        | undefined;
+        Record<string, unknown> | undefined;
       const integrationId = sourceConfig?.integrationId as string | undefined;
       const resolvedIntegration = integrationId
         ? integrationsMap.get(integrationId)
@@ -315,11 +314,9 @@ export function useDataSources(options?: UseDataSourcesOptions) {
       for (const node of ds.nodes ?? []) {
         if (node.type !== 'source-chained') continue;
         const chainedConfig = node.data?.config as
-          | Record<string, unknown>
-          | undefined;
+          Record<string, unknown> | undefined;
         const chainedIntegrationId = chainedConfig?.integrationId as
-          | string
-          | undefined;
+          string | undefined;
         if (!chainedIntegrationId) continue;
         addIntegration(
           buildIntegrationInfo({

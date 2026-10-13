@@ -97,8 +97,7 @@ export function useDataSourceState({ workflow }: UseDataSourceStateOptions) {
       return 'datastore';
     }
     const config = sourceNode.data?.config as
-      | Record<string, unknown>
-      | undefined;
+      Record<string, unknown> | undefined;
     if (config?.backendType === 'aws') {
       return 'aws';
     }
@@ -514,8 +513,7 @@ export function useDataSourceState({ workflow }: UseDataSourceStateOptions) {
         ...getInvalidAwsAccountIds(
           (
             sourceConfig.accountSelection as
-              | { excludedAccountIds?: string[] }
-              | undefined
+              { excludedAccountIds?: string[] } | undefined
           )?.excludedAccountIds ?? [],
         ),
       ];

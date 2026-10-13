@@ -469,9 +469,9 @@ export class RelationshipRuleDao {
     const byStateAndOriginRows = await this.relationshipRuleTable()
       .where('workspace_id', workspaceId)
       .select('state', 'origin')
-      .count<
-        Array<{ state: string; origin: string; count: string | number }>
-      >('* as count')
+      .count<Array<{ state: string; origin: string; count: string | number }>>(
+        '* as count',
+      )
       .groupBy('state', 'origin');
 
     const byState: Record<string, number> = {};

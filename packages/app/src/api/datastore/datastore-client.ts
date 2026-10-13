@@ -58,12 +58,7 @@ export {
 // ---------------------------------------------------------------------------
 
 type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 export type SortOrder = 'asc' | 'desc';
 
@@ -80,10 +75,7 @@ export interface DatastoreObject extends WorkspaceOwnershipFields {
 }
 
 export type ObjectPresentationPurpose =
-  | 'column'
-  | 'title'
-  | 'subtitle'
-  | 'image';
+  'column' | 'title' | 'subtitle' | 'image';
 
 export interface ObjectPresentation {
   title: string;
@@ -257,11 +249,7 @@ export interface CreateRelationshipInput extends RelationshipInput {
 }
 
 export type RelationshipRuleMatchStrategy =
-  | 'exact'
-  | 'contains'
-  | 'array_contains'
-  | 'regex'
-  | 'person_name_alias';
+  'exact' | 'contains' | 'array_contains' | 'regex' | 'person_name_alias';
 export type RelationshipRuleOrigin = string;
 export type RelationshipRuleState = 'suggested' | 'active' | 'inactive';
 export type RelationshipSuggestionKind = 'identity' | 'relationship';
@@ -553,10 +541,7 @@ export type RelationshipSuggestionFieldSemantic =
   | 'unknown';
 
 export type RelationshipSuggestionSemanticCompatibility =
-  | 'same-domain'
-  | 'related-domain'
-  | 'weak-domain'
-  | 'mismatch';
+  'same-domain' | 'related-domain' | 'weak-domain' | 'mismatch';
 
 export interface DatasourceFilter {
   datasourceId?: string;

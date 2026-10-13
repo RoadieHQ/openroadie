@@ -1,9 +1,5 @@
 export type FeatureFlagValue =
-  | string
-  | boolean
-  | number
-  | Record<string, unknown>
-  | null;
+  string | boolean | number | Record<string, unknown> | null;
 
 export class FeatureFlagClient {
   private flags: Record<string, FeatureFlagValue> | undefined;

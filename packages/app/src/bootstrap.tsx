@@ -55,8 +55,7 @@ export async function bootstrap() {
             apiBaseUrl: loadedConfig.backend.baseUrl,
             scope: ((loadedConfig as Record<string, unknown>).scope ??
               (loadedConfig as Record<string, unknown>).tenant) as
-              | string
-              | undefined,
+              string | undefined,
           },
         );
         if (!session) return;

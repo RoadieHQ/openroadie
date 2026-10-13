@@ -88,8 +88,7 @@ describe('deriveFields', () => {
     const kind = fields.find(x => x.name === 'kind');
     expect(kind?.valueEditorType).toBe('select');
     const values = kind?.values as
-      | Array<{ name?: string; label?: string }>
-      | undefined;
+      Array<{ name?: string; label?: string }> | undefined;
     const valueNames = values?.map(v => v.name);
     expect(valueNames).toEqual(expect.arrayContaining(['Component', 'API']));
   });
@@ -149,8 +148,7 @@ describe('deriveFields', () => {
     const fields = deriveFields([{ kind: 'Component' }]);
     const ops = (
       fields.find(f => f.name === 'kind')?.operators as
-        | Array<{ name?: string }>
-        | undefined
+        Array<{ name?: string }> | undefined
     )?.map(o => o.name);
     expect(ops).toEqual(
       expect.arrayContaining([
@@ -172,8 +170,7 @@ describe('deriveFields', () => {
     const fields = deriveFields([{ count: 1 }]);
     const ops = (
       fields.find(f => f.name === 'count')?.operators as
-        | Array<{ name?: string }>
-        | undefined
+        Array<{ name?: string }> | undefined
     )?.map(o => o.name);
     expect(ops).toEqual(
       expect.arrayContaining(['=', '!=', '<', '<=', '>', '>=', 'in', 'notIn']),
@@ -185,8 +182,7 @@ describe('deriveFields', () => {
     const fields = deriveFields([{ active: true }]);
     const ops = (
       fields.find(f => f.name === 'active')?.operators as
-        | Array<{ name?: string }>
-        | undefined
+        Array<{ name?: string }> | undefined
     )?.map(o => o.name);
     expect(ops).toEqual(['=', '!=']);
   });
@@ -198,8 +194,7 @@ describe('deriveFields', () => {
     const fields = deriveFields(sample);
     const ops = (
       fields.find(f => f.name === 'kind')?.operators as
-        | Array<{ name?: string }>
-        | undefined
+        Array<{ name?: string }> | undefined
     )?.map(o => o.name);
     expect(ops).toEqual(['=', '!=', 'in', 'notIn']);
   });

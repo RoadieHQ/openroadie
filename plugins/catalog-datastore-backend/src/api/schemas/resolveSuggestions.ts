@@ -2,9 +2,7 @@ export const RANK_CLIFF_RATIO = 0.5;
 export const PAIR_PERSIST_CAP = 25;
 
 export type ResolveSuppressionReason =
-  | 'lost-conflict-resolution'
-  | 'below-rank-cliff'
-  | 'over-pair-cap';
+  'lost-conflict-resolution' | 'below-rank-cliff' | 'over-pair-cap';
 
 export interface ResolvedSuggestions<T> {
   kept: T[];

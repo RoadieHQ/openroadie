@@ -24,8 +24,7 @@ export interface IntegrationAwsServiceRequest {
 }
 
 export type IntegrationProxyRequest =
-  | IntegrationHttpRequest
-  | IntegrationAwsServiceRequest;
+  IntegrationHttpRequest | IntegrationAwsServiceRequest;
 
 /**
  * Thin client for the integrations-backend HTTP proxy (`POST /:id/request`).
@@ -62,8 +61,7 @@ export class IntegrationsClient {
     );
 
     const respBody = (await resp.json().catch(() => undefined)) as
-      | { data?: unknown; error?: unknown }
-      | undefined;
+      { data?: unknown; error?: unknown } | undefined;
     if (!resp.ok) {
       return {
         ok: false,

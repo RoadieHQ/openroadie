@@ -615,8 +615,7 @@ describe('ActionsPage', () => {
 
     it('keeps the dialog open when Escape is pressed during deletion', async () => {
       let resolveDelete:
-        | ((result: ActionsRouteActionResult) => void)
-        | undefined;
+        ((result: ActionsRouteActionResult) => void) | undefined;
       mockRouteAction.mockImplementationOnce(
         () =>
           new Promise<ActionsRouteActionResult>(resolve => {

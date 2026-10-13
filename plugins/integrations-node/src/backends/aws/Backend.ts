@@ -380,8 +380,7 @@ export class AwsBackend implements IntegrationBackend {
     integration: Integration,
     integrationConfig: AwsIntegrationConfig,
     options:
-      | AwsServiceApiRequestPagesOptions
-      | AwsCloudControlRequestPagesOptions,
+      AwsServiceApiRequestPagesOptions | AwsCloudControlRequestPagesOptions,
   ): Promise<AwsResolvedAccountTarget[]> {
     return resolveAwsAccountTargetsHelper(
       this.createAccountResolutionDeps(integration),

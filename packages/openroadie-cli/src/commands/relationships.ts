@@ -1003,9 +1003,7 @@ async function resolveRuleIds(
 
 export interface RelationshipsTransitionResult {
   command:
-    | 'relationships approve'
-    | 'relationships reject'
-    | 'relationships reset';
+    'relationships approve' | 'relationships reject' | 'relationships reset';
   status: 'done' | 'partial' | 'failed' | 'noop';
   targetState: 'active' | 'inactive' | 'suggested';
   succeeded: string[];
@@ -1409,11 +1407,7 @@ export async function runRelationshipsReject(
 }
 
 export type MatchStrategy =
-  | 'exact'
-  | 'contains'
-  | 'array_contains'
-  | 'regex'
-  | 'person_name_alias';
+  'exact' | 'contains' | 'array_contains' | 'regex' | 'person_name_alias';
 
 /**
  * Direct FIELD-MATCHING rule authoring — the CLI twin of the MCP

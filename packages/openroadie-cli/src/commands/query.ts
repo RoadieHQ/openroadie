@@ -100,8 +100,7 @@ export async function runQueryWithSession(
     if (!related.isError) {
       relatedText = related.text;
       const structured = related.structured as
-        | { relatedObjects?: unknown[]; total?: number }
-        | undefined;
+        { relatedObjects?: unknown[]; total?: number } | undefined;
       relatedCount =
         typeof structured?.total === 'number'
           ? structured.total

@@ -50,10 +50,7 @@ export interface ConnectResult {
   connected: boolean;
   /** What the agent should relay/do next when not yet connected. */
   needs?:
-    | 'host'
-    | 'user-secret'
-    | 'github-app-install'
-    | 'integration-not-enabled';
+    'host' | 'user-secret' | 'github-app-install' | 'integration-not-enabled';
   /** GitHub-App install URL to open, when the loop needs the user. */
   installUrl?: string;
   /** The `secret set <id>` command, when a secret is missing. */

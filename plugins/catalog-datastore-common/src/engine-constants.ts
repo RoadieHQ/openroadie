@@ -38,11 +38,7 @@ export const ATTEMPT_STALE_AFTER_MS = 120_000;
 
 export const SCHEMA_SAMPLE_ITEMS = 100;
 export type AttemptState =
-  | 'active'
-  | 'superseded'
-  | 'completed'
-  | 'failed'
-  | 'cancelled';
+  'active' | 'superseded' | 'completed' | 'failed' | 'cancelled';
 
 export const ATTEMPT_STAGING_GRACE_MS = 60_000;
 

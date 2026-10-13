@@ -545,8 +545,7 @@ export async function resolveAwsAccountTargets(
   integration: Integration,
   integrationConfig: AwsIntegrationConfig,
   options:
-    | AwsServiceApiRequestPagesOptions
-    | AwsCloudControlRequestPagesOptions,
+    AwsServiceApiRequestPagesOptions | AwsCloudControlRequestPagesOptions,
 ): Promise<AwsResolvedAccountTarget[]> {
   const profiles = getProfilesMap(integrationConfig);
   const organizationsConfig = getOrganizationsConfig(integrationConfig);

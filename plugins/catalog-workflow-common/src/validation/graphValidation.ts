@@ -24,11 +24,7 @@ function isEntryNodeType(type: string): boolean {
 
 export interface ValidationError {
   type:
-    | 'cycle'
-    | 'orphan'
-    | 'missing-trigger'
-    | 'invalid-edge'
-    | 'disconnected';
+    'cycle' | 'orphan' | 'missing-trigger' | 'invalid-edge' | 'disconnected';
   message: string;
   nodeIds?: string[];
   edgeId?: string;

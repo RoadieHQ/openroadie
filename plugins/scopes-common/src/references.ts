@@ -30,10 +30,7 @@
  */
 
 export type CapabilityReferenceType =
-  | 'datasource'
-  | 'action'
-  | 'context-group'
-  | 'capability';
+  'datasource' | 'action' | 'context-group' | 'capability';
 
 /**
  * The slug body, unanchored, so it can be embedded in larger patterns.

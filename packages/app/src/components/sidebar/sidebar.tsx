@@ -311,13 +311,11 @@ export function Sidebar({
 
   const graphSubmenuItems = useMemo(
     () =>
-      savedGraphViews.map(
-        (view): NavSubItem => ({
-          label: view.name,
-          path: `${PATHS.DATASTORE_GRAPH}?${new URLSearchParams(view.params).toString()}`,
-          match: 'path',
-        }),
-      ),
+      savedGraphViews.map((view): NavSubItem => ({
+        label: view.name,
+        path: `${PATHS.DATASTORE_GRAPH}?${new URLSearchParams(view.params).toString()}`,
+        match: 'path',
+      })),
     [savedGraphViews],
   );
 

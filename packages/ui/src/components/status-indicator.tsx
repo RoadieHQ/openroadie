@@ -7,11 +7,7 @@ import { cn } from '../lib/utils';
  * primitive only knows how to colour it.
  */
 export type StatusIndicatorTone =
-  | 'neutral'
-  | 'info'
-  | 'success'
-  | 'destructive'
-  | 'warning';
+  'neutral' | 'info' | 'success' | 'destructive' | 'warning';
 
 function toneDotClass(tone: StatusIndicatorTone): string {
   switch (tone) {

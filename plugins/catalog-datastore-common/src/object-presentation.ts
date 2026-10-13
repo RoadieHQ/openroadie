@@ -1,8 +1,5 @@
 export type ObjectPresentationPurpose =
-  | 'column'
-  | 'title'
-  | 'subtitle'
-  | 'image';
+  'column' | 'title' | 'subtitle' | 'image';
 
 export interface ObjectPresentation {
   title: string;

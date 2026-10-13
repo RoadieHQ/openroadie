@@ -209,11 +209,9 @@ export function createIntegrationSchemasRouter(
           specUrl: body.specUrl,
           description: body.description,
           paginationHint: body.paginationHint as
-            | CreateIntegrationSchemaInput['paginationHint']
-            | undefined,
+            CreateIntegrationSchemaInput['paginationHint'] | undefined,
           paginationDefault: body.paginationDefault as
-            | CreateIntegrationSchemaInput['paginationDefault']
-            | undefined,
+            CreateIntegrationSchemaInput['paginationDefault'] | undefined,
         },
         resolveWorkspaceId(req),
       );
@@ -244,11 +242,9 @@ export function createIntegrationSchemasRouter(
           ...result.data,
           jsonSchema: result.data.jsonSchema as JsonValue | undefined,
           paginationHint: result.data.paginationHint as
-            | UpdateIntegrationSchemaInput['paginationHint']
-            | undefined,
+            UpdateIntegrationSchemaInput['paginationHint'] | undefined,
           paginationDefault: result.data.paginationDefault as
-            | UpdateIntegrationSchemaInput['paginationDefault']
-            | undefined,
+            UpdateIntegrationSchemaInput['paginationDefault'] | undefined,
         },
         resolveWorkspaceId(req),
       );

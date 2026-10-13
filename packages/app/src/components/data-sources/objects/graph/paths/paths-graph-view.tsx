@@ -172,30 +172,26 @@ export function PathsGraphView({
     if (!collapseGroups) {
       return {
         nodes: visible.nodes.map(objectNode),
-        edges: visible.relationships.map(
-          (edge): PathsGraphEdgeInput => ({
-            id: edge.id,
-            sourceKey: objectGraphNodeId(
-              edge.sourceDatasourceId,
-              edge.sourceObjectId,
-            ),
-            targetKey: objectGraphNodeId(
-              edge.destinationDatasourceId,
-              edge.destinationObjectId,
-            ),
-            relationshipType: edge.relationshipType,
-            direct: edge.ruleId === null || edge.ruleId === undefined,
-            ruleId: edge.ruleId ?? null,
-          }),
-        ),
-        paths: visible.paths.map(
-          (path): PathsGraphPathInput => ({
-            nodeKeys: path.nodes.map(ref => [
-              objectGraphNodeId(ref.datasourceId, ref.objectId),
-            ]),
-            edgeIds: path.relationshipIds,
-          }),
-        ),
+        edges: visible.relationships.map((edge): PathsGraphEdgeInput => ({
+          id: edge.id,
+          sourceKey: objectGraphNodeId(
+            edge.sourceDatasourceId,
+            edge.sourceObjectId,
+          ),
+          targetKey: objectGraphNodeId(
+            edge.destinationDatasourceId,
+            edge.destinationObjectId,
+          ),
+          relationshipType: edge.relationshipType,
+          direct: edge.ruleId === null || edge.ruleId === undefined,
+          ruleId: edge.ruleId ?? null,
+        })),
+        paths: visible.paths.map((path): PathsGraphPathInput => ({
+          nodeKeys: path.nodes.map(ref => [
+            objectGraphNodeId(ref.datasourceId, ref.objectId),
+          ]),
+          edgeIds: path.relationshipIds,
+        })),
         groupKeysByMemberKey: null,
       };
     }
@@ -206,35 +202,31 @@ export function PathsGraphView({
     });
     const nodes: PathsGraphNodeInput[] = [
       ...collapsed.objectNodes.map(objectNode),
-      ...collapsed.groupNodes.map(
-        (group): PathsGraphNodeInput => ({
-          key: group.key,
-          datasourceId: '',
-          objectId: '',
-          label: group.title,
-          group: {
-            groupId: group.groupId,
-            ruleId: group.ruleId,
-            ruleName: group.ruleName,
-            title: group.title,
-            memberCount: group.members.length,
-          },
-        }),
-      ),
+      ...collapsed.groupNodes.map((group): PathsGraphNodeInput => ({
+        key: group.key,
+        datasourceId: '',
+        objectId: '',
+        label: group.title,
+        group: {
+          groupId: group.groupId,
+          ruleId: group.ruleId,
+          ruleName: group.ruleName,
+          title: group.title,
+          memberCount: group.members.length,
+        },
+      })),
     ];
     return {
       nodes,
-      edges: collapsed.edges.map(
-        (edge): PathsGraphEdgeInput => ({
-          id: edge.id,
-          sourceKey: edge.sourceKey,
-          targetKey: edge.targetKey,
-          relationshipType: edge.relationshipType,
-          direct: edge.direct,
-          ruleId: edge.ruleId,
-          underlying: edge.underlying,
-        }),
-      ),
+      edges: collapsed.edges.map((edge): PathsGraphEdgeInput => ({
+        id: edge.id,
+        sourceKey: edge.sourceKey,
+        targetKey: edge.targetKey,
+        relationshipType: edge.relationshipType,
+        direct: edge.direct,
+        ruleId: edge.ruleId,
+        underlying: edge.underlying,
+      })),
       paths: visible.paths.map((path): PathsGraphPathInput => {
         return {
           nodeKeys: path.nodes.map(ref => {

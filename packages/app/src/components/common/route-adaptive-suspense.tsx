@@ -45,8 +45,7 @@ function DelayedFallback({ children }: { children: ReactNode }) {
  * so the skeleton's columns line up with the real table.
  */
 type ColumnWidthsResolver =
-  | string[]
-  | ((searchParams: URLSearchParams) => string[]);
+  string[] | ((searchParams: URLSearchParams) => string[]);
 
 interface OverviewTableRouteConfig {
   columnWidths: ColumnWidthsResolver;

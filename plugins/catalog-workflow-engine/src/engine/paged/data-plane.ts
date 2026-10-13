@@ -113,12 +113,10 @@ export class StagingDataPlane implements PagedDataPlane {
 
   async *readPages(nodeId: string): AsyncIterable<PagedItems> {
     for await (const page of this.stagingDao.readPages(this.range(nodeId))) {
-      yield page.rows.map(
-        (row): PagedItem => ({
-          object: JSON.parse(row.object) as JsonValue,
-          orderKey: row.order_key.map(Number),
-        }),
-      );
+      yield page.rows.map((row): PagedItem => ({
+        object: JSON.parse(row.object) as JsonValue,
+        orderKey: row.order_key.map(Number),
+      }));
     }
   }
 

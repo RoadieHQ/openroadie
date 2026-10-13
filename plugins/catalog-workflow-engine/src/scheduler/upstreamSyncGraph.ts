@@ -54,8 +54,7 @@ export async function listAllWorkflows(
 export const MAX_UPSTREAM_SYNC_CHAIN_DEPTH = 10;
 
 export type UpstreamSyncWalkResult =
-  | { ok: true }
-  | { ok: false; reason: 'cycle' | 'depth' };
+  { ok: true } | { ok: false; reason: 'cycle' | 'depth' };
 
 function upstreamIdsOf(nodes: WorkflowNode[]): string[] {
   return nodes
