@@ -22,7 +22,7 @@ vi.mock('@ai-sdk/mcp', () => ({
 
 vi.mock('ai', () => ({
   generateText: mocks.generateText,
-  stepCountIs: vi.fn(value => ({ value })),
+  isStepCount: vi.fn(value => ({ value })),
 }));
 
 import { BedrockRunner } from './bedrock-runner';
@@ -57,8 +57,8 @@ describe('BedrockRunner', () => {
           toolCalls: [],
         },
       ],
-      response: { messages: [{ role: 'assistant', content: [] }] },
-      totalUsage: { inputTokens: 1_000, outputTokens: 500, totalTokens: 1_500 },
+      responseMessages: [{ role: 'assistant', content: [] }],
+      usage: { inputTokens: 1_000, outputTokens: 500, totalTokens: 1_500 },
       text: 'Brian Fletcher',
       finishReason: 'stop',
     });
@@ -103,8 +103,8 @@ describe('BedrockRunner', () => {
     mocks.generateText.mockResolvedValueOnce({
       ...mocks.generateText.mock.results[0]?.value,
       steps: [],
-      response: { messages: [] },
-      totalUsage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
+      responseMessages: [],
+      usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
       text: '',
       finishReason: 'tool-calls',
     });

@@ -61,7 +61,10 @@ export class RoadieMCPClientBuilder implements ToolsetBuilder {
     for (const [toolName, tool] of Object.entries(mcpTools)) {
       wrappedTools[toolName] = {
         ...tool,
-        execute: async (input: unknown, options: ToolExecutionOptions) => {
+        execute: async (
+          input: unknown,
+          options: ToolExecutionOptions<unknown>,
+        ) => {
           const result = await tool.execute(input, options);
 
           if (

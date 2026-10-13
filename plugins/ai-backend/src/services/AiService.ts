@@ -51,7 +51,7 @@ import { LoggerService } from '@roadiehq/extensions-api';
 import { ModelRegistry } from './registries/ModelRegistry';
 import {
   ToolLoopAgent as Agent,
-  stepCountIs,
+  isStepCount,
   convertToModelMessages as AIconvertToModelMessages,
   validateUIMessages as AIvalidateUIMessages,
   generateText,
@@ -193,10 +193,9 @@ export class DefaultAiService implements AiService {
         const agent = new Agent({
           model,
           instructions: options.system || agentConfig.system,
-          tools,
+          tools: this.withRuntimeContext(tools, options.runtimeContext),
           toolChoice: agentConfig.toolChoice,
-          stopWhen: stepCountIs(maxSteps),
-          experimental_context: options.runtimeContext,
+          stopWhen: isStepCount(maxSteps),
           providerOptions: this.getProviderOptions(),
           prepareStep: ({ stepNumber }) =>
             this.prepareAgentStep(
@@ -206,7 +205,7 @@ export class DefaultAiService implements AiService {
               agentConfig.allowToolsOnLastStep,
               tools,
             ),
-          onStepFinish: ({
+          onStepEnd: ({
             text,
             toolCalls,
             toolResults,
@@ -567,10 +566,9 @@ Input query: "${queryText}"`,
     const agent = new Agent({
       model,
       instructions: agentOpts.system || agentConfig.system,
-      tools,
+      tools: this.withRuntimeContext(tools, agentOpts.runtimeContext),
       toolChoice: agentConfig.toolChoice,
-      stopWhen: stepCountIs(maxSteps),
-      experimental_context: agentOpts.runtimeContext,
+      stopWhen: isStepCount(maxSteps),
       providerOptions: this.getProviderOptions(),
       prepareStep: ({ stepNumber }) =>
         this.prepareAgentStep(
@@ -580,7 +578,7 @@ Input query: "${queryText}"`,
           agentConfig.allowToolsOnLastStep,
           tools,
         ),
-      onStepFinish: ({
+      onStepEnd: ({
         text,
         toolCalls,
         toolResults,
@@ -627,7 +625,7 @@ Input query: "${queryText}"`,
 
     if (isLastStep && !allowToolsOnLastStep) {
       return {
-        system: `${systemPrompt}
+        instructions: `${systemPrompt}
 
 IMPORTANT: This is your final reasoning step (${maxSteps}/${maxSteps}). You have reached the maximum number of steps allowed. Instead of continuing, you must now provide a direct response to the user explaining that:
 
@@ -648,6 +646,37 @@ Do NOT call any tools in this step. Generate a helpful, natural response directl
     }
 
     return {};
+  }
+
+  /**
+   * Hands every tool the call's runtime context as `options.context` — what
+   * the agent-level `experimental_context` provided before AI SDK 7. The SDK's
+   * replacement, per-tool `toolsContext`, is typed off each tool's
+   * `contextSchema`, and these tools are untyped, so inject it here instead.
+   */
+  private withRuntimeContext(
+    tools: Record<string, Tool>,
+    runtimeContext: Record<string, unknown>,
+  ): Record<string, Tool> {
+    return Object.fromEntries(
+      Object.entries(tools).map(([name, tool]) => {
+        const execute = tool.execute;
+        if (!execute) {
+          return [name, tool];
+        }
+        return [
+          name,
+          {
+            ...tool,
+            execute: (input, options) =>
+              execute.call(tool, input, {
+                ...options,
+                context: runtimeContext,
+              }),
+          } as Tool,
+        ];
+      }),
+    );
   }
 
   private withSystemInstructions({

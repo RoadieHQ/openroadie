@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import { generateText, streamText, pipeUIMessageStreamToResponse } from 'ai';
+import {
+  generateText,
+  streamText,
+  pipeTextStreamToResponse,
+  pipeUIMessageStreamToResponse,
+  toUIMessageStream,
+} from 'ai';
 import { LoggerService } from '@roadiehq/extensions-api';
 import {
   AiResponse,
@@ -40,7 +46,7 @@ export class InferenceModelService implements ModelService {
       prompt: query,
     });
 
-    stream.pipeTextStreamToResponse(response);
+    pipeTextStreamToResponse({ response, stream: stream.textStream });
   }
 
   async streamUI({ model, query, response }: ModelCallOptions) {
@@ -51,7 +57,7 @@ export class InferenceModelService implements ModelService {
       prompt: query,
     });
 
-    const uiStream = stream.toUIMessageStream();
+    const uiStream = toUIMessageStream({ stream: stream.stream });
 
     pipeUIMessageStreamToResponse({
       response,

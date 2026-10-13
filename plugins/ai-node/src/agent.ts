@@ -26,17 +26,21 @@ import {
   type LanguageModel,
   type LanguageModelUsage,
 } from 'ai';
-import type { LanguageModelV2, LanguageModelV3 } from '@ai-sdk/provider';
+import type {
+  LanguageModelV2,
+  LanguageModelV3,
+  LanguageModelV4,
+} from '@ai-sdk/provider';
 import { AgenticModelRef } from './models';
 
-export type AIAgent = Agent<never, ToolSet, never>;
+export type AIAgent = Agent<never, ToolSet>;
 
 export { ToolLoopAgent };
 export type LLMModel = LanguageModel;
 
 function isLanguageModelObject(
   model: LanguageModel,
-): model is LanguageModelV2 | LanguageModelV3 {
+): model is LanguageModelV2 | LanguageModelV3 | LanguageModelV4 {
   return typeof model === 'object' && model !== null && 'modelId' in model;
 }
 
@@ -76,9 +80,12 @@ export type AgentToolResult = TypedToolResult<Record<string, Tool>>;
 
 export type AgentMessage = ModelMessage;
 
-import type { ReasoningPart as AIReasoningPart } from '@ai-sdk/provider-utils';
+import type {
+  ReasoningPart as AIReasoningPart,
+  ReasoningFilePart as AIReasoningFilePart,
+} from '@ai-sdk/provider-utils';
 
-export type ReasoningPart = AIReasoningPart;
+export type ReasoningPart = AIReasoningPart | AIReasoningFilePart;
 
 export interface AgentTraceHandle {
   span(data: { name: string; input?: unknown; output?: unknown }): void;

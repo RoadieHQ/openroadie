@@ -1,6 +1,6 @@
 import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock';
 import { createMCPClient, type MCPClient } from '@ai-sdk/mcp';
-import { generateText, stepCountIs, type ModelMessage, type ToolSet } from 'ai';
+import { generateText, isStepCount, type ModelMessage, type ToolSet } from 'ai';
 import type { Step } from './eval';
 
 export interface BedrockModelConfig {
@@ -112,11 +112,11 @@ export class BedrockRunner {
       model: this.model,
       tools: this.tools,
       messages: [...this.messages, { role: 'user', content: prompt }],
-      stopWhen: stepCountIs(12),
+      stopWhen: isStepCount(12),
     });
     this.messages.push(
       { role: 'user', content: prompt },
-      ...result.response.messages,
+      ...result.responseMessages,
     );
     const calls = result.steps.flatMap(step =>
       step.toolCalls.map(call => ({
@@ -141,14 +141,14 @@ export class BedrockRunner {
       }
       return items;
     });
-    const inputTokens = result.totalUsage.inputTokens ?? 0;
-    const outputTokens = result.totalUsage.outputTokens ?? 0;
+    const inputTokens = result.usage.inputTokens ?? 0;
+    const outputTokens = result.usage.outputTokens ?? 0;
     return {
       tools: calls.map(call => call.name),
       calls,
       steps,
       answer: result.text,
-      tokens: result.totalUsage.totalTokens ?? inputTokens + outputTokens,
+      tokens: result.usage.totalTokens ?? inputTokens + outputTokens,
       costUsd: calculateBedrockCost(this.modelId, inputTokens, outputTokens),
       completed: result.finishReason === 'stop',
     };
