@@ -6170,7 +6170,6 @@ __metadata:
   resolution: "@roadiehq/prometheus-metrics@workspace:plugins/prometheus-metrics"
   dependencies:
     "@roadiehq/backend-common": "workspace:^"
-    "@testing-library/jest-dom": "npm:^7.0.1"
     "@types/express": "npm:^4.17.6"
     "@types/express-prometheus-middleware": "npm:^1.2.1"
     express: "npm:^4.18.2"
@@ -6307,6 +6306,7 @@ __metadata:
     "@codemirror/view": "npm:^6.43.13"
     "@lezer/highlight": "npm:^1.2.5"
     "@storybook/react": "npm:^10.6.1"
+    "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^7.0.1"
     "@testing-library/react": "npm:^16.3.3"
     "@testing-library/user-event": "npm:^14.6.7"
@@ -9766,6 +9766,7 @@ __metadata:
     "@tailwindcss/vite": "npm:^4.3.3"
     "@tanstack/react-query": "npm:^5.104.1"
     "@tanstack/react-table": "npm:^8.21.3"
+    "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^7.0.1"
     "@testing-library/react": "npm:^16.3.3"
     "@testing-library/user-event": "npm:^14.6.7"

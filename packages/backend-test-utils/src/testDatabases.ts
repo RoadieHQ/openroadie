@@ -22,6 +22,10 @@ import {
 import { v4 as uuid } from 'uuid';
 import type { TestDatabaseId } from './types';
 
+// The test runner's global hook, when the runner exposes one (vitest with
+// `globals: true`, jest). Checked at runtime so this works outside a runner.
+declare const afterAll: ((fn: () => Promise<void>) => void) | undefined;
+
 async function createPostgresContainer(
   postgresVersion: string,
 ): Promise<StartedPostgreSqlContainer> {

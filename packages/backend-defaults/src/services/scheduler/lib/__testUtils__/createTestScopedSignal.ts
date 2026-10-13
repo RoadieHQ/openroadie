@@ -18,6 +18,8 @@
  * packages/backend-defaults/src/entrypoints/scheduler/lib/__testUtils__/createTestScopedSignal.ts at v1.47.1, and modified.
  */
 
+import { afterEach, beforeEach } from 'vitest';
+
 export function createTestScopedSignal(): () => AbortSignal {
   let testAbortController = new AbortController();
 
