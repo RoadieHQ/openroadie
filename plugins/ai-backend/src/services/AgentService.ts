@@ -28,7 +28,9 @@ import {
 import {
   createIdGenerator,
   createUIMessageStream,
+  pipeTextStreamToResponse,
   pipeUIMessageStreamToResponse,
+  toUIMessageStream,
 } from 'ai';
 
 export class DefaultAgentService implements AgentService {
@@ -52,7 +54,7 @@ export class DefaultAgentService implements AgentService {
       prompt: query as string,
     });
 
-    streamResult.pipeTextStreamToResponse(response);
+    pipeTextStreamToResponse({ response, stream: streamResult.textStream });
   }
 
   async streamUI({
@@ -74,7 +76,9 @@ export class DefaultAgentService implements AgentService {
         });
 
         writer.merge(
-          streamResult.toUIMessageStream({
+          toUIMessageStream({
+            stream: streamResult.stream,
+            tools: agent.tools,
             sendReasoning: this.reasoningEnabled,
             sendStart: false,
             sendFinish: false,
@@ -83,7 +87,7 @@ export class DefaultAgentService implements AgentService {
       },
       originalMessages: (originalMessages || query) as AgentUIMessage[],
       generateId: createIdGenerator({ prefix: 'msg', size: 16 }),
-      onFinish: onFinish
+      onEnd: onFinish
         ? async ({ messages }: { messages: AgentUIMessage[] }) => {
             await onFinish({ messages });
           }

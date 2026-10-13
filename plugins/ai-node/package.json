@@ -27,10 +27,10 @@
     "vitest": "^5.0.3"
   },
   "dependencies": {
-    "@ai-sdk/mcp": "^1.0.0",
-    "@ai-sdk/provider": "^3.0.0",
+    "@ai-sdk/mcp": "^2.0.74",
+    "@ai-sdk/provider": "^4.0.26",
     "@roadiehq/extensions-api": "workspace:^",
-    "ai": "^7.0.137",
+    "ai": "^7.0.138",
     "express": "^4.17.1",
     "zod": "^4.0.0"
   },
