@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "@aws-crypto/sha256-js": "^5.2.0",
-    "@aws-sdk/client-cloudcontrol": "^3.1149.0",
-    "@aws-sdk/credential-providers": "^3.1149.0",
+    "@aws-sdk/client-cloudcontrol": "^3.1152.0",
+    "@aws-sdk/credential-providers": "^3.1152.0",
     "@roadiehq/errors": "workspace:^",
     "@roadiehq/extensions-api": "workspace:^",
     "@roadiehq/jsonata-safe": "workspace:^",
