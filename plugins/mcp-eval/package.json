@@ -10,10 +10,10 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
-    "@ai-sdk/amazon-bedrock": "^5.0.114",
-    "@ai-sdk/mcp": "^2.0.74",
+    "@ai-sdk/amazon-bedrock": "^5.0.118",
+    "@ai-sdk/mcp": "^2.0.78",
     "@modelcontextprotocol/sdk": "^1.32.0",
-    "ai": "^7.0.138",
+    "ai": "^7.0.143",
     "zod": "^4.1.8"
   },
   "devDependencies": {
