@@ -5483,7 +5483,7 @@ __metadata:
     knex: "npm:^3.1.0"
     uuid: "npm:^14.0.3"
     vitest: "npm:^5.0.5"
-    zod: "npm:^4.0.0"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -5517,7 +5517,7 @@ __metadata:
     lodash: "npm:^4.17.21"
     uuid: "npm:^14.0.3"
     vitest: "npm:^5.0.5"
-    zod: "npm:^4.0.0"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -5532,7 +5532,7 @@ __metadata:
     ai: "npm:^7.0.143"
     express: "npm:^4.17.1"
     vitest: "npm:^5.0.5"
-    zod: "npm:^4.0.0"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -5623,7 +5623,7 @@ __metadata:
     vitest: "npm:^5.0.5"
     wait-for-expect: "npm:^3.0.2"
     winston: "npm:^3.14.1"
-    zod: "npm:^3.23.8"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -5951,7 +5951,7 @@ __metadata:
     undici: "npm:^7.29.0"
     uuid: "npm:^14.0.3"
     vitest: "npm:^5.0.5"
-    zod: "npm:^4.0.0"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -5979,7 +5979,7 @@ __metadata:
     unpdf: "npm:^1.9.1"
     uuid: "npm:^14.0.3"
     vitest: "npm:^5.0.5"
-    zod: "npm:^4.3.6"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -6012,7 +6012,7 @@ __metadata:
     "@roadiehq/roadie-mcp-server": "workspace:^"
     "@roadiehq/scopes": "workspace:^"
     vitest: "npm:^5.0.5"
-    zod: "npm:^4.0.0"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -6029,7 +6029,7 @@ __metadata:
     "@roadiehq/scopes": "workspace:^"
     "@roadiehq/scopes-common": "workspace:^"
     vitest: "npm:^5.0.5"
-    zod: "npm:^4.0.0"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -6045,7 +6045,7 @@ __metadata:
     prettier: "npm:^3"
     tsx: "npm:^4.23.15"
     vitest: "npm:^5.0.5"
-    zod: "npm:^4.1.8"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -6087,7 +6087,7 @@ __metadata:
     commander: "npm:^13.0.0"
     ora: "npm:^9.4.1"
     yaml: "npm:^2.9.0"
-    zod: "npm:^4.4.3"
+    zod: "npm:^4.6.7"
   bin:
     openroadie: bin/openroadie.js
   languageName: unknown
@@ -6186,7 +6186,7 @@ __metadata:
     supertest: "npm:^7.3.1"
     uuid: "npm:^14.0.3"
     vitest: "npm:^5.0.5"
-    zod: "npm:^4.0.0"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -9778,7 +9778,7 @@ __metadata:
     vite-plugin-node-polyfills: "npm:^0.28.0"
     vite-plugin-pwa: "npm:^2.0.0"
     vitest: "npm:^5.0.5"
-    zod: "npm:^4.0.0"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -12683,7 +12683,7 @@ __metadata:
     "@roadiehq/scopes": "workspace:*"
     "@types/js-yaml": "npm:^4.0.9"
     js-yaml: "npm:^4.3.2"
-    zod: "npm:^4.0.0"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -18452,7 +18452,7 @@ __metadata:
     typescript: "npm:^5.8.3"
     typescript-eslint: "npm:^8.71.1"
     vitest: "npm:^5.0.5"
-    zod: "npm:^4.0.0"
+    zod: "npm:^4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -24614,17 +24614,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^3.23.8":
-  version: 3.25.76
-  resolution: "zod@npm:3.25.76"
-  checksum: 10/f0c963ec40cd96858451d1690404d603d36507c1fc9682f2dae59ab38b578687d542708a7fdbf645f77926f78c9ed558f57c3d3aa226c285f798df0c4da16995
-  languageName: node
-  linkType: hard
-
-"zod@npm:^3.25 || ^4.0, zod@npm:^3.25.0 || ^4.0.0, zod@npm:^4.0.0, zod@npm:^4.1.8, zod@npm:^4.3.6, zod@npm:^4.4.3":
+"zod@npm:^3.25 || ^4.0, zod@npm:^3.25.0 || ^4.0.0":
   version: 4.4.3
   resolution: "zod@npm:4.4.3"
   checksum: 10/804b9a42aa8f35f2b3c5a8dff906291cb749115f83ee2afe3576d70b5b5c53c965365c7f4967690647a9c54af9838ff232a85ff9577a0a36c44b68bc6cdefe36
+  languageName: node
+  linkType: hard
+
+"zod@npm:^4.6.7":
+  version: 4.6.7
+  resolution: "zod@npm:4.6.7"
+  checksum: 10/3ca8b8d6bb401538e59504c543db629ea7beaa775e504c3f22269b406fdffbf1431c856d59a597bf66d8487e4d2be12b03a55d76fc2c63d9f046eae1ca173bca
   languageName: node
   linkType: hard
 
