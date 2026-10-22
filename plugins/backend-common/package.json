@@ -28,7 +28,7 @@
     "@aws-sdk/credential-providers": "^3.1152.0",
     "@aws-sdk/util-arn-parser": "^3.972.43",
     "@manypkg/get-packages": "^2.2.2",
-    "@octokit/rest": "^20.0.2",
+    "@octokit/rest": "^22.0.1",
     "@roadiehq/backend-defaults": "workspace:^",
     "@roadiehq/config": "workspace:^",
     "@roadiehq/config-loader": "workspace:^",
@@ -55,7 +55,7 @@
     "winston-transport": "^4.9.0"
   },
   "devDependencies": {
-    "@octokit/rest": "^20.0.2",
+    "@octokit/rest": "^22.0.1",
     "@types/cors": "^2",
     "@types/fs-extra": "^9.0.1",
     "@types/minimist": "^1",
