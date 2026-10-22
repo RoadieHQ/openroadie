@@ -18,6 +18,26 @@ updates:
     groups:
       # Without grouping, a repo this size produces dozens of PRs a week and
       # nobody reads any of them.
+      #
+      # Dependabot assigns a dependency to the FIRST group it matches, so this
+      # catch-all must stay at the top: every minor/patch bump lands in one PR,
+      # and the named groups below only ever see majors (which stay grouped by
+      # family, since e.g. storybook packages have to move in lockstep).
+      minor-and-patch:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+      # Security updates ignore version-update groups unless told otherwise,
+      # which is how a lone hono patch got its own PR.
+      security-minor-and-patch:
+        applies-to: security-updates
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
       react:
         patterns:
           - 'react'
@@ -53,13 +73,6 @@ updates:
       opentelemetry:
         patterns:
           - '@opentelemetry/*'
-      minor-and-patch:
-        # Everything else, but only the quiet updates — a major stays its own PR.
-        patterns:
-          - '*'
-        update-types:
-          - minor
-          - patch
     ignore:
       # Pinned by `resolutions` in the root package.json. Bumping them here
       # produces a PR that does not change what actually gets installed.
