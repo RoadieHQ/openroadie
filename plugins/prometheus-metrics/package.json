@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@types/express-prometheus-middleware": "^1.2.1",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.5"
   },
   "files": [
     "dist"
