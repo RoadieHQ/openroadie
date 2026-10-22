@@ -30,7 +30,7 @@
     "@roadiehq/roadie-mcp-server": "workspace:^",
     "@roadiehq/scopes": "workspace:^",
     "@roadiehq/scopes-common": "workspace:^",
-    "zod": "^4.0.0"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@roadiehq/backend-test-utils": "workspace:^",
