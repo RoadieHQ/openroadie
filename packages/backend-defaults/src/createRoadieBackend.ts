@@ -129,7 +129,7 @@ export const createRoadieBackend = (
         );
 
         app.use('/api', [
-          roadieMiddleware.cors(),
+          frameworkMiddlewares.cors(),
           roadieMiddleware.serverBackend(),
           roadieMiddleware.trace(),
         ]);
