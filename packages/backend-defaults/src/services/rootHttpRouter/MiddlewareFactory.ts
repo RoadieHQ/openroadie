@@ -137,30 +137,30 @@ export class MiddlewareFactory {
 
   /**
    * Returns CORS middleware.
+   *
+   * Only `app.baseUrl` and the origins listed in `backend.cors.origin` are
+   * allowed. Never falls back to a wildcard or to reflecting the request
+   * origin, since credentials are allowed.
    */
   cors(): RequestHandler {
-    const backendConfig = this.#config.getOptionalConfig('backend');
-    const corsConfig = backendConfig?.getOptionalConfig('cors');
+    const corsConfig = this.#config.getOptionalConfig('backend.cors');
     const appBaseUrl = this.#config.getOptionalString('app.baseUrl');
-
-    if (!corsConfig) {
-      return cors();
-    }
-
-    const configuredOrigins = corsConfig.getOptionalStringArray('origin');
-    const origin = configuredOrigins
-      ? Array.from(
-          new Set([...(appBaseUrl ? [appBaseUrl] : []), ...configuredOrigins]),
-        )
-      : true;
+    const configuredOrigins =
+      this.#config.getOptionalStringArray('backend.cors.origin') ??
+      [this.#config.getOptionalString('backend.cors.origin')].filter(
+        (o): o is string => Boolean(o),
+      );
+    const origin = Array.from(
+      new Set([...(appBaseUrl ? [appBaseUrl] : []), ...configuredOrigins]),
+    );
 
     return cors({
       origin,
-      methods: corsConfig.getOptionalStringArray('methods'),
-      allowedHeaders: corsConfig.getOptionalStringArray('allowedHeaders'),
-      exposedHeaders: corsConfig.getOptionalStringArray('exposedHeaders'),
-      credentials: corsConfig.getOptionalBoolean('credentials'),
-      maxAge: corsConfig.getOptionalNumber('maxAge'),
+      methods: corsConfig?.getOptionalStringArray('methods'),
+      allowedHeaders: corsConfig?.getOptionalStringArray('allowedHeaders'),
+      exposedHeaders: corsConfig?.getOptionalStringArray('exposedHeaders'),
+      credentials: corsConfig?.getOptionalBoolean('credentials') ?? true,
+      maxAge: corsConfig?.getOptionalNumber('maxAge'),
     });
   }
 

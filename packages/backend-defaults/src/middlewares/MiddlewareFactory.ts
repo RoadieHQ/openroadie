@@ -93,33 +93,6 @@ export class MiddlewareFactory {
       next();
     };
   }
-  cors(): RequestHandler {
-    const configured =
-      this.#config.getOptionalStringArray('backend.cors.origin') ??
-      [this.#config.getOptionalString('backend.cors.origin')].filter(Boolean);
-    const appBaseUrl = this.#config.getOptionalString('app.baseUrl');
-    const origins = Array.from(
-      new Set([...(appBaseUrl ? [appBaseUrl] : []), ...configured]),
-    );
-
-    return (req: Request, res: Response, next: NextFunction) => {
-      const origin = req.headers.origin;
-      if (origin && origins.includes(origin)) {
-        res.header('Access-Control-Allow-Origin', origin);
-        res.header(
-          'Access-Control-Allow-Methods',
-          'GET, POST, DELETE, PUT, PATCH, OPTIONS',
-        );
-        res.header(
-          'Access-Control-Allow-Headers',
-          'Origin, X-Requested-With, Content-Type, Accept, api_key, Authorization',
-        );
-        res.header('Access-Control-Allow-Credentials', 'true');
-      }
-
-      next();
-    };
-  }
   metrics(): RequestHandler {
     return metricsHandler();
   }
