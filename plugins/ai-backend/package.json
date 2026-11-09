@@ -27,15 +27,15 @@
     "postpack": "roadie-cli package postpack"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.82",
-    "@ai-sdk/mcp": "^2.0.78",
-    "@ai-sdk/openai": "^4.0.96",
-    "@modelcontextprotocol/sdk": "^1.32.0",
+    "@ai-sdk/anthropic": "^4.0.97",
+    "@ai-sdk/mcp": "^2.0.91",
+    "@ai-sdk/openai": "^4.0.109",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@roadiehq/ai-node": "workspace:^",
     "@roadiehq/config": "workspace:^",
     "@roadiehq/extensions-api": "workspace:^",
     "@roadiehq/scopes": "workspace:^",
-    "ai": "^7.0.143",
+    "ai": "^7.0.163",
     "express": "^4.17.1",
     "express-promise-router": "^4.1.0",
     "lodash": "^4.17.21",
@@ -45,7 +45,7 @@
   "devDependencies": {
     "@types/compression": "^1.7.5",
     "@types/express": "*",
-    "@types/lodash": "^4.17.26",
+    "@types/lodash": "^4.17.27",
     "vitest": "^5.0.5"
   },
   "files": [
